@@ -1,0 +1,44 @@
+import Link from "next/link";
+import { ArrowRight, Check, Footprints } from "lucide-react";
+import { formatDayAndDate } from "@/lib/format";
+import type { WorkoutLog } from "@/types/training";
+
+export function RecentWorkouts({ workouts }: { workouts: WorkoutLog[] }) {
+  return (
+    <section className="area-recent card-enter app-card p-5 sm:p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <span className="eyebrow">Entrenamientos recientes</span>
+          <p className="mt-2 text-xs font-medium text-muted">Tus últimas sesiones registradas</p>
+        </div>
+        <Link href="/workouts" className="flex items-center gap-1 text-xs font-bold text-accent">
+          Ver todos <ArrowRight size={14} />
+        </Link>
+      </div>
+      <div className="mt-5 divide-y divide-line/80">
+        {workouts.map((workout) => (
+          <article key={workout.id} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-surface-subtle text-muted">
+              <Footprints size={18} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-bold">{workout.title}</p>
+              <p className="mt-0.5 text-[11px] font-medium text-muted first-letter:uppercase">
+                {formatDayAndDate(workout.date)}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm font-bold">{workout.distanceKm} km</p>
+              <p className="mt-0.5 text-[11px] font-medium text-muted">
+                {workout.averagePace.replace(" ", "")} · RPE {workout.rpe}
+              </p>
+            </div>
+            <span className="hidden size-5 place-items-center rounded-full bg-success-soft text-success sm:grid">
+              <Check size={12} strokeWidth={3} />
+            </span>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}

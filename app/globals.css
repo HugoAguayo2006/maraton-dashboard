@@ -1,26 +1,144 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #f5f5f7;
+  --surface: #ffffff;
+  --surface-subtle: #f9f9fb;
+  --ink: #111114;
+  --muted: #6e6e73;
+  --line: #e6e6eb;
+  --accent: #2478ee;
+  --accent-dark: #155fc7;
+  --accent-soft: #eaf3ff;
+  --success: #2d9d62;
+  --success-soft: #eaf8f0;
+  --warning: #d98019;
+  --warning-soft: #fff4e7;
+  --danger: #d84b4b;
+  --danger-soft: #ffeded;
+  --shadow-card: 0 1px 2px rgb(17 17 20 / 0.03), 0 12px 40px rgb(17 17 20 / 0.055);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+* { box-sizing: border-box; }
+
+html { background: var(--canvas); }
+
+body {
+  min-height: 100vh;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+button, a, input, textarea, select, summary { -webkit-tap-highlight-color: transparent; }
+button, a, input, textarea, select { outline: none; }
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
+
+::selection { background: rgb(36 120 238 / 0.18); }
+
+.app-card {
+  border: 1px solid rgb(230 230 235 / 0.92);
+  border-radius: 26px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.eyebrow {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.pressable {
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.pressable:active { transform: scale(0.985); }
+
+.card-enter { animation: card-enter 480ms cubic-bezier(0.2, 0.75, 0.25, 1) both; }
+.card-enter:nth-child(2) { animation-delay: 45ms; }
+.card-enter:nth-child(3) { animation-delay: 90ms; }
+
+.dashboard-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-areas: "today" "weekly" "tomorrow" "longrun" "countdown" "recovery" "chart" "recent" "actions";
+}
+
+.area-today { grid-area: today; }
+.area-weekly { grid-area: weekly; }
+.area-tomorrow { grid-area: tomorrow; }
+.area-longrun { grid-area: longrun; }
+.area-countdown { grid-area: countdown; }
+.area-recovery { grid-area: recovery; }
+.area-chart { grid-area: chart; }
+.area-recent { grid-area: recent; }
+.area-actions { grid-area: actions; }
+
+input[type="range"] { accent-color: var(--accent); }
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    gap: 1.25rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "today today" "weekly tomorrow" "longrun countdown" "recovery recovery" "chart chart" "recent actions";
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (min-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1.65fr) minmax(310px, 0.85fr);
+    grid-template-areas: "today weekly" "today tomorrow" "chart longrun" "chart countdown" "recovery actions" "recent recent";
+  }
+}
+
+@media (hover: hover) {
+  .pressable:hover {
+    border-color: rgb(36 120 238 / 0.2);
+    box-shadow: 0 2px 3px rgb(17 17 20 / 0.03), 0 16px 46px rgb(17 17 20 / 0.075);
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
