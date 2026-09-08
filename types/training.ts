@@ -20,7 +20,6 @@ export interface AthleteProfile {
   raceDate: string;
   goal: string;
   naturalPace: string;
-  marathonExperience: "first" | "experienced";
 }
 
 /** The prescribed session: what the athlete was expected to do. */
@@ -32,11 +31,11 @@ export interface TrainingPlanItem {
   sessionType: SessionType;
   distanceKm: number | null;
   targetPace: string | null;
-  targetRpe: string;
-  estimatedDurationMin: number;
+  targetRpe: string | null;
+  estimatedDurationMin: number | null;
   status: WorkoutStatus;
   warmup?: string;
-  mainSet: string;
+  mainSet?: string;
   cooldown?: string;
   gym?: string;
   nutrition?: string;
@@ -46,7 +45,7 @@ export interface TrainingPlanItem {
 /** The completed session: what the athlete actually did. */
 export interface WorkoutLog {
   id: string;
-  planItemId?: string;
+  planItemId: string | null;
   date: string;
   title: string;
   distanceKm: number;
@@ -54,10 +53,15 @@ export interface WorkoutLog {
   averagePace: string;
   rpe: number;
   pain: number;
-  fatigue: number;
-  sleepHours: number;
-  averageHeartRate?: number;
-  notes?: string;
+  fatigue: number | null;
+  sleepHours: number | null;
+  averageHeartRate: number | null;
+  maxHeartRate: number | null;
+  giSymptoms: string | null;
+  foodBefore: string | null;
+  hydration: string | null;
+  gels: string | null;
+  notes: string | null;
 }
 
 export interface WeeklySummary {
@@ -66,13 +70,14 @@ export interface WeeklySummary {
   plannedKm: number;
   completedWorkouts: number;
   totalWorkouts: number;
+  pendingWorkouts: number;
 }
 
 export interface RecoveryMetrics {
-  rpe: number;
-  pain: number;
-  fatigue: number;
-  sleepHours: number;
+  rpe: number | null;
+  pain: number | null;
+  fatigue: number | null;
+  sleepHours: number | null;
 }
 
 export interface MileageWeek {
@@ -84,25 +89,25 @@ export interface MileageWeek {
 
 export interface DashboardData {
   referenceDate: string;
-  athlete: AthleteProfile;
-  today: TrainingPlanItem;
+  athlete: AthleteProfile | null;
+  today: TrainingPlanItem | null;
   todayLog?: WorkoutLog;
-  tomorrow: TrainingPlanItem;
-  nextLongRun: TrainingPlanItem;
+  tomorrow: TrainingPlanItem | null;
+  nextLongRun: TrainingPlanItem | null;
   weeklySummary: WeeklySummary;
   recovery: RecoveryMetrics;
   mileageHistory: MileageWeek[];
   recentWorkouts: WorkoutLog[];
-  daysToLongRun: number;
-  daysToRace: number;
-  raceProgress: number;
+  daysToLongRun: number | null;
+  daysToRace: number | null;
+  raceProgress: number | null;
 }
 
 export interface ProgressSummary {
   weeklyKilometers: number;
   totalKilometers: number;
-  longestRunKm: number;
-  averageRpe: number;
-  planCompliance: number;
-  averagePace: string;
+  longestRunKm: number | null;
+  averageRpe: number | null;
+  planCompliance: number | null;
+  averagePace: string | null;
 }

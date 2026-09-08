@@ -1,18 +1,49 @@
 import type { Metadata } from "next";
-import { CalendarRange } from "lucide-react";
+import { CalendarRange, CalendarX2 } from "lucide-react";
 import { PlanDayCard } from "@/components/plan/PlanDayCard";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { dashboardData, trainingPlan } from "@/data/mockDashboard";
+import {
+  getAllTrainingPlanItems,
+  getCurrentWeekPlan,
+} from "@/lib/data/trainingPlan";
+import { getWorkoutLogsBetween } from "@/lib/data/workouts";
+import { getTodayIso, getWeekRange } from "@/lib/date";
 
 export const metadata: Metadata = { title: "Plan" };
 
-export default function PlanPage() {
+export default async function PlanPage() {
+  const today = getTodayIso();
+  const { start, end } = getWeekRange(today);
+  const [trainingPlan, currentWeekPlan, weeklyWorkouts] = await Promise.all([
+    getAllTrainingPlanItems(),
+    getCurrentWeekPlan(today),
+    getWorkoutLogsBetween(start, end),
+  ]);
+  const plannedKm = currentWeekPlan.reduce(
+    (total, item) => total + (item.distanceKm ?? 0),
+    0,
+  );
+  const completedKm = weeklyWorkouts.reduce(
+    (total, workout) => total + workout.distanceKm,
+    0,
+  );
+  const weeklySessions = currentWeekPlan.filter(
+    (item) => item.sessionType !== "rest",
+  );
+  const completion = plannedKm > 0
+    ? Math.min(100, Math.round((completedKm / plannedKm) * 100))
+    : 0;
+  const weeks = Array.from(
+    new Set(trainingPlan.map((item) => item.weekNumber)),
+  ).sort((a, b) => a - b);
+
   return (
     <>
       <PageHeader
-        eyebrow="Semana 1 de 9"
+        eyebrow={weeks.length ? `${weeks.length} semanas cargadas` : "Plan de entrenamiento"}
         title="Tu plan"
-        description="Una semana equilibrada: suma kilómetros sin perder de vista la recuperación."
+        description="Consulta cada sesión prescrita y abre sus indicaciones cuando las necesites."
         action={
           <span className="hidden size-12 place-items-center rounded-2xl bg-white text-accent shadow-sm sm:grid">
             <CalendarRange size={22} />
@@ -20,24 +51,49 @@ export default function PlanPage() {
         }
       />
 
-      <section className="mb-5 rounded-[24px] bg-ink p-5 text-white sm:flex sm:items-center sm:justify-between sm:p-6">
-        <div>
-          <p className="text-[10px] font-bold tracking-[0.12em] text-white/50 uppercase">Objetivo semanal</p>
-          <p className="mt-2 text-2xl font-bold tracking-[-0.035em]">{dashboardData.weeklySummary.plannedKm} km · {dashboardData.weeklySummary.totalWorkouts} sesiones</p>
-        </div>
-        <div className="mt-4 w-full sm:mt-0 sm:w-56">
-          <div className="mb-2 flex justify-between text-[11px] font-semibold text-white/55">
-            <span>{dashboardData.weeklySummary.completedKm} km completados</span><span>{Math.round((dashboardData.weeklySummary.completedKm / dashboardData.weeklySummary.plannedKm) * 100)}%</span>
+      {trainingPlan.length > 0 && (
+        <section className="mb-5 rounded-[24px] bg-ink p-5 text-white sm:flex sm:items-center sm:justify-between sm:p-6">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.12em] text-white/50 uppercase">Objetivo semanal</p>
+            <p className="mt-2 text-2xl font-bold tracking-[-0.035em]">
+              {plannedKm.toFixed(1)} km · {weeklySessions.length} sesiones
+            </p>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-            <div className="h-full rounded-full bg-accent" style={{ width: `${(dashboardData.weeklySummary.completedKm / dashboardData.weeklySummary.plannedKm) * 100}%` }} />
+          <div className="mt-4 w-full sm:mt-0 sm:w-56">
+            <div className="mb-2 flex justify-between text-[11px] font-semibold text-white/55">
+              <span>{completedKm.toFixed(1)} km completados</span>
+              <span>{completion}%</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-accent" style={{ width: `${completion}%` }} />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <div className="space-y-3">
-        {trainingPlan.map((item) => <PlanDayCard key={item.id} item={item} />)}
-      </div>
+      {trainingPlan.length === 0 ? (
+        <EmptyState
+          icon={CalendarX2}
+          title="Tu plan aún está vacío"
+          description="Ejecuta el seed cuando tengas listo el plan real de 9 semanas."
+        />
+      ) : (
+        <div className="space-y-7">
+          {weeks.map((week) => (
+            <section key={week}>
+              <div className="mb-3 flex items-center gap-3">
+                <span className="eyebrow">Semana {week}</span>
+                <span className="h-px flex-1 bg-line" />
+              </div>
+              <div className="space-y-3">
+                {trainingPlan
+                  .filter((item) => item.weekNumber === week)
+                  .map((item) => <PlanDayCard key={item.id} item={item} />)}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
     </>
   );
 }

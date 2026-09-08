@@ -17,7 +17,6 @@ export const athleteProfile: AthleteProfile = {
   raceDate: "2026-11-08",
   goal: "Terminar bien y sin lesiones",
   naturalPace: "6:00 /km",
-  marathonExperience: "first",
 };
 
 export const trainingPlan: TrainingPlanItem[] = [
@@ -116,6 +115,12 @@ export const workoutLogs: WorkoutLog[] = [
     fatigue: 2,
     sleepHours: 7.5,
     averageHeartRate: 148,
+    maxHeartRate: null,
+    giSymptoms: null,
+    foodBefore: null,
+    hydration: null,
+    gels: null,
+    notes: null,
   },
   {
     id: "log-2026-09-04",
@@ -128,6 +133,14 @@ export const workoutLogs: WorkoutLog[] = [
     pain: 0,
     fatigue: 3,
     sleepHours: 7.1,
+    planItemId: null,
+    averageHeartRate: null,
+    maxHeartRate: null,
+    giSymptoms: null,
+    foodBefore: null,
+    hydration: null,
+    gels: null,
+    notes: null,
   },
   {
     id: "log-2026-09-02",
@@ -140,6 +153,14 @@ export const workoutLogs: WorkoutLog[] = [
     pain: 1,
     fatigue: 4,
     sleepHours: 7.8,
+    planItemId: null,
+    averageHeartRate: null,
+    maxHeartRate: null,
+    giSymptoms: null,
+    foodBefore: null,
+    hydration: null,
+    gels: null,
+    notes: null,
   },
 ];
 
@@ -156,6 +177,7 @@ export const dashboardData: DashboardData = {
     plannedKm: 41,
     completedWorkouts: 1,
     totalWorkouts: 4,
+    pendingWorkouts: 3,
   },
   recovery: {
     rpe: 3,

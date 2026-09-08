@@ -2,7 +2,7 @@ import { MapPinned, Route } from "lucide-react";
 import { formatDayAndDate } from "@/lib/format";
 import type { TrainingPlanItem } from "@/types/training";
 
-export function LongRunCard({ workout, daysUntil }: { workout: TrainingPlanItem; daysUntil: number }) {
+export function LongRunCard({ workout, daysUntil }: { workout: TrainingPlanItem; daysUntil: number | null }) {
   const day = formatDayAndDate(workout.date).split(",")[0];
 
   return (
@@ -23,8 +23,8 @@ export function LongRunCard({ workout, daysUntil }: { workout: TrainingPlanItem;
         </div>
       </div>
       <div className="mt-5 flex items-center justify-between border-t border-line/80 pt-4 text-xs font-semibold">
-        <span className="text-muted">{workout.targetPace} · RPE {workout.targetRpe}</span>
-        <span className="text-accent">Faltan {daysUntil} días</span>
+        <span className="text-muted">{workout.targetPace ?? "Ritmo libre"} · RPE {workout.targetRpe ?? "—"}</span>
+        <span className="text-accent">{daysUntil === null ? "Fecha pendiente" : daysUntil === 0 ? "Hoy" : `Faltan ${daysUntil} días`}</span>
       </div>
     </section>
   );

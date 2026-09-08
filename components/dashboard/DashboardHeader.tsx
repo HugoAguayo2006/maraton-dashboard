@@ -4,7 +4,7 @@ import { formatShortDate } from "@/lib/format";
 import type { AthleteProfile } from "@/types/training";
 
 interface DashboardHeaderProps {
-  athlete: AthleteProfile;
+  athlete: AthleteProfile | null;
   date: string;
 }
 
@@ -18,7 +18,7 @@ export function DashboardHeader({ athlete, date }: DashboardHeaderProps) {
           Marathon Dashboard
         </p>
         <h1 className="text-[2rem] leading-none font-bold tracking-[-0.045em] sm:text-[2.55rem]">
-          Buenos días, {athlete.firstName}
+          Buenos días, {athlete?.firstName ?? "atleta"}
         </h1>
         <p className="mt-2 text-sm font-medium text-muted first-letter:uppercase sm:text-base">
           {formattedDate}

@@ -25,12 +25,17 @@ function tooltipStyle() {
 }
 
 export function ProgressCharts({ data }: { data: MileageWeek[] }) {
+  const hasMileage = data.some(
+    (week) => week.kilometers > 0 || (week.plannedKilometers ?? 0) > 0,
+  );
+  const hasRpe = data.some((week) => week.averageRpe !== undefined);
+
   return (
     <div className="grid gap-4 xl:grid-cols-2">
       <section className="app-card p-5 sm:p-6">
         <p className="eyebrow">Kilómetros semanales</p>
         <p className="mt-2 text-sm text-muted">Carga real vs. planificada</p>
-        <div className="mt-5 h-64">
+        {hasMileage ? <div className="mt-5 h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 6, right: 0, bottom: 0, left: -25 }}>
               <CartesianGrid vertical={false} stroke="#ededf1" strokeDasharray="3 5" />
@@ -41,13 +46,13 @@ export function ProgressCharts({ data }: { data: MileageWeek[] }) {
               <Bar dataKey="kilometers" fill="#2478ee" radius={[8, 8, 4, 4]} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </div> : <ChartEmptyState message="Carga tu plan o registra una sesión para ver el volumen." />}
       </section>
 
       <section className="app-card p-5 sm:p-6">
         <p className="eyebrow">Esfuerzo percibido</p>
         <p className="mt-2 text-sm text-muted">Promedio de RPE por semana</p>
-        <div className="mt-5 h-64">
+        {hasRpe ? <div className="mt-5 h-64">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 6, right: 4, bottom: 0, left: -28 }}>
               <defs>
@@ -63,8 +68,16 @@ export function ProgressCharts({ data }: { data: MileageWeek[] }) {
               <Area type="monotone" dataKey="averageRpe" stroke="#d98019" strokeWidth={2.5} fill="url(#rpeFill)" activeDot={{ r: 5, fill: "#d98019", stroke: "white", strokeWidth: 2 }} />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
+        </div> : <ChartEmptyState message="El esfuerzo aparecerá después de tu primer registro." />}
       </section>
+    </div>
+  );
+}
+
+function ChartEmptyState({ message }: { message: string }) {
+  return (
+    <div className="mt-5 grid h-64 place-items-center rounded-2xl bg-surface-subtle px-6 text-center">
+      <div><p className="text-sm font-bold">Aún no hay suficientes datos</p><p className="mt-1 text-xs leading-5 text-muted">{message}</p></div>
     </div>
   );
 }

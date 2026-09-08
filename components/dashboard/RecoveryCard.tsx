@@ -2,6 +2,7 @@ import { BatteryMedium, Gauge, MoonStar, ShieldCheck } from "lucide-react";
 import type { RecoveryMetrics } from "@/types/training";
 
 export function RecoveryCard({ recovery }: { recovery: RecoveryMetrics }) {
+  const hasData = Object.values(recovery).some((value) => value !== null);
   const metrics = [
     { label: "RPE", value: recovery.rpe, suffix: "/10", icon: Gauge, color: "bg-accent" },
     { label: "Dolor", value: recovery.pain, suffix: "/10", icon: ShieldCheck, color: "bg-success" },
@@ -14,11 +15,11 @@ export function RecoveryCard({ recovery }: { recovery: RecoveryMetrics }) {
       <div className="flex items-center justify-between">
         <div>
           <span className="eyebrow">Estado reciente</span>
-          <p className="mt-2 text-xs font-medium text-muted">Tu cuerpo se ve estable</p>
+          <p className="mt-2 text-xs font-medium text-muted">{hasData ? "Basado en tu último registro" : "Registra una sesión para ver tus métricas"}</p>
         </div>
-        <span className="rounded-full bg-success-soft px-2.5 py-1 text-[10px] font-bold tracking-wide text-success uppercase">
-          En equilibrio
-        </span>
+        {hasData && <span className="rounded-full bg-success-soft px-2.5 py-1 text-[10px] font-bold tracking-wide text-success uppercase">
+          Último registro
+        </span>}
       </div>
       <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-4">
         {metrics.map((metric) => {
@@ -31,7 +32,7 @@ export function RecoveryCard({ recovery }: { recovery: RecoveryMetrics }) {
                 <span className="text-[11px] font-semibold">{metric.label}</span>
               </div>
               <p className="mt-2 text-2xl font-bold tracking-[-0.04em]">
-                {metric.value}<span className="text-xs font-semibold text-muted">{metric.suffix}</span>
+                {metric.value ?? "—"}<span className="text-xs font-semibold text-muted">{metric.value === null ? "" : metric.suffix}</span>
               </p>
             </div>
           );

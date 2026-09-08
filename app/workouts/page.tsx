@@ -3,12 +3,13 @@ import Link from "next/link";
 import { ArrowUpRight, Plus, TimerReset } from "lucide-react";
 import { RecentWorkouts } from "@/components/dashboard/RecentWorkouts";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { workoutLogs } from "@/data/mockDashboard";
+import { getAllWorkoutLogs } from "@/lib/data/workouts";
 import { formatDuration } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Entrenamientos" };
 
-export default function WorkoutsPage() {
+export default async function WorkoutsPage() {
+  const workoutLogs = await getAllWorkoutLogs();
   const totalKm = workoutLogs.reduce((total, workout) => total + workout.distanceKm, 0);
   const totalSeconds = workoutLogs.reduce((total, workout) => total + workout.durationSeconds, 0);
 

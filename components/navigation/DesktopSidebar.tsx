@@ -8,10 +8,12 @@ import {
   ChevronRight,
   CircleUserRound,
   Gauge,
+  LogOut,
   Settings,
   TimerReset,
 } from "lucide-react";
-import { dashboardData } from "@/data/mockDashboard";
+import { logout } from "@/app/actions/auth";
+import type { AthleteProfile } from "@/types/training";
 
 const navigation = [
   { label: "Dashboard", href: "/dashboard", icon: Gauge },
@@ -21,8 +23,15 @@ const navigation = [
   { label: "Configuración", href: "/settings", icon: Settings },
 ];
 
-export function DesktopSidebar() {
+interface DesktopSidebarProps {
+  profile: AthleteProfile | null;
+  userEmail: string | null;
+  daysToRace: number | null;
+}
+
+export function DesktopSidebar({ profile, userEmail, daysToRace }: DesktopSidebarProps) {
   const pathname = usePathname();
+  const displayName = profile?.firstName || userEmail?.split("@")[0] || "Atleta";
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] border-r border-line/80 bg-white/85 px-5 py-7 backdrop-blur-xl lg:flex lg:flex-col">
@@ -78,21 +87,27 @@ export function DesktopSidebar() {
               <ChevronRight size={15} />
             </span>
           </div>
-          <p className="text-sm font-semibold">{dashboardData.athlete.raceName.replace("Maratón de Guadalajara", "Maratón GDL")}</p>
-          <p className="mt-0.5 text-xs text-white/55">8 noviembre · {dashboardData.daysToRace} días</p>
+          <p className="text-sm font-semibold">{profile?.raceName ?? "Configura tu carrera"}</p>
+          <p className="mt-0.5 text-xs text-white/55">
+            {daysToRace === null ? "Perfil pendiente" : `${daysToRace} días restantes`}
+          </p>
         </div>
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3"
-        >
-          <span className="grid size-9 place-items-center rounded-full bg-surface-subtle text-muted">
-            <CircleUserRound size={20} />
-          </span>
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-semibold">{dashboardData.athlete.firstName} {dashboardData.athlete.lastName}</span>
-            <span className="block text-[11px] text-muted">Primer maratón</span>
-          </span>
-        </Link>
+        <div className="flex items-center gap-1 rounded-2xl border border-line bg-white p-1.5">
+          <Link href="/settings" className="flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-surface-subtle text-muted">
+              <CircleUserRound size={20} />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold">{displayName}</span>
+              <span className="block truncate text-[11px] text-muted">{userEmail ?? "Preparación personal"}</span>
+            </span>
+          </Link>
+          <form action={logout}>
+            <button type="submit" aria-label="Cerrar sesión" title="Cerrar sesión" className="grid size-9 place-items-center rounded-xl text-muted transition-colors hover:bg-danger-soft hover:text-danger">
+              <LogOut size={17} />
+            </button>
+          </form>
+        </div>
       </div>
     </aside>
   );

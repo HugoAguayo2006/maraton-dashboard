@@ -2,6 +2,7 @@ import { Dumbbell, Timer } from "lucide-react";
 import type { TrainingPlanItem } from "@/types/training";
 
 export function TomorrowWorkoutCard({ workout }: { workout: TrainingPlanItem }) {
+  const duration = workout.estimatedDurationMin;
   return (
     <section className="area-tomorrow card-enter app-card p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
@@ -14,11 +15,11 @@ export function TomorrowWorkoutCard({ workout }: { workout: TrainingPlanItem }) 
         </span>
       </div>
       <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-muted">
-        <span className="flex items-center gap-1.5"><Timer size={15} /> {workout.estimatedDurationMin - 5}–{workout.estimatedDurationMin + 5} min</span>
+        <span className="flex items-center gap-1.5"><Timer size={15} /> {duration ? `${Math.max(1, duration - 5)}–${duration + 5} min` : "Duración pendiente"}</span>
         <span className="size-1 rounded-full bg-line" />
         <span>Sin carrera</span>
         <span className="size-1 rounded-full bg-line" />
-        <span>RPE {workout.targetRpe}</span>
+        <span>RPE {workout.targetRpe ?? "—"}</span>
       </div>
     </section>
   );

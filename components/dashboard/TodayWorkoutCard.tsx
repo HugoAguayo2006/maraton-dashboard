@@ -63,12 +63,12 @@ export function TodayWorkoutCard({ workout, log }: TodayWorkoutCardProps) {
           <Metric
             icon={<HeartPulse size={16} />}
             label="RPE"
-            value={completed ? `${log.rpe} / 10` : workout.targetRpe}
+            value={completed ? `${log.rpe} / 10` : workout.targetRpe ?? "—"}
           />
           <Metric
             icon={<Clock3 size={16} />}
             label={completed ? "Tiempo" : "Duración"}
-            value={completed ? formatDuration(log.durationSeconds) : `≈ ${workout.estimatedDurationMin} min`}
+            value={completed ? formatDuration(log.durationSeconds) : workout.estimatedDurationMin ? `≈ ${workout.estimatedDurationMin} min` : "—"}
           />
         </div>
 

@@ -15,7 +15,12 @@ export function RecentWorkouts({ workouts }: { workouts: WorkoutLog[] }) {
           Ver todos <ArrowRight size={14} />
         </Link>
       </div>
-      <div className="mt-5 divide-y divide-line/80">
+      {workouts.length === 0 ? (
+        <div className="mt-5 rounded-2xl bg-surface-subtle px-4 py-8 text-center">
+          <p className="text-sm font-bold">Aún no hay entrenamientos</p>
+          <p className="mt-1 text-xs text-muted">Tu primera sesión aparecerá aquí al registrarla.</p>
+        </div>
+      ) : <div className="mt-5 divide-y divide-line/80">
         {workouts.map((workout) => (
           <article key={workout.id} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
             <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-surface-subtle text-muted">
@@ -38,7 +43,7 @@ export function RecentWorkouts({ workouts }: { workouts: WorkoutLog[] }) {
             </span>
           </article>
         ))}
-      </div>
+      </div>}
     </section>
   );
 }

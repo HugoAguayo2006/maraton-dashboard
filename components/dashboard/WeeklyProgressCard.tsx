@@ -2,8 +2,9 @@ import { CheckCircle2 } from "lucide-react";
 import type { WeeklySummary } from "@/types/training";
 
 export function WeeklyProgressCard({ summary }: { summary: WeeklySummary }) {
-  const percentage = Math.round((summary.completedKm / summary.plannedKm) * 100);
-  const remaining = summary.totalWorkouts - summary.completedWorkouts;
+  const percentage = summary.plannedKm > 0
+    ? Math.min(100, Math.round((summary.completedKm / summary.plannedKm) * 100))
+    : 0;
 
   return (
     <section className="area-weekly card-enter app-card p-5 sm:p-6">
@@ -29,7 +30,7 @@ export function WeeklyProgressCard({ summary }: { summary: WeeklySummary }) {
       </div>
       <p className="mt-4 flex items-center gap-2 text-xs font-medium text-muted">
         <CheckCircle2 size={15} className="text-success" />
-        {remaining} entrenamientos restantes
+        {summary.pendingWorkouts} {summary.pendingWorkouts === 1 ? "entrenamiento pendiente" : "entrenamientos pendientes"}
       </p>
     </section>
   );

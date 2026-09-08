@@ -1,21 +1,34 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { Check, Clock3, Gauge, HeartPulse, MoonStar, Route } from "lucide-react";
+import { useActionState, useMemo, useState } from "react";
+import { Clock3, Gauge, HeartPulse, MoonStar, Route, TriangleAlert } from "lucide-react";
+import { createWorkout, type WorkoutActionState } from "@/app/workouts/new/actions";
 import { formatPace } from "@/lib/format";
+import { formatDayAndDate } from "@/lib/format";
+import type { TrainingPlanItem } from "@/types/training";
 
-const gastrointestinalOptions = ["Ninguno", "Leves", "Moderados", "Fuertes"];
+const gastrointestinalOptions = [
+  { label: "Ninguno", value: "none" },
+  { label: "Leves", value: "mild" },
+  { label: "Moderados", value: "moderate" },
+  { label: "Fuertes", value: "severe" },
+] as const;
 
-export function WorkoutForm() {
-  const [distance, setDistance] = useState("10.46");
-  const [hours, setHours] = useState("1");
-  const [minutes, setMinutes] = useState("10");
-  const [seconds, setSeconds] = useState("46");
+const initialState: WorkoutActionState = {};
+
+export function WorkoutForm({ planItems, defaultDate }: { planItems: TrainingPlanItem[]; defaultDate: string }) {
+  const defaultPlanItem = planItems.find((item) => item.date === defaultDate);
+  const [formState, formAction, pending] = useActionState(createWorkout, initialState);
+  const [date, setDate] = useState(defaultDate);
+  const [selectedPlanItemId, setSelectedPlanItemId] = useState(defaultPlanItem?.id ?? "");
+  const [distance, setDistance] = useState("");
+  const [hours, setHours] = useState("0");
+  const [minutes, setMinutes] = useState("");
+  const [seconds, setSeconds] = useState("0");
   const [rpe, setRpe] = useState(3);
   const [pain, setPain] = useState(0);
   const [fatigue, setFatigue] = useState(2);
-  const [gastrointestinal, setGastrointestinal] = useState("Ninguno");
-  const [submitted, setSubmitted] = useState(false);
+  const [gastrointestinal, setGastrointestinal] = useState("none");
 
   const durationSeconds = Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
   const pace = useMemo(
@@ -23,13 +36,13 @@ export function WorkoutForm() {
     [distance, durationSeconds],
   );
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitted(true);
+  function handleDateChange(nextDate: string) {
+    setDate(nextDate);
+    setSelectedPlanItemId(planItems.find((item) => item.date === nextDate)?.id ?? "");
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form action={formAction} className="space-y-4">
       <section className="app-card p-5 sm:p-7">
         <div className="mb-6 flex items-center gap-3">
           <span className="grid size-10 place-items-center rounded-2xl bg-accent-soft text-accent"><Route size={19} /></span>
@@ -38,13 +51,24 @@ export function WorkoutForm() {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Fecha">
-            <input name="date" type="date" defaultValue="2026-09-07" required className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-semibold" />
+            <input name="date" type="date" value={date} onChange={(event) => handleDateChange(event.target.value)} required className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-semibold" />
           </Field>
           <Field label="Distancia (km)">
             <div className="relative">
-              <input name="distance" type="number" min="0.1" step="0.01" inputMode="decimal" value={distance} onChange={(event) => setDistance(event.target.value)} required className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 pr-12 text-base font-bold" />
+              <input name="distance" type="number" min="0.1" step="0.01" inputMode="decimal" value={distance} onChange={(event) => setDistance(event.target.value)} placeholder="10.0" required className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 pr-12 text-base font-bold placeholder:text-muted/40" />
               <span className="absolute top-1/2 right-4 -translate-y-1/2 text-xs font-semibold text-muted">km</span>
             </div>
+          </Field>
+        </div>
+
+        <div className="mt-5">
+          <Field label="Sesión del plan (opcional)">
+            <select name="training_plan_item_id" value={selectedPlanItemId} onChange={(event) => setSelectedPlanItemId(event.target.value)} className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-semibold">
+              <option value="">Entrenamiento libre</option>
+              {planItems.map((item) => (
+                <option key={item.id} value={item.id}>{formatDayAndDate(item.date)} · {item.title}</option>
+              ))}
+            </select>
           </Field>
         </div>
 
@@ -92,17 +116,23 @@ export function WorkoutForm() {
           <SliderField label="Fatiga" name="fatigue" value={fatigue} onChange={setFatigue} lowLabel="Fresco" highLabel="Agotado" />
         </div>
 
-        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+        <div className="mt-6 grid gap-5 sm:grid-cols-3">
           <Field label="Horas de sueño">
             <div className="relative">
               <MoonStar size={17} className="absolute top-1/2 left-4 -translate-y-1/2 text-muted" />
-              <input name="sleep_hours" type="number" min="0" max="16" step="0.1" inputMode="decimal" defaultValue="7.5" required className="h-12 w-full rounded-2xl border border-line bg-surface-subtle pr-12 pl-11 text-sm font-semibold" />
+              <input name="sleep_hours" type="number" min="0" max="16" step="0.1" inputMode="decimal" placeholder="7.5" className="h-12 w-full rounded-2xl border border-line bg-surface-subtle pr-12 pl-11 text-sm font-semibold placeholder:text-muted/45" />
               <span className="absolute top-1/2 right-4 -translate-y-1/2 text-xs font-semibold text-muted">h</span>
             </div>
           </Field>
           <Field label="Frecuencia cardíaca promedio (opcional)">
             <div className="relative">
               <input name="average_heart_rate" type="number" min="30" max="240" inputMode="numeric" placeholder="148" className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 pr-14 text-sm font-semibold placeholder:text-muted/45" />
+              <span className="absolute top-1/2 right-4 -translate-y-1/2 text-xs font-semibold text-muted">ppm</span>
+            </div>
+          </Field>
+          <Field label="Frecuencia cardíaca máxima (opcional)">
+            <div className="relative">
+              <input name="max_heart_rate" type="number" min="30" max="260" inputMode="numeric" placeholder="172" className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 pr-14 text-sm font-semibold placeholder:text-muted/45" />
               <span className="absolute top-1/2 right-4 -translate-y-1/2 text-xs font-semibold text-muted">ppm</span>
             </div>
           </Field>
@@ -119,8 +149,8 @@ export function WorkoutForm() {
           <legend className="mb-3 text-xs font-bold text-muted">Síntomas gastrointestinales</legend>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {gastrointestinalOptions.map((option) => (
-              <button key={option} type="button" onClick={() => setGastrointestinal(option)} aria-pressed={gastrointestinal === option} className={`min-h-11 rounded-xl px-2 text-xs font-bold transition-colors ${gastrointestinal === option ? "bg-ink text-white" : "border border-line bg-surface-subtle text-muted"}`}>
-                {option}
+              <button key={option.value} type="button" onClick={() => setGastrointestinal(option.value)} aria-pressed={gastrointestinal === option.value} className={`min-h-11 rounded-xl px-2 text-xs font-bold transition-colors ${gastrointestinal === option.value ? "bg-ink text-white" : "border border-line bg-surface-subtle text-muted"}`}>
+                {option.label}
               </button>
             ))}
           </div>
@@ -130,20 +160,20 @@ export function WorkoutForm() {
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           <Field label="Comida previa"><input name="pre_run_food" type="text" placeholder="Ej. avena, plátano y café" className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-medium placeholder:text-muted/55" /></Field>
           <Field label="Hidratación"><input name="hydration" type="text" placeholder="Ej. 650 ml de agua" className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-medium placeholder:text-muted/55" /></Field>
-          <Field label="Geles"><input name="gels" type="number" min="0" inputMode="numeric" placeholder="0" className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-medium placeholder:text-muted/55" /></Field>
+          <Field label="Geles"><input name="gels" type="text" placeholder="Ej. 2 geles de 25 g" className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-medium placeholder:text-muted/55" /></Field>
           <Field label="Notas"><textarea name="notes" rows={3} placeholder="¿Cómo salió la sesión?" className="w-full resize-none rounded-2xl border border-line bg-surface-subtle px-4 py-3 text-sm leading-5 font-medium placeholder:text-muted/55" /></Field>
         </div>
       </section>
 
-      {submitted && (
-        <div role="status" className="flex items-start gap-3 rounded-[20px] border border-success/20 bg-success-soft p-4 text-sm text-success">
-          <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-success text-white"><Check size={12} strokeWidth={3} /></span>
-          <p><strong className="block">Registro validado</strong><span className="text-success/80">La interfaz está lista. Conecta Supabase para guardar este entrenamiento.</span></p>
+      {formState.error && (
+        <div role="alert" className="flex items-start gap-3 rounded-[20px] border border-danger/20 bg-danger-soft p-4 text-sm text-danger">
+          <TriangleAlert size={18} className="mt-0.5 shrink-0" />
+          <p><strong className="block">No pudimos guardar</strong><span className="text-danger/80">{formState.error}</span></p>
         </div>
       )}
 
-      <button type="submit" className="pressable min-h-14 w-full rounded-[20px] bg-accent px-6 text-sm font-bold text-white shadow-[0_10px_24px_rgba(36,120,238,.24)] sm:w-fit sm:min-w-72">
-        Guardar entrenamiento
+      <button type="submit" disabled={pending} className="pressable min-h-14 w-full rounded-[20px] bg-accent px-6 text-sm font-bold text-white shadow-[0_10px_24px_rgba(36,120,238,.24)] disabled:cursor-wait disabled:opacity-60 sm:w-fit sm:min-w-72">
+        {pending ? "Guardando…" : "Guardar entrenamiento"}
       </button>
     </form>
   );

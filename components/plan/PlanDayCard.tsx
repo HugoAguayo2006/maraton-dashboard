@@ -10,6 +10,20 @@ import {
 import { formatDayAndDate } from "@/lib/format";
 import type { TrainingPlanItem } from "@/types/training";
 
+const statusLabels = {
+  pending: "Pendiente",
+  completed: "Hecho",
+  modified: "Modificado",
+  skipped: "Omitido",
+};
+
+const statusStyles = {
+  pending: "bg-surface-subtle text-muted",
+  completed: "bg-success-soft text-success",
+  modified: "bg-warning-soft text-warning",
+  skipped: "bg-danger-soft text-danger",
+};
+
 export function PlanDayCard({ item }: { item: TrainingPlanItem }) {
   const isGym = item.sessionType === "gym";
   const completed = item.status === "completed";
@@ -28,26 +42,24 @@ export function PlanDayCard({ item }: { item: TrainingPlanItem }) {
           <h2 className="mt-1 truncate text-base font-bold tracking-[-0.02em]">{item.title}</h2>
         </div>
         <div className="hidden text-right sm:block">
-          <p className="text-sm font-bold">{item.distanceKm ? `${item.distanceKm} km` : `${item.estimatedDurationMin} min`}</p>
-          <p className="mt-0.5 text-[11px] font-medium text-muted">{item.targetPace ?? "Fuerza"} · RPE {item.targetRpe}</p>
+          <p className="text-sm font-bold">{item.distanceKm ? `${item.distanceKm} km` : item.estimatedDurationMin ? `${item.estimatedDurationMin} min` : "Sin distancia"}</p>
+          <p className="mt-0.5 text-[11px] font-medium text-muted">{item.targetPace ?? "Ritmo libre"} · RPE {item.targetRpe ?? "—"}</p>
         </div>
-        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
-          completed ? "bg-success-soft text-success" : "bg-surface-subtle text-muted"
-        }`}>
-          {completed ? "Hecho" : "Pendiente"}
+        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${statusStyles[item.status]}`}>
+          {statusLabels[item.status]}
         </span>
         <ChevronDown size={17} className="shrink-0 text-muted transition-transform duration-200 group-open:rotate-180" />
       </summary>
 
       <div className="border-t border-line/80 bg-surface-subtle/65 p-5 sm:px-6 sm:py-6">
         <div className="mb-5 flex flex-wrap gap-2 sm:hidden">
-          <Pill icon={<Timer size={13} />} text={`${item.estimatedDurationMin} min`} />
-          <Pill icon={<Gauge size={13} />} text={`RPE ${item.targetRpe}`} />
+          {item.estimatedDurationMin && <Pill icon={<Timer size={13} />} text={`${item.estimatedDurationMin} min`} />}
+          <Pill icon={<Gauge size={13} />} text={`RPE ${item.targetRpe ?? "—"}`} />
           {item.distanceKm && <Pill icon={<Footprints size={13} />} text={`${item.distanceKm} km`} />}
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           {item.warmup && <Detail label="Calentamiento" text={item.warmup} />}
-          <Detail label="Trabajo principal" text={item.mainSet} />
+          {item.mainSet && <Detail label="Trabajo principal" text={item.mainSet} />}
           {item.cooldown && <Detail label="Enfriamiento" text={item.cooldown} />}
           {item.gym && <Detail label="Gimnasio" text={item.gym} />}
           {item.nutrition && <Detail label="Nutrición" text={item.nutrition} />}

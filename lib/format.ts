@@ -17,6 +17,13 @@ export function formatPace(totalSeconds: number, distanceKm: number): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")} /km`;
 }
 
+export function formatPaceSeconds(secondsPerKm: number | null): string | null {
+  if (!secondsPerKm) return null;
+  const minutes = Math.floor(secondsPerKm / 60);
+  const seconds = Math.round(secondsPerKm % 60);
+  return `${minutes}:${seconds.toString().padStart(2, "0")} /km`;
+}
+
 export function formatShortDate(date: string): string {
   return new Intl.DateTimeFormat("es-MX", {
     weekday: "long",

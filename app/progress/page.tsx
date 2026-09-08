@@ -9,18 +9,9 @@ import {
 } from "lucide-react";
 import { ProgressCharts } from "@/components/progress/ProgressCharts";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { dashboardData, progressSummary } from "@/data/mockDashboard";
+import { getProgressData } from "@/lib/data/dashboard";
 
 export const metadata: Metadata = { title: "Progreso" };
-
-const stats = [
-  { label: "Esta semana", value: `${progressSummary.weeklyKilometers} km`, detail: `de ${dashboardData.weeklySummary.plannedKm} km`, icon: Footprints, tone: "accent" },
-  { label: "Kilómetros acumulados", value: `${progressSummary.totalKilometers} km`, detail: "bloque actual", icon: TrendingUp, tone: "success" },
-  { label: "Tirada más larga", value: `${progressSummary.longestRunKm} km`, detail: "mejor distancia", icon: Route, tone: "accent" },
-  { label: "RPE promedio", value: progressSummary.averageRpe.toString(), detail: "esfuerzo controlado", icon: CircleGauge, tone: "warning" },
-  { label: "Cumplimiento", value: `${progressSummary.planCompliance}%`, detail: "del plan", icon: Award, tone: "success" },
-  { label: "Pace promedio", value: progressSummary.averagePace, detail: "todos los rodajes", icon: Activity, tone: "accent" },
-] as const;
 
 const toneClasses = {
   accent: "bg-accent-soft text-accent",
@@ -28,10 +19,20 @@ const toneClasses = {
   warning: "bg-warning-soft text-warning",
 };
 
-export default function ProgressPage() {
+export default async function ProgressPage() {
+  const { summary, mileageHistory } = await getProgressData();
+  const stats = [
+    { label: "Esta semana", value: `${summary.weeklyKilometers} km`, detail: "kilómetros reales", icon: Footprints, tone: "accent" },
+    { label: "Kilómetros acumulados", value: `${summary.totalKilometers} km`, detail: "todos los registros", icon: TrendingUp, tone: "success" },
+    { label: "Tirada más larga", value: summary.longestRunKm === null ? "—" : `${summary.longestRunKm} km`, detail: summary.longestRunKm === null ? "sin datos" : "mejor distancia", icon: Route, tone: "accent" },
+    { label: "RPE promedio", value: summary.averageRpe?.toString() ?? "—", detail: summary.averageRpe === null ? "sin datos" : "esfuerzo percibido", icon: CircleGauge, tone: "warning" },
+    { label: "Cumplimiento", value: summary.planCompliance === null ? "—" : `${summary.planCompliance}%`, detail: summary.planCompliance === null ? "sin sesiones vencidas" : "del plan hasta hoy", icon: Award, tone: "success" },
+    { label: "Pace promedio", value: summary.averagePace ?? "—", detail: summary.averagePace === null ? "sin datos" : "pace global", icon: Activity, tone: "accent" },
+  ] as const;
+
   return (
     <>
-      <PageHeader eyebrow="Tu evolución" title="Progreso" description="Tendencias claras para saber si el trabajo se está acumulando de forma sostenible." />
+      <PageHeader eyebrow="Tu evolución" title="Progreso" description="Tendencias calculadas exclusivamente a partir de tu plan y tus registros reales." />
       <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -45,7 +46,7 @@ export default function ProgressPage() {
           );
         })}
       </div>
-      <ProgressCharts data={dashboardData.mileageHistory} />
+      <ProgressCharts data={mileageHistory} />
     </>
   );
 }
