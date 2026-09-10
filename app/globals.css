@@ -69,6 +69,21 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
   box-shadow: var(--shadow-card);
 }
 
+.auth-input {
+  height: 3.25rem;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: var(--surface-subtle);
+  padding-inline: 2.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.auth-input::placeholder { color: rgb(110 110 115 / 0.5); }
+
+.auth-input-with-action { padding-right: 3.25rem; }
+
 .eyebrow {
   color: var(--muted);
   font-size: 0.7rem;

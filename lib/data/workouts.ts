@@ -83,12 +83,15 @@ export async function createWorkoutLog(input: NewWorkoutInput): Promise<string> 
   if (planItemId) {
     const { data: ownedPlan, error } = await supabase
       .from("training_plan_items")
-      .select("id")
+      .select("id, planned_distance_km")
       .eq("id", planItemId)
       .eq("user_id", user.id)
+      .in("status", ["pending", "modified"])
       .maybeSingle();
 
-    if (error || !ownedPlan) throw new DataAccessError("La sesión seleccionada no es válida.");
+    if (error || !ownedPlan || Number(ownedPlan.planned_distance_km ?? 0) <= 0) {
+      throw new DataAccessError("La sesión seleccionada no es una carrera válida.");
+    }
   } else {
     const { data: matchingPlans, error } = await supabase
       .from("training_plan_items")
@@ -96,6 +99,7 @@ export async function createWorkoutLog(input: NewWorkoutInput): Promise<string> 
       .eq("user_id", user.id)
       .eq("date", input.date)
       .in("status", ["pending", "modified"])
+      .gt("planned_distance_km", 0)
       .limit(2);
 
     if (error) throw new DataAccessError("No pudimos asociar la sesión del plan.");

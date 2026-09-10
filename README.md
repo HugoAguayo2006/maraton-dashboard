@@ -36,7 +36,7 @@ La clave anónima puede estar en el cliente; la seguridad real está en las poli
 
 ### 3. Ejecutar las migraciones
 
-La migración inicial está en `supabase/migrations/202609070001_initial_schema.sql`. Con Supabase CLI:
+Las migraciones están en `supabase/migrations/`. La segunda migración agrega onboarding, fecha de nacimiento, categorías de esfuerzo, textos originales del Excel y el archivo privado de importaciones. Con Supabase CLI:
 
 ```bash
 npx supabase login
@@ -50,16 +50,31 @@ También puedes ejecutar el contenido de la migración desde **SQL Editor**. Est
 - `training_plan_items`
 - `workout_logs`
 - `ai_recommendations`
+- `training_plan_imports`, que conserva una instantánea privada del Excel original
 - constraints, índices y triggers de `updated_at`
 - policies RLS de SELECT, INSERT, UPDATE y DELETE para cada propietario
 
 `training_plan_items` representa lo que decía el plan. `workout_logs` representa lo que realmente ocurrió. La relación entre ambas es opcional y nunca sustituye una fuente por la otra.
 
-### 4. Crear el usuario
+## Athlete onboarding
 
-Puedes crear la cuenta desde `/login` con **Crear cuenta** o desde **Authentication → Users** en Supabase. Si la confirmación de correo está habilitada, confirma la dirección antes de iniciar sesión.
+Desde `/login`, **Crear cuenta** solicita nombre, fecha de nacimiento, peso, sexo, correo y confirmación de contraseña. Los datos personales viajan como metadata de Auth y un trigger validado crea `athlete_profiles` usando el `id` real de `auth.users`; el navegador nunca elige el `user_id`.
 
-### 5. Cargar el perfil y el plan
+Si la confirmación de correo está habilitada, confirma la dirección antes de iniciar sesión. Los usuarios existentes sin `date_of_birth` son enviados a `/onboarding`; al completar el perfil regresan al dashboard y no vuelven a ver ese paso.
+
+La edad no se edita ni se guarda como fuente de verdad. Se calcula dinámicamente desde `date_of_birth`, considerando si el cumpleaños ya ocurrió en el año actual. Nombre, fecha de nacimiento, peso y sexo se pueden actualizar en `/settings`.
+
+## Training plan import
+
+El plan original está en:
+
+```text
+data/imports/Plan_Maraton_GDL_2026_Hugo.xlsx
+```
+
+El Excel solo se lee desde un script local. Vercel y los componentes React nunca lo abren durante runtime; después de la importación, Supabase es la fuente de verdad.
+
+El importador se autentica como el usuario real y opera bajo RLS, sin `service_role`. Agrega temporalmente estas variables a `.env.local`:
 
 El seed se autentica como el usuario real y opera bajo RLS; no utiliza `service_role`. Agrega temporalmente estas variables a `.env.local`:
 
@@ -70,17 +85,25 @@ SEED_PASSWORD=your-password
 SEED_USER_ID=authenticated-user-uuid
 ```
 
-Después ejecuta:
+Primero valida todo el libro sin hacer escrituras:
 
 ```bash
-npm run seed:plan
+npm run import:plan
 ```
 
-El proceso es idempotente: el perfil se actualiza por `user_id` y las sesiones por `user_id + date + title`. Los datos del perfil de Hugo ya están preparados. El arreglo de sesiones está vacío hasta recibir el plan real; las 9 semanas deben añadirse a `scripts/trainingPlan.seed.ts`.
+Si el reporte muestra todas las filas válidas y cero errores, aplica la importación:
 
-No agregues `SEED_EMAIL`, `SEED_PASSWORD` ni `SEED_USER_ID` a Vercel.
+```bash
+npm run import:plan:apply
+```
 
-### 6. Ejecutar localmente
+El proceso es idempotente por `user_id + date + title`: vuelve a actualizar las mismas sesiones sin duplicarlas y nunca degrada una sesión completada a pendiente. Conserva los textos originales de pace/RPE, infiere `effort_type`, añade las rutinas detalladas de la hoja **Gimnasio**, archiva las cuatro hojas y vincula de forma exacta el workout real del 07/09/2026.
+
+`npm run seed:plan` permanece disponible para futuras cargas programáticas, pero no sobrescribe nombre, nacimiento, peso ni sexo.
+
+No agregues `SEED_EMAIL`, `SEED_PASSWORD` ni `SEED_USER_ID` a Vercel. Después de importar puedes dejar `SEED_PASSWORD` vacío en `.env.local`.
+
+## Ejecutar localmente
 
 ```bash
 npm run dev
@@ -95,6 +118,8 @@ npm run dev
 npm run lint
 npm run build
 npm run seed:plan
+npm run import:plan
+npm run import:plan:apply
 npm start
 ```
 
@@ -105,9 +130,13 @@ npm start
 - `lib/supabase/proxy.ts` y `proxy.ts`: refresco de sesión y protección temprana de rutas.
 - `lib/data/`: acceso centralizado a perfil, plan, entrenamientos y agregados.
 - `types/database.ts`: tipos del esquema de Supabase.
-- `data/mockDashboard.ts`: fixture visual de referencia; las rutas autenticadas ya no lo consumen.
+- `lib/profile/`: validación del perfil y cálculo dinámico de edad.
+- `lib/training/`: pace, RPE, esfuerzo y cumplimiento centralizados.
+- `scripts/importTrainingPlanFromExcel.ts`: validación e importación local del Excel.
 
 Cada Server Action vuelve a comprobar la sesión. El navegador nunca proporciona un `user_id` confiable y todas las consultas quedan limitadas adicionalmente por RLS.
+
+El cumplimiento excluye descanso. Las sesiones de carrera y fuerza sí son elegibles; únicamente `status = completed` cuenta como completada. Una sesión `modified` todavía queda pendiente hasta completarse.
 
 ## Deploy en Vercel
 

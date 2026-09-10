@@ -1,9 +1,10 @@
 import { MapPinned, Route } from "lucide-react";
 import { formatDayAndDate } from "@/lib/format";
+import { EffortTypeBadge } from "@/components/training/EffortTypeBadge";
 import type { TrainingPlanItem } from "@/types/training";
 
 export function LongRunCard({ workout, daysUntil }: { workout: TrainingPlanItem; daysUntil: number | null }) {
-  const day = formatDayAndDate(workout.date).split(",")[0];
+  const day = formatDayAndDate(workout.date);
 
   return (
     <section className="area-longrun card-enter app-card pressable p-5 sm:p-6">
@@ -22,8 +23,9 @@ export function LongRunCard({ workout, daysUntil }: { workout: TrainingPlanItem;
           <Route size={22} />
         </div>
       </div>
+      {workout.effortType && <div className="mt-4"><EffortTypeBadge effortType={workout.effortType} /></div>}
       <div className="mt-5 flex items-center justify-between border-t border-line/80 pt-4 text-xs font-semibold">
-        <span className="text-muted">{workout.targetPace ?? "Ritmo libre"} · RPE {workout.targetRpe ?? "—"}</span>
+        <span className="text-muted">{workout.targetPace ?? "Ritmo libre"} · {workout.targetRpe ?? "RPE —"}</span>
         <span className="text-accent">{daysUntil === null ? "Fecha pendiente" : daysUntil === 0 ? "Hoy" : `Faltan ${daysUntil} días`}</span>
       </div>
     </section>

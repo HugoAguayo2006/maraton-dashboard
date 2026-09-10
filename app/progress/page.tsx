@@ -26,6 +26,7 @@ export default async function ProgressPage() {
     { label: "Kilómetros acumulados", value: `${summary.totalKilometers} km`, detail: "todos los registros", icon: TrendingUp, tone: "success" },
     { label: "Tirada más larga", value: summary.longestRunKm === null ? "—" : `${summary.longestRunKm} km`, detail: summary.longestRunKm === null ? "sin datos" : "mejor distancia", icon: Route, tone: "accent" },
     { label: "RPE promedio", value: summary.averageRpe?.toString() ?? "—", detail: summary.averageRpe === null ? "sin datos" : "esfuerzo percibido", icon: CircleGauge, tone: "warning" },
+    { label: "Dolor promedio", value: summary.averagePain === null ? "—" : `${summary.averagePain}/10`, detail: summary.averagePain === null ? "sin datos" : "registros reales", icon: Activity, tone: "warning" },
     { label: "Cumplimiento", value: summary.planCompliance === null ? "—" : `${summary.planCompliance}%`, detail: summary.planCompliance === null ? "sin sesiones vencidas" : "del plan hasta hoy", icon: Award, tone: "success" },
     { label: "Pace promedio", value: summary.averagePace ?? "—", detail: summary.averagePace === null ? "sin datos" : "pace global", icon: Activity, tone: "accent" },
   ] as const;

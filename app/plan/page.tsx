@@ -9,6 +9,8 @@ import {
 } from "@/lib/data/trainingPlan";
 import { getWorkoutLogsBetween } from "@/lib/data/workouts";
 import { getTodayIso, getWeekRange } from "@/lib/date";
+import { formatDistance } from "@/lib/format";
+import { isEligiblePlanSession } from "@/lib/training/compliance";
 
 export const metadata: Metadata = { title: "Plan" };
 
@@ -28,9 +30,7 @@ export default async function PlanPage() {
     (total, workout) => total + workout.distanceKm,
     0,
   );
-  const weeklySessions = currentWeekPlan.filter(
-    (item) => item.sessionType !== "rest",
-  );
+  const weeklySessions = currentWeekPlan.filter(isEligiblePlanSession);
   const completion = plannedKm > 0
     ? Math.min(100, Math.round((completedKm / plannedKm) * 100))
     : 0;
@@ -56,12 +56,12 @@ export default async function PlanPage() {
           <div>
             <p className="text-[10px] font-bold tracking-[0.12em] text-white/50 uppercase">Objetivo semanal</p>
             <p className="mt-2 text-2xl font-bold tracking-[-0.035em]">
-              {plannedKm.toFixed(1)} km · {weeklySessions.length} sesiones
+              {formatDistance(plannedKm)} km · {weeklySessions.length} sesiones
             </p>
           </div>
           <div className="mt-4 w-full sm:mt-0 sm:w-56">
             <div className="mb-2 flex justify-between text-[11px] font-semibold text-white/55">
-              <span>{completedKm.toFixed(1)} km completados</span>
+              <span>{formatDistance(completedKm)} km completados</span>
               <span>{completion}%</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-white/10">

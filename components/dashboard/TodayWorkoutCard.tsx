@@ -8,6 +8,7 @@ import {
   Route,
 } from "lucide-react";
 import { formatDuration } from "@/lib/format";
+import { EffortTypeBadge } from "@/components/training/EffortTypeBadge";
 import type { TrainingPlanItem, WorkoutLog, WorkoutStatus } from "@/types/training";
 
 const statusLabel: Record<WorkoutStatus, string> = {
@@ -48,6 +49,7 @@ export function TodayWorkoutCard({ workout, log }: TodayWorkoutCardProps) {
           <h2 className="text-[1.55rem] font-bold tracking-[-0.035em] sm:text-[1.75rem]">
             {workout.title}
           </h2>
+          {workout.effortType && <div className="mt-3"><EffortTypeBadge effortType={workout.effortType} /></div>}
           <p className="mt-1 text-[3.25rem] leading-none font-bold tracking-[-0.065em] sm:text-[4rem]">
             {completed ? log.distanceKm : workout.distanceKm}
             <span className="ml-2 text-xl font-semibold tracking-[-0.02em] text-muted">km</span>

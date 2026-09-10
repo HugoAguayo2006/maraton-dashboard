@@ -17,7 +17,7 @@ export default async function LoginPage() {
       <div aria-hidden className="absolute -top-40 -right-28 size-[440px] rounded-full border-[80px] border-accent/5" />
       <div aria-hidden className="absolute -bottom-32 -left-28 size-80 rounded-full border-[55px] border-ink/[0.025]" />
 
-      <div className="relative w-full max-w-[430px]">
+      <div className="relative w-full max-w-[560px]">
         <div className="mb-7 flex items-center justify-center gap-3">
           <span className="grid size-11 place-items-center rounded-[15px] bg-ink text-white shadow-sm">
             <span className="h-4 w-4 rotate-45 rounded-[5px] border-[3px] border-white" />

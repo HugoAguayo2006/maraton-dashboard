@@ -1,29 +1,38 @@
 import type { TableRow } from "@/types/database";
 import type {
   AthleteProfile,
+  EffortType,
   SessionType,
   TrainingPlanItem,
   WorkoutLog,
   WorkoutStatus,
 } from "@/types/training";
+import { calculateAge } from "@/lib/profile/calculateAge";
+import { getFirstName } from "@/lib/profile/profile";
 import { formatPaceSeconds } from "@/lib/format";
+import { formatPaceRange } from "@/lib/training/pace";
+import { formatRpeRange } from "@/lib/training/rpe";
 
 export function mapAthleteProfile(
   row: TableRow<"athlete_profiles">,
 ): AthleteProfile {
-  const [firstName, ...lastNameParts] = row.name.trim().split(/\s+/);
+  const firstName = getFirstName(row.name);
+  const lastNameParts = row.name.trim().split(/\s+/).slice(1);
 
   return {
     id: row.id,
-    firstName: firstName || row.name,
+    name: row.name,
+    firstName,
     lastName: lastNameParts.join(" "),
-    age: row.age,
+    dateOfBirth: row.date_of_birth,
+    age: row.date_of_birth ? calculateAge(row.date_of_birth) : null,
     sex: row.sex as AthleteProfile["sex"],
     weightKg: Number(row.weight_kg),
     raceName: row.marathon_name,
     raceDate: row.marathon_date,
     goal: row.goal,
     naturalPace: formatPaceSeconds(row.natural_pace_seconds) ?? "—",
+    naturalPaceSeconds: row.natural_pace_seconds,
   };
 }
 
@@ -36,17 +45,18 @@ export function mapTrainingPlanItem(
     weekNumber: row.week,
     title: row.title,
     sessionType: row.session_type as SessionType,
+    effortType: row.effort_type as EffortType | null,
     distanceKm: row.planned_distance_km === null ? null : Number(row.planned_distance_km),
-    targetPace: formatRange(
+    targetPace: row.target_pace_text ?? formatPaceRange(
       row.target_pace_min_seconds,
       row.target_pace_max_seconds,
-      formatPaceSeconds,
     ),
-    targetRpe: formatRange(
+    targetRpe: row.target_rpe_text ?? formatRpeRange(
       row.target_rpe_min,
       row.target_rpe_max,
-      (value) => value.toString(),
     ),
+    targetPaceText: row.target_pace_text,
+    targetRpeText: row.target_rpe_text,
     estimatedDurationMin: row.estimated_duration_minutes,
     status: row.status as WorkoutStatus,
     warmup: row.warmup ?? undefined,
@@ -82,18 +92,4 @@ export function mapWorkoutLog(
     gels: row.gels,
     notes: row.notes,
   };
-}
-
-function formatRange(
-  minimum: number | null,
-  maximum: number | null,
-  formatter: (value: number) => string | null,
-): string | null {
-  if (minimum === null && maximum === null) return null;
-  if (minimum === null) return formatter(maximum as number);
-  if (maximum === null || minimum === maximum) return formatter(minimum);
-
-  const formattedMinimum = formatter(minimum)?.replace(" /km", "");
-  const formattedMaximum = formatter(maximum);
-  return `${formattedMinimum}–${formattedMaximum}`;
 }

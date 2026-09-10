@@ -1,62 +1,84 @@
 import type { Metadata } from "next";
-import { ChevronRight, Database, LogOut, Shield, UserRound } from "lucide-react";
+import { CalendarDays, Database, Gauge, LogOut, Shield, Target, UserRound } from "lucide-react";
 import { logout } from "@/app/actions/auth";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { ProfileForm } from "@/components/profile/ProfileForm";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getAthleteProfile } from "@/lib/data/athlete";
+import { formatShortDate } from "@/lib/format";
+import { getAthleteSexLabel } from "@/lib/profile/profile";
 
 export const metadata: Metadata = { title: "Configuración" };
 
-const rows = [
-  { label: "Perfil del atleta", detail: "Datos personales y objetivo", icon: UserRound },
-  { label: "Conexión con Supabase", detail: "Base de datos conectada", icon: Database },
-  { label: "Privacidad y acceso", detail: "Protegido con Row Level Security", icon: Shield },
-];
-
 export default async function SettingsPage() {
-  const athleteProfile = await getAthleteProfile();
+  const profile = await getAthleteProfile();
 
   return (
     <>
-      <PageHeader title="Configuración" description="Tu perfil de entrenamiento y las preferencias de la aplicación." />
-      {athleteProfile ? (
-        <section className="app-card mb-5 p-5 sm:p-6">
-          <div className="flex items-center gap-4">
-            <span className="grid size-14 place-items-center rounded-full bg-ink text-lg font-bold text-white">
-              {athleteProfile.firstName.charAt(0).toUpperCase()}
-            </span>
-            <div>
-              <h2 className="text-lg font-bold">{athleteProfile.firstName} {athleteProfile.lastName}</h2>
-              <p className="mt-0.5 text-sm text-muted">{athleteProfile.age} años · {athleteProfile.weightKg} kg</p>
+      <PageHeader title="Configuración" description="Tu perfil personal y el objetivo que guía el plan." />
+
+      {profile && (
+        <>
+          <section className="app-card mb-5 p-5 sm:p-6">
+            <div className="flex items-center gap-4">
+              <span className="grid size-14 place-items-center rounded-full bg-ink text-lg font-bold text-white">
+                {profile.firstName.charAt(0).toUpperCase()}
+              </span>
+              <div>
+                <h2 className="text-lg font-bold">{profile.name}</h2>
+                <p className="mt-0.5 text-sm text-muted">
+                  {profile.age ?? "—"} años · {profile.weightKg} kg · {getAthleteSexLabel(profile.sex)}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="mt-5 rounded-2xl bg-surface-subtle p-4">
-            <p className="text-[10px] font-bold tracking-wide text-muted uppercase">Objetivo principal</p>
-            <p className="mt-1.5 text-sm font-semibold">{athleteProfile.goal}.</p>
-          </div>
-        </section>
-      ) : (
-        <EmptyState icon={UserRound} title="Perfil pendiente" description="Ejecuta el seed para crear tu perfil de atleta." className="mb-5" />
+          </section>
+
+          <section className="app-card mb-5 p-5 sm:p-6">
+            <div className="mb-6 flex items-center gap-3">
+              <span className="grid size-10 place-items-center rounded-2xl bg-accent-soft text-accent"><UserRound size={19} /></span>
+              <div><h2 className="text-base font-bold">Perfil del atleta</h2><p className="mt-0.5 text-xs text-muted">La edad se calcula desde tu fecha de nacimiento.</p></div>
+            </div>
+            <ProfileForm profile={profile} intent="settings" />
+          </section>
+
+          <section className="app-card mb-5 p-5 sm:p-6">
+            <p className="eyebrow mb-5">Carrera objetivo</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ProfileDetail icon={Target} label="Carrera" value={profile.raceName} />
+              <ProfileDetail icon={CalendarDays} label="Fecha" value={formatShortDate(profile.raceDate)} />
+              <ProfileDetail icon={Gauge} label="Pace natural" value={profile.naturalPace} />
+              <ProfileDetail icon={Target} label="Objetivo" value={profile.goal} />
+            </div>
+          </section>
+        </>
       )}
 
-      <section className="app-card divide-y divide-line/80 overflow-hidden px-4">
-        {rows.map((row) => {
-          const Icon = row.icon;
-          return (
-            <button key={row.label} type="button" className="flex min-h-[72px] w-full items-center gap-3 px-1 text-left">
-              <span className="grid size-9 place-items-center rounded-xl bg-surface-subtle text-muted"><Icon size={18} /></span>
-              <span className="flex-1"><span className="block text-sm font-bold">{row.label}</span><span className="mt-0.5 block text-xs text-muted">{row.detail}</span></span>
-              <ChevronRight size={17} className="text-muted" />
-            </button>
-          );
-        })}
+      <section className="app-card mb-5 grid gap-3 p-4 sm:grid-cols-2">
+        <ProfileDetail icon={Database} label="Datos" value="Supabase conectado" />
+        <ProfileDetail icon={Shield} label="Privacidad" value="Protegido con RLS" />
       </section>
 
-      <form action={logout} className="mt-5">
+      <form action={logout}>
         <button type="submit" className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-danger/15 bg-danger-soft px-5 text-sm font-bold text-danger sm:w-fit">
           <LogOut size={17} /> Cerrar sesión
         </button>
       </form>
     </>
+  );
+}
+
+function ProfileDetail({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Target;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex min-h-16 items-center gap-3 rounded-2xl bg-surface-subtle p-3.5">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white text-muted shadow-sm"><Icon size={17} /></span>
+      <span><span className="block text-[10px] font-bold tracking-wide text-muted uppercase">{label}</span><span className="mt-0.5 block text-sm font-semibold first-letter:uppercase">{value}</span></span>
+    </div>
   );
 }

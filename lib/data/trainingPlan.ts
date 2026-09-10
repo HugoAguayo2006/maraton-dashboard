@@ -64,9 +64,10 @@ export const getNextLongRun = cache(
       .from("training_plan_items")
       .select("*")
       .eq("user_id", user.id)
-      .eq("session_type", "long-run")
+      .eq("effort_type", "long_run")
       .gte("date", referenceDate)
       .in("status", ["pending", "modified"])
+      .gt("planned_distance_km", 0)
       .order("date", { ascending: true })
       .limit(1)
       .maybeSingle();
@@ -87,6 +88,7 @@ export const getAssignablePlanItems = cache(
       .gte("date", addDays(referenceDate, -7))
       .lte("date", addDays(referenceDate, 14))
       .in("status", ["pending", "modified"])
+      .gt("planned_distance_km", 0)
       .order("date", { ascending: true });
 
     if (error) throw new DataAccessError("No pudimos cargar las sesiones disponibles.");

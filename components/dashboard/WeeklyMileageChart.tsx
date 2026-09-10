@@ -18,7 +18,7 @@ export function WeeklyMileageChart({ data }: { data: MileageWeek[] }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <span className="eyebrow">Volumen semanal</span>
-          <p className="mt-2 text-sm font-medium text-muted">Kilómetros de las últimas 6 semanas</p>
+          <p className="mt-2 text-sm font-medium text-muted">Plan vs. real · {data.length} semanas con datos</p>
         </div>
         <div className="hidden items-center gap-3 text-[10px] font-semibold text-muted sm:flex">
           <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-accent" /> Real</span>

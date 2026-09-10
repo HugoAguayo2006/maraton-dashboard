@@ -4,10 +4,13 @@ import { MobileBottomNav } from "@/components/navigation/MobileBottomNav";
 import { requireUser } from "@/lib/auth";
 import { getAthleteProfile } from "@/lib/data/athlete";
 import { differenceInCalendarDays, getTodayIso } from "@/lib/date";
+import { isAthleteProfileComplete } from "@/lib/profile/profile";
+import { redirect } from "next/navigation";
 
 export async function ProtectedShell({ children }: { children: ReactNode }) {
   const user = await requireUser();
   const profile = await getAthleteProfile();
+  if (!isAthleteProfileComplete(profile)) redirect("/onboarding");
   const daysToRace = profile
     ? Math.max(0, differenceInCalendarDays(getTodayIso(), profile.raceDate))
     : null;

@@ -35,10 +35,15 @@ export function WorkoutForm({ planItems, defaultDate }: { planItems: TrainingPla
     () => formatPace(durationSeconds, Number(distance)),
     [distance, durationSeconds],
   );
+  const matchingPlanItems = useMemo(
+    () => planItems.filter((item) => item.date === date),
+    [date, planItems],
+  );
 
   function handleDateChange(nextDate: string) {
     setDate(nextDate);
-    setSelectedPlanItemId(planItems.find((item) => item.date === nextDate)?.id ?? "");
+    const matches = planItems.filter((item) => item.date === nextDate);
+    setSelectedPlanItemId(matches.length === 1 ? matches[0].id : "");
   }
 
   return (
@@ -65,10 +70,13 @@ export function WorkoutForm({ planItems, defaultDate }: { planItems: TrainingPla
           <Field label="Sesión del plan (opcional)">
             <select name="training_plan_item_id" value={selectedPlanItemId} onChange={(event) => setSelectedPlanItemId(event.target.value)} className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-semibold">
               <option value="">Entrenamiento libre</option>
-              {planItems.map((item) => (
+              {matchingPlanItems.map((item) => (
                 <option key={item.id} value={item.id}>{formatDayAndDate(item.date)} · {item.title}</option>
               ))}
             </select>
+            {matchingPlanItems.length === 0 && (
+              <p className="mt-1.5 text-[11px] text-muted">No hay una carrera pendiente del plan para esta fecha.</p>
+            )}
           </Field>
         </div>
 

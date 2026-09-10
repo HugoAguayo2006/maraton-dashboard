@@ -1,25 +1,40 @@
 export type WorkoutStatus = "pending" | "completed" | "modified" | "skipped";
 
+export type AthleteSex = "male" | "female" | "prefer_not_to_say";
+
+export type EffortType =
+  | "recovery"
+  | "easy"
+  | "steady_moderate"
+  | "tempo_threshold"
+  | "intervals_speed"
+  | "long_run"
+  | "rest";
+
 export type SessionType =
   | "easy"
   | "long-run"
   | "tempo"
   | "intervals"
   | "gym"
+  | "strength"
   | "recovery"
   | "rest";
 
 export interface AthleteProfile {
   id: string;
+  name: string;
   firstName: string;
   lastName: string;
-  age: number;
-  sex: "male" | "female" | "other";
+  dateOfBirth: string | null;
+  age: number | null;
+  sex: AthleteSex;
   weightKg: number;
   raceName: string;
   raceDate: string;
   goal: string;
   naturalPace: string;
+  naturalPaceSeconds: number;
 }
 
 /** The prescribed session: what the athlete was expected to do. */
@@ -29,9 +44,12 @@ export interface TrainingPlanItem {
   weekNumber: number;
   title: string;
   sessionType: SessionType;
+  effortType: EffortType | null;
   distanceKm: number | null;
   targetPace: string | null;
   targetRpe: string | null;
+  targetPaceText: string | null;
+  targetRpeText: string | null;
   estimatedDurationMin: number | null;
   status: WorkoutStatus;
   warmup?: string;
@@ -108,6 +126,7 @@ export interface ProgressSummary {
   totalKilometers: number;
   longestRunKm: number | null;
   averageRpe: number | null;
+  averagePain: number | null;
   planCompliance: number | null;
   averagePace: string | null;
 }

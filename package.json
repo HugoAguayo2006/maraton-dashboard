@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:plan": "tsx scripts/seedTrainingPlan.ts"
+    "seed:plan": "tsx scripts/seedTrainingPlan.ts",
+    "import:plan": "tsx scripts/importTrainingPlanFromExcel.ts",
+    "import:plan:apply": "tsx scripts/importTrainingPlanFromExcel.ts --apply"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.6",
@@ -27,6 +29,7 @@
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "read-excel-file": "^9.3.10",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5"

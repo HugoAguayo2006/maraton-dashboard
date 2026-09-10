@@ -26,6 +26,12 @@ import type {
   WorkoutLog,
 } from "@/types/training";
 import { formatPace } from "@/lib/format";
+import {
+  calculatePlanCompliance,
+  isCompletedPlanSession,
+  isEligiblePlanSession,
+  isPendingPlanSession,
+} from "@/lib/training/compliance";
 
 export const getDashboardData = cache(async (): Promise<DashboardData> => {
   const referenceDate = getTodayIso();
@@ -44,7 +50,7 @@ export const getDashboardData = cache(async (): Promise<DashboardData> => {
   const weeklyWorkouts = allWorkouts.filter(
     (workout) => workout.date >= weekStart && workout.date <= weekEnd,
   );
-  const sessions = currentWeekPlan.filter((item) => item.sessionType !== "rest");
+  const sessions = currentWeekPlan.filter(isEligiblePlanSession);
   const todayLog = today
     ? allWorkouts.find((workout) => workout.planItemId === today.id)
     : allWorkouts.find((workout) => workout.date === referenceDate);
@@ -68,14 +74,12 @@ export const getDashboardData = cache(async (): Promise<DashboardData> => {
       weekNumber: currentWeekPlan[0]?.weekNumber ?? 0,
       completedKm: roundDistance(sumDistance(weeklyWorkouts)),
       plannedKm: roundDistance(sumPlannedDistance(currentWeekPlan)),
-      completedWorkouts: sessions.filter(
-        (item) => item.status === "completed" || item.status === "modified",
-      ).length,
+      completedWorkouts: sessions.filter(isCompletedPlanSession).length,
       totalWorkouts: sessions.length,
-      pendingWorkouts: sessions.filter((item) => item.status === "pending").length,
+      pendingWorkouts: sessions.filter(isPendingPlanSession).length,
     },
     recovery: getRecoveryMetricsFromLogs(allWorkouts),
-    mileageHistory: buildWeeklyMileageHistory(allPlan, allWorkouts, referenceDate),
+    mileageHistory: buildWeeklyMileageHistory(allPlan, allWorkouts),
     recentWorkouts: allWorkouts.slice(0, 3),
     daysToLongRun: nextLongRun
       ? Math.max(0, differenceInCalendarDays(referenceDate, nextLongRun.date))
@@ -91,12 +95,12 @@ export const getRecoveryMetrics = cache(async (): Promise<RecoveryMetrics> => {
 });
 
 export const getWeeklyMileageHistory = cache(
-  async (referenceDate = getTodayIso()): Promise<MileageWeek[]> => {
+  async (): Promise<MileageWeek[]> => {
     const [plan, workouts] = await Promise.all([
       getAllTrainingPlanItems(),
       getAllWorkoutLogs(500),
     ]);
-    return buildWeeklyMileageHistory(plan, workouts, referenceDate);
+    return buildWeeklyMileageHistory(plan, workouts);
   },
 );
 
@@ -118,12 +122,7 @@ export const getProgressData = cache(async (): Promise<{
     (total, workout) => total + workout.durationSeconds,
     0,
   );
-  const duePlan = plan.filter(
-    (item) => item.date <= referenceDate && item.sessionType !== "rest",
-  );
-  const completedPlan = duePlan.filter(
-    (item) => item.status === "completed" || item.status === "modified",
-  );
+  const duePlan = plan.filter((item) => item.date <= referenceDate);
 
   return {
     summary: {
@@ -138,14 +137,18 @@ export const getProgressData = cache(async (): Promise<{
               workouts.length,
           )
         : null,
-      planCompliance: duePlan.length
-        ? Math.round((completedPlan.length / duePlan.length) * 100)
+      averagePain: workouts.length
+        ? roundOneDecimal(
+            workouts.reduce((total, workout) => total + workout.pain, 0) /
+              workouts.length,
+          )
         : null,
+      planCompliance: calculatePlanCompliance(duePlan),
       averagePace: totalDistance > 0
         ? formatPace(totalDuration, totalDistance)
         : null,
     },
-    mileageHistory: buildWeeklyMileageHistory(plan, workouts, referenceDate),
+    mileageHistory: buildWeeklyMileageHistory(plan, workouts),
   };
 });
 
@@ -162,30 +165,48 @@ function getRecoveryMetricsFromLogs(workouts: WorkoutLog[]): RecoveryMetrics {
 function buildWeeklyMileageHistory(
   plan: TrainingPlanItem[],
   workouts: WorkoutLog[],
-  referenceDate: string,
 ): MileageWeek[] {
-  const currentWeekStart = getWeekRange(referenceDate).start;
+  if (plan.length > 0) {
+    const weeks = Array.from(new Set(plan.map((item) => item.weekNumber))).sort((a, b) => a - b);
+    return weeks.map((weekNumber) => {
+      const weekPlan = plan.filter((item) => item.weekNumber === weekNumber);
+      const start = weekPlan[0].date;
+      const end = weekPlan.at(-1)?.date ?? start;
+      const weekWorkouts = workouts.filter(
+        (workout) => workout.date >= start && workout.date <= end,
+      );
+      return buildMileageWeek(`S${weekNumber}`, weekPlan, weekWorkouts);
+    });
+  }
 
-  return Array.from({ length: 6 }, (_, index) => {
-    const start = addDays(currentWeekStart, (index - 5) * 7);
+  const starts = Array.from(
+    new Set(workouts.map((workout) => getWeekRange(workout.date).start)),
+  ).sort();
+  return starts.map((start) => {
     const end = addDays(start, 6);
-    const weekPlan = plan.filter((item) => item.date >= start && item.date <= end);
     const weekWorkouts = workouts.filter(
       (workout) => workout.date >= start && workout.date <= end,
     );
-
-    return {
-      label: index === 5 ? "Actual" : `S-${5 - index}`,
-      kilometers: roundDistance(sumDistance(weekWorkouts)),
-      plannedKilometers: roundDistance(sumPlannedDistance(weekPlan)),
-      averageRpe: weekWorkouts.length
-        ? roundOneDecimal(
-            weekWorkouts.reduce((total, workout) => total + workout.rpe, 0) /
-              weekWorkouts.length,
-          )
-        : undefined,
-    };
+    return buildMileageWeek(start.slice(5), [], weekWorkouts);
   });
+}
+
+function buildMileageWeek(
+  label: string,
+  plan: TrainingPlanItem[],
+  workouts: WorkoutLog[],
+): MileageWeek {
+  return {
+    label,
+    kilometers: roundDistance(sumDistance(workouts)),
+    plannedKilometers: roundDistance(sumPlannedDistance(plan)),
+    averageRpe: workouts.length
+      ? roundOneDecimal(
+          workouts.reduce((total, workout) => total + workout.rpe, 0) /
+            workouts.length,
+        )
+      : undefined,
+  };
 }
 
 function sumDistance(workouts: WorkoutLog[]): number {

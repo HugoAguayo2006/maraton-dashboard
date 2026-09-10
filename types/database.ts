@@ -20,6 +20,7 @@ export interface Database {
           user_id: string;
           name: string;
           age: number;
+          date_of_birth: string | null;
           sex: string;
           weight_kg: number;
           marathon_name: string;
@@ -32,6 +33,7 @@ export interface Database {
           user_id: string;
           name: string;
           age: number;
+          date_of_birth?: string | null;
           sex: string;
           weight_kg: number;
           marathon_name: string;
@@ -50,12 +52,15 @@ export interface Database {
           week: number;
           date: string;
           session_type: string;
+          effort_type: string | null;
           title: string;
           planned_distance_km: number | null;
           target_pace_min_seconds: number | null;
           target_pace_max_seconds: number | null;
+          target_pace_text: string | null;
           target_rpe_min: number | null;
           target_rpe_max: number | null;
+          target_rpe_text: string | null;
           estimated_duration_minutes: number | null;
           warmup: string | null;
           main_workout: string | null;
@@ -64,6 +69,8 @@ export interface Database {
           nutrition: string | null;
           recovery_notes: string | null;
           status: string;
+          source_row_number: number | null;
+          source_data: Json;
         };
         Insert: {
           id?: string;
@@ -71,12 +78,15 @@ export interface Database {
           week: number;
           date: string;
           session_type: string;
+          effort_type?: string | null;
           title: string;
           planned_distance_km?: number | null;
           target_pace_min_seconds?: number | null;
           target_pace_max_seconds?: number | null;
+          target_pace_text?: string | null;
           target_rpe_min?: number | null;
           target_rpe_max?: number | null;
+          target_rpe_text?: string | null;
           estimated_duration_minutes?: number | null;
           warmup?: string | null;
           main_workout?: string | null;
@@ -85,6 +95,8 @@ export interface Database {
           nutrition?: string | null;
           recovery_notes?: string | null;
           status?: string;
+          source_row_number?: number | null;
+          source_data?: Json;
           created_at?: string;
           updated_at?: string;
         };
@@ -169,6 +181,29 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["ai_recommendations"]["Insert"]>;
         Relationships: [];
       };
+      training_plan_imports: {
+        Row: TimestampColumns & {
+          user_id: string;
+          source_name: string;
+          source_sha256: string;
+          sheet_names: Json;
+          workbook_snapshot: Json;
+          imported_row_count: number;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          source_name: string;
+          source_sha256: string;
+          sheet_names?: Json;
+          workbook_snapshot?: Json;
+          imported_row_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["training_plan_imports"]["Insert"]>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -182,3 +217,6 @@ export type TableRow<T extends keyof Database["public"]["Tables"]> =
 
 export type TableInsert<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Insert"];
+
+export type TableUpdate<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Update"];

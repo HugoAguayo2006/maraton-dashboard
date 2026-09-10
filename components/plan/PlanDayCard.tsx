@@ -8,6 +8,7 @@ import {
   Timer,
 } from "lucide-react";
 import { formatDayAndDate } from "@/lib/format";
+import { EffortTypeBadge } from "@/components/training/EffortTypeBadge";
 import type { TrainingPlanItem } from "@/types/training";
 
 const statusLabels = {
@@ -25,7 +26,7 @@ const statusStyles = {
 };
 
 export function PlanDayCard({ item }: { item: TrainingPlanItem }) {
-  const isGym = item.sessionType === "gym";
+  const isGym = item.sessionType === "gym" || item.sessionType === "strength";
   const completed = item.status === "completed";
   const Icon = isGym ? Dumbbell : Footprints;
 
@@ -40,10 +41,15 @@ export function PlanDayCard({ item }: { item: TrainingPlanItem }) {
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-bold text-muted capitalize">{formatDayAndDate(item.date)}</p>
           <h2 className="mt-1 truncate text-base font-bold tracking-[-0.02em]">{item.title}</h2>
+          <p className="mt-1 text-[11px] font-medium text-muted sm:hidden">
+            {item.distanceKm ? `${item.distanceKm} km` : "Sin distancia"} · {item.targetPace ?? "Ritmo libre"} · {item.targetRpe ?? "RPE —"}
+          </p>
+          {item.effortType && <div className="mt-1.5 sm:hidden"><EffortTypeBadge effortType={item.effortType} /></div>}
         </div>
         <div className="hidden text-right sm:block">
           <p className="text-sm font-bold">{item.distanceKm ? `${item.distanceKm} km` : item.estimatedDurationMin ? `${item.estimatedDurationMin} min` : "Sin distancia"}</p>
-          <p className="mt-0.5 text-[11px] font-medium text-muted">{item.targetPace ?? "Ritmo libre"} · RPE {item.targetRpe ?? "—"}</p>
+          <p className="mt-0.5 text-[11px] font-medium text-muted">{item.targetPace ?? "Ritmo libre"} · {item.targetRpe ?? "RPE —"}</p>
+          {item.effortType && <div className="mt-1.5 flex justify-end"><EffortTypeBadge effortType={item.effortType} /></div>}
         </div>
         <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${statusStyles[item.status]}`}>
           {statusLabels[item.status]}
@@ -54,8 +60,9 @@ export function PlanDayCard({ item }: { item: TrainingPlanItem }) {
       <div className="border-t border-line/80 bg-surface-subtle/65 p-5 sm:px-6 sm:py-6">
         <div className="mb-5 flex flex-wrap gap-2 sm:hidden">
           {item.estimatedDurationMin && <Pill icon={<Timer size={13} />} text={`${item.estimatedDurationMin} min`} />}
-          <Pill icon={<Gauge size={13} />} text={`RPE ${item.targetRpe ?? "—"}`} />
+          <Pill icon={<Gauge size={13} />} text={item.targetRpe ?? "RPE —"} />
           {item.distanceKm && <Pill icon={<Footprints size={13} />} text={`${item.distanceKm} km`} />}
+          {item.effortType && <EffortTypeBadge effortType={item.effortType} />}
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           {item.warmup && <Detail label="Calentamiento" text={item.warmup} />}
@@ -82,7 +89,7 @@ function Detail({ label, text }: { label: string; text: string }) {
       </span>
       <div>
         <p className="text-[10px] font-bold tracking-[0.08em] text-muted uppercase">{label}</p>
-        <p className="mt-1 text-sm leading-5 font-medium">{text}</p>
+        <p className="mt-1 whitespace-pre-line text-sm leading-5 font-medium">{text}</p>
       </div>
     </div>
   );

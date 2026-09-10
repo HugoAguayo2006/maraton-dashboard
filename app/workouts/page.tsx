@@ -4,7 +4,7 @@ import { ArrowUpRight, Plus, TimerReset } from "lucide-react";
 import { RecentWorkouts } from "@/components/dashboard/RecentWorkouts";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getAllWorkoutLogs } from "@/lib/data/workouts";
-import { formatDuration } from "@/lib/format";
+import { formatDistance, formatDuration } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Entrenamientos" };
 
@@ -28,7 +28,7 @@ export default async function WorkoutsPage() {
 
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Stat label="Sesiones" value={workoutLogs.length.toString()} />
-        <Stat label="Distancia" value={`${totalKm.toFixed(1)} km`} />
+        <Stat label="Distancia" value={`${formatDistance(totalKm)} km`} />
         <div className="col-span-2 sm:col-span-1"><Stat label="Tiempo total" value={formatDuration(totalSeconds)} /></div>
       </div>
 

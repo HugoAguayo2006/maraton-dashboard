@@ -9,6 +9,7 @@ const protectedRoutes = [
   "/workouts",
   "/progress",
   "/settings",
+  "/onboarding",
 ];
 
 export async function updateSession(request: NextRequest) {
