@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { getTodayIso, getWeekRange } from "@/lib/date";
 import { DataAccessError } from "@/lib/data/errors";
 import { mapWorkoutLog } from "@/lib/data/mappers";
+import { syncTrainingPlanItemStatus } from "@/lib/data/planStatus";
 import { createClient } from "@/lib/supabase/server";
 import type { TableInsert, TableRow } from "@/types/database";
 import type { WorkoutLog } from "@/types/training";
@@ -75,6 +76,21 @@ export async function getWorkoutLogForPlanItem(
   return workout ?? null;
 }
 
+export const getRecordedWorkoutPlanItemIds = cache(async (): Promise<string[]> => {
+  const user = await requireUser();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("workout_logs")
+    .select("training_plan_item_id")
+    .eq("user_id", user.id)
+    .not("training_plan_item_id", "is", null);
+
+  if (error) throw new DataAccessError("No pudimos comprobar las carreras registradas.");
+  return Array.from(new Set(
+    (data ?? []).flatMap((row) => row.training_plan_item_id ? [row.training_plan_item_id] : []),
+  ));
+});
+
 export async function createWorkoutLog(input: NewWorkoutInput): Promise<string> {
   const user = await requireUser();
   const supabase = await createClient();
@@ -83,15 +99,30 @@ export async function createWorkoutLog(input: NewWorkoutInput): Promise<string> 
   if (planItemId) {
     const { data: ownedPlan, error } = await supabase
       .from("training_plan_items")
-      .select("id, planned_distance_km")
+      .select("id, planned_distance_km, status")
       .eq("id", planItemId)
       .eq("user_id", user.id)
-      .in("status", ["pending", "modified"])
       .maybeSingle();
 
-    if (error || !ownedPlan || Number(ownedPlan.planned_distance_km ?? 0) <= 0) {
+    if (
+      error
+      || !ownedPlan
+      || ownedPlan.status === "skipped"
+      || Number(ownedPlan.planned_distance_km ?? 0) <= 0
+    ) {
       throw new DataAccessError("La sesión seleccionada no es una carrera válida.");
     }
+
+    const { data: existingLog, error: existingError } = await supabase
+      .from("workout_logs")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("training_plan_item_id", planItemId)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingError) throw new DataAccessError("No pudimos comprobar la carrera seleccionada.");
+    if (existingLog) throw new DataAccessError("Esta carrera del plan ya tiene un registro.");
   } else {
     const { data: matchingPlans, error } = await supabase
       .from("training_plan_items")
@@ -135,13 +166,12 @@ export async function createWorkoutLog(input: NewWorkoutInput): Promise<string> 
   if (error) throw new DataAccessError("No pudimos guardar el entrenamiento.");
 
   if (planItemId) {
-    const { error: updateError } = await supabase
-      .from("training_plan_items")
-      .update({ status: "completed" })
-      .eq("id", planItemId)
-      .eq("user_id", user.id);
-
-    if (updateError) throw new DataAccessError("El entrenamiento se guardó, pero no pudimos actualizar el plan.");
+    try {
+      await syncTrainingPlanItemStatus({ supabase, userId: user.id, planItemId });
+    } catch {
+      await supabase.from("workout_logs").delete().eq("id", data.id).eq("user_id", user.id);
+      throw new DataAccessError("No pudimos vincular la carrera con tu plan.");
+    }
   }
 
   return data.id;

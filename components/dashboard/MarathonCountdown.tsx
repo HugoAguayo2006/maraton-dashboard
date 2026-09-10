@@ -18,7 +18,7 @@ export function MarathonCountdown({ raceName, raceDate, distanceKm, location, da
   }).format(new Date(`${raceDate}T12:00:00Z`));
 
   return (
-    <section className="area-countdown card-enter app-card relative overflow-hidden bg-ink p-5 text-white sm:p-6">
+    <section className="area-countdown card-enter app-card app-card-dark relative overflow-hidden p-5 sm:p-6">
       <div aria-hidden className="absolute -right-8 -bottom-12 size-36 rounded-full border-[22px] border-white/5" />
       <div className="relative flex items-start justify-between">
         <div>

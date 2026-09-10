@@ -29,6 +29,7 @@ export function mapAthleteProfile(
     age: row.date_of_birth ? calculateAge(row.date_of_birth) : null,
     sex: row.sex as AthleteProfile["sex"],
     weightKg: Number(row.weight_kg),
+    strengthUnit: row.strength_unit as AthleteProfile["strengthUnit"],
     avatarUrl: getAvatarPublicUrl(row.avatar_url),
     avatarPath: row.avatar_url,
     goalEventName: row.goal_event_name,

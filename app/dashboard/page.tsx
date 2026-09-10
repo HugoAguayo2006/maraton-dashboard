@@ -10,20 +10,36 @@ import { TodayWorkoutCard } from "@/components/dashboard/TodayWorkoutCard";
 import { TomorrowWorkoutCard } from "@/components/dashboard/TomorrowWorkoutCard";
 import { WeeklyMileageChart } from "@/components/dashboard/WeeklyMileageChart";
 import { WeeklyProgressCard } from "@/components/dashboard/WeeklyProgressCard";
+import { StrengthDashboardCard } from "@/components/dashboard/StrengthDashboardCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getDashboardData } from "@/lib/data/dashboard";
+import {
+  getLatestStrengthSession,
+  getNextStrengthPlanItem,
+  getRecordedStrengthPlanItemIds,
+} from "@/lib/data/strength";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const dashboardData = await getDashboardData();
+  const [dashboardData, latestStrength, nextStrength, recordedStrengthIds] = await Promise.all([
+    getDashboardData(),
+    getLatestStrengthSession(),
+    getNextStrengthPlanItem(),
+    getRecordedStrengthPlanItemIds(),
+  ]);
+  const strengthIds = new Set(recordedStrengthIds);
 
   return (
     <>
       <DashboardHeader athlete={dashboardData.athlete} date={dashboardData.referenceDate} />
       <div className="dashboard-grid">
         {dashboardData.today ? (
-          <TodayWorkoutCard workout={dashboardData.today} log={dashboardData.todayLog} />
+          <TodayWorkoutCard
+            workout={dashboardData.today}
+            log={dashboardData.todayLog}
+            strengthCompleted={strengthIds.has(dashboardData.today.id)}
+          />
         ) : (
           <EmptyState icon={CalendarX2} title="Hoy no hay sesión programada" description="Disfruta la recuperación o registra una actividad libre." actionLabel="Registrar actividad" actionHref="/workouts/new" className="area-today min-h-[390px]" />
         )}
@@ -44,6 +60,7 @@ export default async function DashboardPage() {
           <EmptyState icon={Flag} title="Configura tu carrera" description="Carga el perfil para activar el countdown." className="area-countdown min-h-48" />
         )}
         <RecoveryCard recovery={dashboardData.recovery} />
+        <StrengthDashboardCard latest={latestStrength} nextPlan={nextStrength} />
         <WeeklyMileageChart data={dashboardData.mileageHistory} />
         <RecentWorkouts workouts={dashboardData.recentWorkouts} />
         <QuickActions />

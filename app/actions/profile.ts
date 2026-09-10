@@ -25,7 +25,8 @@ export interface ProfileActionState {
     | "goal_event_distance_km"
     | "goal_event_date"
     | "goal_event_location"
-    | "goal_event_objective",
+    | "goal_event_objective"
+    | "strength_unit",
     string[]
   >>;
 }
@@ -44,6 +45,7 @@ export async function saveProfile(
     goal_event_date: formData.get("goal_event_date"),
     goal_event_location: formData.get("goal_event_location"),
     goal_event_objective: formData.get("goal_event_objective"),
+    strength_unit: formData.get("strength_unit"),
   });
 
   if (!parsed.success) {

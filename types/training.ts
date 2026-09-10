@@ -2,6 +2,39 @@ export type WorkoutStatus = "pending" | "completed" | "modified" | "skipped";
 
 export type AthleteSex = "male" | "female" | "prefer_not_to_say";
 
+export type StrengthUnit = "kg" | "lbs";
+
+export type ExerciseCategory = "upper_body" | "lower_body" | "other";
+
+export type Equipment =
+  | "Ninguno"
+  | "Barra"
+  | "Mancuerna"
+  | "Máquina"
+  | "Polea"
+  | "Kettlebell"
+  | "Banda"
+  | "Disco";
+
+export type MuscleGroup =
+  | "Pecho"
+  | "Espalda"
+  | "Bíceps"
+  | "Tríceps"
+  | "Hombros"
+  | "Trapecio"
+  | "Antebrazo"
+  | "Abdominales"
+  | "Cuádriceps"
+  | "Isquiotibiales"
+  | "Glúteos"
+  | "Pantorrillas"
+  | "Aductores"
+  | "Abductores"
+  | "Cardio"
+  | "Full Body"
+  | "Movilidad";
+
 export type EffortType =
   | "recovery"
   | "easy"
@@ -30,6 +63,7 @@ export interface AthleteProfile {
   age: number | null;
   sex: AthleteSex;
   weightKg: number;
+  strengthUnit: StrengthUnit;
   avatarUrl: string | null;
   avatarPath: string | null;
   goalEventName: string | null;
@@ -75,6 +109,81 @@ export interface GymGuideEntry {
   name: string;
   description: string;
   exercises: readonly GymExerciseEntry[];
+}
+
+export interface Exercise {
+  id: string;
+  name: string;
+  nameEs: string;
+  category: ExerciseCategory;
+  muscleGroup: MuscleGroup;
+  equipment: Equipment;
+  imageUrl: string | null;
+  description: string | null;
+}
+
+export interface RoutineExercise {
+  id: string;
+  routineId: string;
+  exerciseId: string;
+  orderNumber: number;
+  notes: string | null;
+  exercise: Exercise;
+}
+
+export interface StrengthRoutine {
+  id: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  exercises: RoutineExercise[];
+}
+
+export interface StrengthSet {
+  id: string;
+  sessionId: string;
+  exerciseId: string;
+  setNumber: number;
+  weightKg: number | null;
+  weightLbs: number | null;
+  repetitions: number;
+  rir: number | null;
+  notes: string | null;
+}
+
+export interface StrengthSessionExercise {
+  id: string;
+  sessionId: string;
+  exerciseId: string;
+  orderNumber: number;
+  notes: string | null;
+  exercise: Exercise;
+  sets: StrengthSet[];
+}
+
+export interface StrengthSession {
+  id: string;
+  routineId: string | null;
+  routineName: string | null;
+  trainingPlanItemId: string | null;
+  date: string;
+  durationMinutes: number | null;
+  unit: StrengthUnit;
+  notes: string | null;
+  createdAt: string;
+  exercises: StrengthSessionExercise[];
+  exerciseCount: number;
+  setCount: number;
+  totalVolumeKg: number;
+}
+
+export interface StrengthProgressPoint {
+  sessionId: string;
+  date: string;
+  maximumKg: number;
+  volumeKg: number;
+  maximumRepetitions: number;
+  bestSet: string;
 }
 
 /** The prescribed session: what the athlete was expected to do. */

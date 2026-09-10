@@ -4,12 +4,14 @@ import {
   CalendarDays,
   BookOpenText,
   ChartNoAxesCombined,
+  Dumbbell,
   Plus,
   Sparkles,
 } from "lucide-react";
 
 const actions = [
   { label: "Registrar entrenamiento", href: "/workouts/new", icon: Plus },
+  { label: "Registrar fuerza", href: "/strength/session/new", icon: Dumbbell },
   { label: "Ver plan", href: "/plan", icon: CalendarDays },
   { label: "Ver progreso", href: "/progress", icon: ChartNoAxesCombined },
   { label: "Consultar guía", href: "/guide", icon: BookOpenText },

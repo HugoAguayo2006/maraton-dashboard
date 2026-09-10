@@ -7,9 +7,19 @@ import { getTodayIso } from "@/lib/date";
 
 export const metadata: Metadata = { title: "Registrar entrenamiento" };
 
-export default async function NewWorkoutPage() {
+export default async function NewWorkoutPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ plan?: string; date?: string }>;
+}) {
+  const query = await searchParams;
   const today = getTodayIso();
-  const planItems = await getAssignablePlanItems(today);
+  const requestedDate = query.date && /^\d{4}-\d{2}-\d{2}$/.test(query.date)
+    ? query.date
+    : today;
+  const planItems = await getAssignablePlanItems(requestedDate);
+  const requestedPlanItem = planItems.find((item) => item.id === query.plan);
+  const defaultDate = requestedPlanItem?.date ?? requestedDate;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -21,7 +31,11 @@ export default async function NewWorkoutPage() {
         <h1 className="text-[2rem] leading-none font-bold tracking-[-0.045em] sm:text-[2.5rem]">¿Cómo te fue?</h1>
         <p className="mt-2 text-sm leading-6 text-muted sm:text-base">Guarda lo que realmente hiciste. El pace se calcula automáticamente.</p>
       </header>
-      <WorkoutForm planItems={planItems} defaultDate={today} />
+      <WorkoutForm
+        planItems={planItems}
+        defaultDate={defaultDate}
+        initialPlanItemId={requestedPlanItem?.id}
+      />
     </div>
   );
 }

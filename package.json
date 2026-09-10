@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed:plan": "tsx scripts/seedTrainingPlan.ts",
+    "seed:exercises": "tsx scripts/seedExercises.ts",
     "import:plan": "tsx scripts/importTrainingPlanFromExcel.ts",
     "import:plan:apply": "tsx scripts/importTrainingPlanFromExcel.ts --apply"
   },

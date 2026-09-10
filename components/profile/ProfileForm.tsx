@@ -1,11 +1,11 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { CheckCircle2, Save, TriangleAlert } from "lucide-react";
+import { CheckCircle2, Dumbbell, Save, TriangleAlert } from "lucide-react";
 import { saveProfile, type ProfileActionState } from "@/app/actions/profile";
 import { AvatarField } from "@/components/profile/AvatarField";
 import { athleteSexOptions } from "@/lib/profile/profile";
-import type { AthleteProfile, AthleteSex } from "@/types/training";
+import type { AthleteProfile, AthleteSex, StrengthUnit } from "@/types/training";
 
 const initialState: ProfileActionState = {};
 
@@ -17,6 +17,7 @@ interface ProfileFormProps {
 export function ProfileForm({ profile, intent }: ProfileFormProps) {
   const [state, action, pending] = useActionState(saveProfile, initialState);
   const [sex, setSex] = useState<AthleteSex>(profile?.sex ?? "male");
+  const [strengthUnit, setStrengthUnit] = useState<StrengthUnit>(profile?.strengthUnit ?? "kg");
   const [name, setName] = useState(profile?.name ?? "");
 
   return (
@@ -162,6 +163,25 @@ export function ProfileForm({ profile, intent }: ProfileFormProps) {
             />
           </Field>
         </div>
+      </section>
+
+      <div className="h-px bg-line" />
+
+      <section>
+        <div className="mb-4 flex items-center gap-3">
+          <span className="grid size-9 place-items-center rounded-xl bg-warning-soft text-warning"><Dumbbell size={17} /></span>
+          <div><p className="eyebrow">Preferencias de fuerza</p><p className="mt-1.5 text-xs leading-5 text-muted">La unidad elegida se usará al iniciar una sesión de gimnasio.</p></div>
+        </div>
+        <fieldset>
+          <legend className="mb-2 text-xs font-bold text-muted">Unidad de peso</legend>
+          <div className="grid max-w-sm grid-cols-2 rounded-2xl bg-surface-subtle p-1">
+            {(["kg", "lbs"] as const).map((unit) => (
+              <button key={unit} type="button" aria-pressed={strengthUnit === unit} onClick={() => setStrengthUnit(unit)} className={`min-h-11 rounded-xl text-xs font-bold transition-colors ${strengthUnit === unit ? "bg-white text-ink shadow-sm" : "text-muted"}`}>{unit === "kg" ? "Kilogramos" : "Libras"}</button>
+            ))}
+          </div>
+          <input type="hidden" name="strength_unit" value={strengthUnit} />
+          {state.fieldErrors?.strength_unit?.[0] && <p className="mt-1.5 text-xs font-medium text-danger">{state.fieldErrors.strength_unit[0]}</p>}
+        </fieldset>
       </section>
 
       {(state.error || state.message) && (

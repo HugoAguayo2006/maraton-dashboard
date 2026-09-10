@@ -8,7 +8,11 @@ import {
   getAllTrainingPlanItems,
   getCurrentWeekPlan,
 } from "@/lib/data/trainingPlan";
-import { getWorkoutLogsBetween } from "@/lib/data/workouts";
+import { getRecordedStrengthPlanItemIds } from "@/lib/data/strength";
+import {
+  getRecordedWorkoutPlanItemIds,
+  getWorkoutLogsBetween,
+} from "@/lib/data/workouts";
 import { getTodayIso, getWeekRange } from "@/lib/date";
 import { formatDistance } from "@/lib/format";
 import { isEligiblePlanSession } from "@/lib/training/compliance";
@@ -18,11 +22,21 @@ export const metadata: Metadata = { title: "Plan" };
 export default async function PlanPage() {
   const today = getTodayIso();
   const { start, end } = getWeekRange(today);
-  const [trainingPlan, currentWeekPlan, weeklyWorkouts] = await Promise.all([
+  const [
+    trainingPlan,
+    currentWeekPlan,
+    weeklyWorkouts,
+    recordedRunIds,
+    recordedStrengthIds,
+  ] = await Promise.all([
     getAllTrainingPlanItems(),
     getCurrentWeekPlan(today),
     getWorkoutLogsBetween(start, end),
+    getRecordedWorkoutPlanItemIds(),
+    getRecordedStrengthPlanItemIds(),
   ]);
+  const runIds = new Set(recordedRunIds);
+  const strengthIds = new Set(recordedStrengthIds);
   const plannedKm = currentWeekPlan.reduce(
     (total, item) => total + (item.distanceKm ?? 0),
     0,
@@ -89,7 +103,14 @@ export default async function PlanPage() {
               <div className="space-y-3">
                 {trainingPlan
                   .filter((item) => item.weekNumber === week)
-                  .map((item) => <PlanDayCard key={item.id} item={item} />)}
+                  .map((item) => (
+                    <PlanDayCard
+                      key={item.id}
+                      item={item}
+                      runCompleted={runIds.has(item.id)}
+                      strengthCompleted={strengthIds.has(item.id)}
+                    />
+                  ))}
               </div>
             </section>
           ))}

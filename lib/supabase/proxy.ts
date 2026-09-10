@@ -11,6 +11,7 @@ const protectedRoutes = [
   "/settings",
   "/onboarding",
   "/guide",
+  "/strength",
 ];
 
 export async function updateSession(request: NextRequest) {

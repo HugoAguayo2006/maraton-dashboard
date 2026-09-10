@@ -29,6 +29,7 @@ export interface Database {
           goal_event_date: string | null;
           goal_event_location: string | null;
           goal_event_objective: string | null;
+          strength_unit: string;
           marathon_name: string;
           marathon_date: string;
           goal: string;
@@ -48,6 +49,7 @@ export interface Database {
           goal_event_date?: string | null;
           goal_event_location?: string | null;
           goal_event_objective?: string | null;
+          strength_unit?: string;
           marathon_name: string;
           marathon_date: string;
           goal: string;
@@ -168,6 +170,141 @@ export interface Database {
           },
         ];
       };
+      exercise_library: {
+        Row: TimestampColumns & {
+          name: string;
+          name_es: string;
+          category: string;
+          muscle_group: string;
+          equipment: string;
+          image_url: string | null;
+          description: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          name_es: string;
+          category: string;
+          muscle_group: string;
+          equipment: string;
+          image_url?: string | null;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["exercise_library"]["Insert"]>;
+        Relationships: [];
+      };
+      strength_routines: {
+        Row: TimestampColumns & {
+          user_id: string;
+          name: string;
+          description: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["strength_routines"]["Insert"]>;
+        Relationships: [];
+      };
+      routine_exercises: {
+        Row: {
+          id: string;
+          routine_id: string;
+          exercise_id: string;
+          order_number: number;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          routine_id: string;
+          exercise_id: string;
+          order_number: number;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["routine_exercises"]["Insert"]>;
+        Relationships: [];
+      };
+      strength_sessions: {
+        Row: TimestampColumns & {
+          user_id: string;
+          routine_id: string | null;
+          training_plan_item_id: string | null;
+          date: string;
+          duration_minutes: number | null;
+          unit: string;
+          notes: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          routine_id?: string | null;
+          training_plan_item_id?: string | null;
+          date: string;
+          duration_minutes?: number | null;
+          unit?: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["strength_sessions"]["Insert"]>;
+        Relationships: [];
+      };
+      strength_session_exercises: {
+        Row: {
+          id: string;
+          session_id: string;
+          exercise_id: string;
+          order_number: number;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          exercise_id: string;
+          order_number: number;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["strength_session_exercises"]["Insert"]>;
+        Relationships: [];
+      };
+      strength_sets: {
+        Row: {
+          id: string;
+          session_id: string;
+          exercise_id: string;
+          set_number: number;
+          weight_kg: number | null;
+          weight_lbs: number | null;
+          repetitions: number;
+          rir: number | null;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          exercise_id: string;
+          set_number: number;
+          weight_kg?: number | null;
+          weight_lbs?: number | null;
+          repetitions: number;
+          rir?: number | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["strength_sets"]["Insert"]>;
+        Relationships: [];
+      };
       ai_recommendations: {
         Row: TimestampColumns & {
           user_id: string;
@@ -218,7 +355,12 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      seed_exercise_library: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

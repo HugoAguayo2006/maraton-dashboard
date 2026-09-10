@@ -16,14 +16,27 @@ const gastrointestinalOptions = [
 
 const initialState: WorkoutActionState = {};
 
-export function WorkoutForm({ planItems, defaultDate }: { planItems: TrainingPlanItem[]; defaultDate: string }) {
-  const defaultPlanItem = planItems.find((item) => item.date === defaultDate);
+export function WorkoutForm({
+  planItems,
+  defaultDate,
+  initialPlanItemId,
+}: {
+  planItems: TrainingPlanItem[];
+  defaultDate: string;
+  initialPlanItemId?: string;
+}) {
+  const defaultPlanItem = planItems.find((item) => item.id === initialPlanItemId)
+    ?? planItems.find((item) => item.date === defaultDate);
   const [formState, formAction, pending] = useActionState(createWorkout, initialState);
   const [date, setDate] = useState(defaultDate);
   const [selectedPlanItemId, setSelectedPlanItemId] = useState(defaultPlanItem?.id ?? "");
-  const [distance, setDistance] = useState("");
-  const [hours, setHours] = useState("0");
-  const [minutes, setMinutes] = useState("");
+  const [distance, setDistance] = useState(defaultPlanItem?.distanceKm?.toString() ?? "");
+  const [hours, setHours] = useState(defaultPlanItem?.estimatedDurationMin
+    ? Math.floor(defaultPlanItem.estimatedDurationMin / 60).toString()
+    : "0");
+  const [minutes, setMinutes] = useState(defaultPlanItem?.estimatedDurationMin
+    ? (defaultPlanItem.estimatedDurationMin % 60).toString()
+    : "");
   const [seconds, setSeconds] = useState("0");
   const [rpe, setRpe] = useState(3);
   const [pain, setPain] = useState(0);
@@ -40,10 +53,28 @@ export function WorkoutForm({ planItems, defaultDate }: { planItems: TrainingPla
     [date, planItems],
   );
 
+  function applyPlanDefaults(item?: TrainingPlanItem) {
+    setDistance(item?.distanceKm?.toString() ?? "");
+    setHours(item?.estimatedDurationMin
+      ? Math.floor(item.estimatedDurationMin / 60).toString()
+      : "0");
+    setMinutes(item?.estimatedDurationMin
+      ? (item.estimatedDurationMin % 60).toString()
+      : "");
+    setSeconds("0");
+  }
+
   function handleDateChange(nextDate: string) {
     setDate(nextDate);
     const matches = planItems.filter((item) => item.date === nextDate);
-    setSelectedPlanItemId(matches.length === 1 ? matches[0].id : "");
+    const nextPlanItem = matches.length === 1 ? matches[0] : undefined;
+    setSelectedPlanItemId(nextPlanItem?.id ?? "");
+    applyPlanDefaults(nextPlanItem);
+  }
+
+  function handlePlanItemChange(nextPlanItemId: string) {
+    setSelectedPlanItemId(nextPlanItemId);
+    applyPlanDefaults(planItems.find((item) => item.id === nextPlanItemId));
   }
 
   return (
@@ -68,7 +99,7 @@ export function WorkoutForm({ planItems, defaultDate }: { planItems: TrainingPla
 
         <div className="mt-5">
           <Field label="Sesión del plan (opcional)">
-            <select name="training_plan_item_id" value={selectedPlanItemId} onChange={(event) => setSelectedPlanItemId(event.target.value)} className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-semibold">
+            <select name="training_plan_item_id" value={selectedPlanItemId} onChange={(event) => handlePlanItemChange(event.target.value)} className="h-12 w-full rounded-2xl border border-line bg-surface-subtle px-4 text-sm font-semibold">
               <option value="">Entrenamiento libre</option>
               {matchingPlanItems.map((item) => (
                 <option key={item.id} value={item.id}>{formatDayAndDate(item.date)} · {item.title}</option>

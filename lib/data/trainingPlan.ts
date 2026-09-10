@@ -87,12 +87,27 @@ export const getAssignablePlanItems = cache(
       .eq("user_id", user.id)
       .gte("date", addDays(referenceDate, -7))
       .lte("date", addDays(referenceDate, 14))
-      .in("status", ["pending", "modified"])
+      .neq("status", "skipped")
       .gt("planned_distance_km", 0)
       .order("date", { ascending: true });
 
     if (error) throw new DataAccessError("No pudimos cargar las sesiones disponibles.");
-    return (data ?? []).map(mapTrainingPlanItem);
+    if (!data?.length) return [];
+
+    const planItemIds = data.map((item) => item.id);
+    const { data: logs, error: logsError } = await supabase
+      .from("workout_logs")
+      .select("training_plan_item_id")
+      .eq("user_id", user.id)
+      .in("training_plan_item_id", planItemIds);
+
+    if (logsError) throw new DataAccessError("No pudimos comprobar las carreras disponibles.");
+    const recordedIds = new Set(
+      (logs ?? []).flatMap((row) => row.training_plan_item_id ? [row.training_plan_item_id] : []),
+    );
+    return data
+      .filter((item) => !recordedIds.has(item.id))
+      .map(mapTrainingPlanItem);
   },
 );
 

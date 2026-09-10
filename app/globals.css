@@ -65,8 +65,14 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
 .app-card {
   border: 1px solid rgb(230 230 235 / 0.92);
   border-radius: 26px;
-  background: var(--surface);
+  background-color: var(--surface);
   box-shadow: var(--shadow-card);
+}
+
+.app-card-dark {
+  border-color: rgb(255 255 255 / 0.06);
+  background-color: var(--ink);
+  color: white;
 }
 
 .auth-input {
@@ -119,7 +125,7 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
 .dashboard-grid {
   display: grid;
   gap: 1rem;
-  grid-template-areas: "today" "weekly" "tomorrow" "longrun" "countdown" "recovery" "chart" "recent" "actions";
+  grid-template-areas: "today" "weekly" "tomorrow" "longrun" "countdown" "strength" "recovery" "chart" "recent" "actions";
 }
 
 .area-today { grid-area: today; }
@@ -128,6 +134,7 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
 .area-longrun { grid-area: longrun; }
 .area-countdown { grid-area: countdown; }
 .area-recovery { grid-area: recovery; }
+.area-strength { grid-area: strength; }
 .area-chart { grid-area: chart; }
 .area-recent { grid-area: recent; }
 .area-actions { grid-area: actions; }
@@ -158,14 +165,14 @@ input[type="range"] { accent-color: var(--accent); }
   .dashboard-grid {
     gap: 1.25rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas: "today today" "weekly tomorrow" "longrun countdown" "recovery recovery" "chart chart" "recent actions";
+    grid-template-areas: "today today" "weekly tomorrow" "longrun countdown" "strength strength" "recovery recovery" "chart chart" "recent actions";
   }
 }
 
 @media (min-width: 1200px) {
   .dashboard-grid {
     grid-template-columns: minmax(0, 1.65fr) minmax(310px, 0.85fr);
-    grid-template-areas: "today weekly" "today tomorrow" "chart longrun" "chart countdown" "recovery actions" "recent recent";
+    grid-template-areas: "today weekly" "today tomorrow" "chart longrun" "chart countdown" "recovery strength" "recent actions";
   }
 }
 

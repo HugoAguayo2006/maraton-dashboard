@@ -44,6 +44,10 @@ export const profileInputSchema = z.object({
     .refine(isValidIsoDate, "Selecciona una fecha válida."),
   goal_event_location: optionalProfileText(120, "El lugar es demasiado largo."),
   goal_event_objective: optionalProfileText(240, "El objetivo es demasiado largo."),
+  strength_unit: z.preprocess(
+    (value) => value === null || value === undefined || value === "" ? "kg" : value,
+    z.enum(["kg", "lbs"], { error: "Selecciona kg o lbs." }),
+  ),
 });
 
 export type ProfileInput = z.infer<typeof profileInputSchema>;

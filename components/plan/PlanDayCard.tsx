@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Check,
   ChevronDown,
@@ -9,6 +10,11 @@ import {
 } from "lucide-react";
 import { formatDayAndDate } from "@/lib/format";
 import { EffortTypeBadge } from "@/components/training/EffortTypeBadge";
+import {
+  hasRunningComponent,
+  hasStrengthComponent,
+  isPlanItemFullyCompleted,
+} from "@/lib/training/planComponents";
 import type { TrainingPlanItem } from "@/types/training";
 
 const statusLabels = {
@@ -25,16 +31,30 @@ const statusStyles = {
   skipped: "bg-danger-soft text-danger",
 };
 
-export function PlanDayCard({ item }: { item: TrainingPlanItem }) {
-  const isGym = item.sessionType === "gym" || item.sessionType === "strength";
-  const completed = item.status === "completed";
-  const Icon = isGym ? Dumbbell : Footprints;
+export function PlanDayCard({
+  item,
+  runCompleted,
+  strengthCompleted,
+}: {
+  item: TrainingPlanItem;
+  runCompleted: boolean;
+  strengthCompleted: boolean;
+}) {
+  const hasRun = hasRunningComponent(item);
+  const hasStrength = hasStrengthComponent(item);
+  const completed = isPlanItemFullyCompleted(item, runCompleted, strengthCompleted);
+  const displayStatus = completed
+    ? "completed"
+    : item.status === "completed"
+      ? "pending"
+      : item.status;
+  const Icon = hasStrength && !hasRun ? Dumbbell : Footprints;
 
   return (
     <details className="group app-card overflow-hidden">
       <summary className="pressable flex cursor-pointer list-none items-center gap-4 p-4 sm:p-5 [&::-webkit-details-marker]:hidden">
         <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${
-          completed ? "bg-success-soft text-success" : isGym ? "bg-warning-soft text-warning" : "bg-accent-soft text-accent"
+          completed ? "bg-success-soft text-success" : hasStrength && !hasRun ? "bg-warning-soft text-warning" : "bg-accent-soft text-accent"
         }`}>
           <Icon size={20} />
         </span>
@@ -51,8 +71,8 @@ export function PlanDayCard({ item }: { item: TrainingPlanItem }) {
           <p className="mt-0.5 text-[11px] font-medium text-muted">{item.targetPace ?? "Ritmo libre"} · {item.targetRpe ?? "RPE —"}</p>
           {item.effortType && <div className="mt-1.5 flex justify-end"><EffortTypeBadge effortType={item.effortType} /></div>}
         </div>
-        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${statusStyles[item.status]}`}>
-          {statusLabels[item.status]}
+        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${statusStyles[displayStatus]}`}>
+          {statusLabels[displayStatus]}
         </span>
         <ChevronDown size={17} className="shrink-0 text-muted transition-transform duration-200 group-open:rotate-180" />
       </summary>
@@ -72,8 +92,34 @@ export function PlanDayCard({ item }: { item: TrainingPlanItem }) {
           {item.nutrition && <Detail label="Nutrición" text={item.nutrition} />}
           {item.recovery && <Detail label="Recuperación" text={item.recovery} />}
         </div>
+        {(hasRun || hasStrength) && item.status !== "skipped" && (
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            {hasRun && (runCompleted ? (
+              <CompletionPill icon={<Footprints size={16} />} text="Carrera registrada" />
+            ) : (
+              <Link href={`/workouts/new?plan=${item.id}&date=${item.date}`} className="pressable flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-accent px-5 text-xs font-bold text-white sm:min-w-52">
+                <Footprints size={17} /> Registrar carrera
+              </Link>
+            ))}
+            {hasStrength && (strengthCompleted ? (
+              <CompletionPill icon={<Dumbbell size={16} />} text="Fuerza registrada" />
+            ) : (
+              <Link href={`/strength/session/new?plan=${item.id}`} className="pressable flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-ink px-5 text-xs font-bold text-white sm:min-w-56">
+                <Dumbbell size={17} /> Registrar sesión de fuerza
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </details>
+  );
+}
+
+function CompletionPill({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <span className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-success/20 bg-success-soft px-5 text-xs font-bold text-success sm:min-w-48">
+      {icon} {text}
+    </span>
   );
 }
 

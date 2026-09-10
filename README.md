@@ -1,6 +1,6 @@
 # Marathon Dashboard
 
-Aplicación personal, mobile-first, para administrar una preparación de carrera. Incluye autenticación, perfil y evento objetivo, plan prescrito, registro de entrenamientos reales, dashboard diario, guía de entrenamiento y métricas de progreso.
+Aplicación personal, mobile-first, para administrar una preparación de carrera. Incluye autenticación, perfil y evento objetivo, plan prescrito, registro de carrera y fuerza, dashboard diario, guía de entrenamiento y métricas de progreso.
 
 ## Stack
 
@@ -51,6 +51,9 @@ También puedes ejecutar el contenido de la migración desde **SQL Editor**. Est
 - `workout_logs`
 - `ai_recommendations`
 - `training_plan_imports`, que conserva una instantánea privada del Excel original
+- `exercise_library`, catálogo global de ejercicios de solo lectura
+- `strength_routines` y `routine_exercises`, rutinas privadas del atleta
+- `strength_sessions`, `strength_session_exercises` y `strength_sets`, historial real de fuerza
 - bucket `profile-images`, con límite de 4 MB y soporte para JPG, PNG y WebP
 - constraints, índices y triggers de `updated_at`
 - policies RLS de SELECT, INSERT, UPDATE y DELETE para cada propietario
@@ -88,6 +91,31 @@ El bucket es público para poder renderizar el avatar sin URLs firmadas, pero la
 Next.js permite hasta 4.25 MB en el cuerpo multipart de estas Server Actions para dejar margen de transporte; la imagen en sí está limitada a 4 MB tanto en la aplicación como en Supabase Storage. Esto mantiene la petición debajo del límite de 4.5 MB de Vercel Functions.
 
 La migración crea y configura automáticamente el bucket y sus policies; no hay pasos manuales en Supabase. La foto aparece en sidebar, header y Configuración.
+
+## Módulo de fuerza
+
+`/strength` es el centro de entrenamiento de gimnasio orientado al corredor. Desde ahí se puede:
+
+- crear una rutina desde cero o partir de las plantillas Fuerza A, B y Ligera;
+- buscar ejercicios por nombre y filtrar por grupo muscular o equipamiento;
+- ordenar ejercicios y guardar notas específicas de la rutina;
+- iniciar una sesión libre o basada en una rutina;
+- capturar peso, repeticiones, RIR y notas de cada serie;
+- marcar series como completadas y guardar únicamente el trabajo realizado;
+- consultar historial, volumen y progresión por ejercicio;
+- trabajar en kilogramos o libras según la preferencia guardada en Configuración.
+
+Los días `gym` o `strength` del plan muestran **Registrar sesión de fuerza**. El registro queda enlazado mediante `training_plan_item_id` y, al guardarse correctamente, marca esa sesión prescrita como completada sin crear un `workout_log` de carrera.
+
+El catálogo inicial contiene 83 ejercicios. La migración lo carga automáticamente; también puede verificarse o reconstruirse de forma idempotente con una sesión normal bajo RLS:
+
+```bash
+npm run seed:exercises
+```
+
+El script utiliza `SEED_EMAIL`, `SEED_PASSWORD` y el `SEED_USER_ID` opcional de `.env.local`. No requiere ni acepta una clave `service_role`. Los usuarios autenticados pueden leer el catálogo global, pero no insertar ejercicios arbitrarios. La función del seed únicamente vuelve a procesar el catálogo fijo incluido en la migración.
+
+Todas las tablas personales de fuerza están protegidas por RLS. `strength_routines` y `strength_sessions` verifican directamente `auth.uid() = user_id`; las tablas hijas comprueban la propiedad a través de su rutina o sesión. El navegador nunca define el propietario.
 
 ## Guía de entrenamiento
 
@@ -153,6 +181,7 @@ npm run dev
 npm run lint
 npm run build
 npm run seed:plan
+npm run seed:exercises
 npm run import:plan
 npm run import:plan:apply
 npm start
@@ -168,6 +197,10 @@ npm start
 - `lib/profile/`: validación del perfil y cálculo dinámico de edad.
 - `lib/profile/avatar.ts` y `lib/data/avatar.ts`: URL pública, validación y reemplazo seguro de avatar.
 - `lib/guide/data.ts`: contenido tipado de la guía, derivado del Excel.
+- `lib/data/strength.ts`: consultas y agregados privados de rutinas, sesiones y progresión.
+- `lib/strength/`: unidades, filtros y plantillas de fuerza.
+- `components/strength/`: selector, constructor, registrador, historial y gráficas.
+- `scripts/seedExercises.ts`: seed idempotente del catálogo global.
 - `lib/training/`: pace, RPE, esfuerzo y cumplimiento centralizados.
 - `scripts/importTrainingPlanFromExcel.ts`: validación e importación local del Excel.
 
