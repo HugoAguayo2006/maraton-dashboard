@@ -1,6 +1,6 @@
 # Marathon Dashboard
 
-Aplicación personal, mobile-first, para administrar la preparación de Hugo para el Maratón de Guadalajara del 8 de noviembre de 2026. Incluye autenticación, plan prescrito, registro de entrenamientos reales, dashboard diario y métricas de progreso.
+Aplicación personal, mobile-first, para administrar una preparación de carrera. Incluye autenticación, perfil y evento objetivo, plan prescrito, registro de entrenamientos reales, dashboard diario, guía de entrenamiento y métricas de progreso.
 
 ## Stack
 
@@ -36,7 +36,7 @@ La clave anónima puede estar en el cliente; la seguridad real está en las poli
 
 ### 3. Ejecutar las migraciones
 
-Las migraciones están en `supabase/migrations/`. La segunda migración agrega onboarding, fecha de nacimiento, categorías de esfuerzo, textos originales del Excel y el archivo privado de importaciones. Con Supabase CLI:
+Las migraciones están en `supabase/migrations/`. Además del esquema inicial, agregan onboarding, categorías de esfuerzo, el archivo privado de importaciones, el modelo genérico de evento objetivo y Storage para avatares. Con Supabase CLI:
 
 ```bash
 npx supabase login
@@ -51,18 +51,55 @@ También puedes ejecutar el contenido de la migración desde **SQL Editor**. Est
 - `workout_logs`
 - `ai_recommendations`
 - `training_plan_imports`, que conserva una instantánea privada del Excel original
+- bucket `profile-images`, con límite de 4 MB y soporte para JPG, PNG y WebP
 - constraints, índices y triggers de `updated_at`
 - policies RLS de SELECT, INSERT, UPDATE y DELETE para cada propietario
 
 `training_plan_items` representa lo que decía el plan. `workout_logs` representa lo que realmente ocurrió. La relación entre ambas es opcional y nunca sustituye una fuente por la otra.
 
-## Athlete onboarding
+## Autenticación y athlete onboarding
 
-Desde `/login`, **Crear cuenta** solicita nombre, fecha de nacimiento, peso, sexo, correo y confirmación de contraseña. Los datos personales viajan como metadata de Auth y un trigger validado crea `athlete_profiles` usando el `id` real de `auth.users`; el navegador nunca elige el `user_id`.
+`/login` contiene únicamente correo y contraseña. `/signup` es un flujo dedicado que solicita datos personales, evento objetivo, credenciales y una foto opcional. Los datos estructurados viajan como metadata de Auth y un trigger validado crea `athlete_profiles` usando el `id` real de `auth.users`; el navegador nunca elige el `user_id`.
 
-Si la confirmación de correo está habilitada, confirma la dirección antes de iniciar sesión. Los usuarios existentes sin `date_of_birth` son enviados a `/onboarding`; al completar el perfil regresan al dashboard y no vuelven a ver ese paso.
+Si la confirmación de correo está habilitada, el perfil ya queda creado y completo antes de confirmar. Al iniciar sesión por primera vez, el usuario entra al Dashboard sin repetir onboarding. La foto debe agregarse desde Configuración después de confirmar el correo porque todavía no existe una sesión autenticada para Storage.
 
-La edad no se edita ni se guarda como fuente de verdad. Se calcula dinámicamente desde `date_of_birth`, considerando si el cumpleaños ya ocurrió en el año actual. Nombre, fecha de nacimiento, peso y sexo se pueden actualizar en `/settings`.
+`/onboarding` se mantiene como fallback para usuarios históricos o metadata incompleta. Solicita los datos personales y del evento que falten; los perfiles completos se redirigen inmediatamente a `/dashboard`, evitando ciclos y pasos redundantes.
+
+La edad no se edita ni se guarda como fuente de verdad. Se calcula dinámicamente desde `date_of_birth`, considerando si el cumpleaños ya ocurrió en el año actual. `/settings` permite editar nombre, nacimiento, peso, sexo, avatar, nombre/distancia/fecha/lugar del evento y objetivo personal.
+
+## Evento objetivo
+
+El modelo generaliza los campos históricos de maratón mediante:
+
+- `goal_event_name`
+- `goal_event_distance_km`
+- `goal_event_date`
+- `goal_event_location`
+- `goal_event_objective`
+
+Los campos `marathon_name`, `marathon_date` y `goal` se mantienen por compatibilidad y se sincronizan al guardar. La migración rellena el evento existente desde esos campos sin borrar información. Dashboard y Settings consumen preferentemente el nuevo modelo.
+
+## Foto de perfil
+
+La foto se guarda en Supabase Storage dentro de `profile-images/<auth.uid()>/`. `avatar_url` conserva la ruta del objeto y la aplicación genera la URL pública al mostrarla. Si no hay imagen, se usan las iniciales del atleta.
+
+El bucket es público para poder renderizar el avatar sin URLs firmadas, pero las policies solo permiten que cada usuario autenticado liste, suba, reemplace o elimine objetos dentro de su propia carpeta. La acción de servidor valida nuevamente tipo y tamaño y nunca recibe un `user_id` confiable desde el navegador.
+
+Next.js permite hasta 4.25 MB en el cuerpo multipart de estas Server Actions para dejar margen de transporte; la imagen en sí está limitada a 4 MB tanto en la aplicación como en Supabase Storage. Esto mantiene la petición debajo del límite de 4.5 MB de Vercel Functions.
+
+La migración crea y configura automáticamente el bucket y sus policies; no hay pasos manuales en Supabase. La foto aparece en sidebar, header y Configuración.
+
+## Guía de entrenamiento
+
+`/guide` ofrece tres secciones responsive:
+
+- ritmos y esfuerzo;
+- rutinas A, B y Ligera de gimnasio;
+- reglas prácticas para interpretar el plan.
+
+Los datos derivados de **Guía de ritmos** y **Gimnasio** viven tipados en `lib/guide/data.ts`. El XLSX no se lee durante el runtime de Next.js. La guía está disponible desde el sidebar, la navegación móvil, Dashboard y Plan.
+
+Las rutas usan View Transitions de React/Next.js y las pestañas una animación CSS de 190 ms. Ambas respetan `prefers-reduced-motion` y no requieren una librería de animación adicional.
 
 ## Training plan import
 
@@ -73,8 +110,6 @@ data/imports/Plan_Maraton_GDL_2026_Hugo.xlsx
 ```
 
 El Excel solo se lee desde un script local. Vercel y los componentes React nunca lo abren durante runtime; después de la importación, Supabase es la fuente de verdad.
-
-El importador se autentica como el usuario real y opera bajo RLS, sin `service_role`. Agrega temporalmente estas variables a `.env.local`:
 
 El seed se autentica como el usuario real y opera bajo RLS; no utiliza `service_role`. Agrega temporalmente estas variables a `.env.local`:
 
@@ -131,6 +166,8 @@ npm start
 - `lib/data/`: acceso centralizado a perfil, plan, entrenamientos y agregados.
 - `types/database.ts`: tipos del esquema de Supabase.
 - `lib/profile/`: validación del perfil y cálculo dinámico de edad.
+- `lib/profile/avatar.ts` y `lib/data/avatar.ts`: URL pública, validación y reemplazo seguro de avatar.
+- `lib/guide/data.ts`: contenido tipado de la guía, derivado del Excel.
 - `lib/training/`: pace, RPE, esfuerzo y cumplimiento centralizados.
 - `scripts/importTrainingPlanFromExcel.ts`: validación e importación local del Excel.
 
@@ -146,4 +183,4 @@ El cumplimiento excluye descanso. Las sesiones de carrera y fuerza sí son elegi
 4. Agrega la URL de producción a las Redirect URLs permitidas en Supabase Auth.
 5. Despliega con `npm run build`.
 
-No hay dependencias del filesystem en runtime. Gemini, Strava, Apple Health, notificaciones y ajustes automáticos del plan quedan fuera de esta fase.
+No hay dependencias del filesystem en runtime. El bucket y sus policies se crean con la migración, así que Vercel no requiere variables adicionales. Gemini, Strava, Apple Health, notificaciones y ajustes automáticos del plan quedan fuera de esta fase.

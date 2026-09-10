@@ -71,6 +71,7 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
 
 .auth-input {
   height: 3.25rem;
+  min-width: 0;
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 1rem;
@@ -83,6 +84,18 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
 .auth-input::placeholder { color: rgb(110 110 115 / 0.5); }
 
 .auth-input-with-action { padding-right: 3.25rem; }
+
+.guide-tab-enter { animation: guide-tab-enter 190ms ease-out both; }
+
+::view-transition { pointer-events: none; }
+
+::view-transition-old(.route-exit) {
+  animation: 150ms ease-in both route-fade-out;
+}
+
+::view-transition-new(.route-enter) {
+  animation: 210ms ease-out both route-fade-in;
+}
 
 .eyebrow {
   color: var(--muted);
@@ -126,6 +139,21 @@ input[type="range"] { accent-color: var(--accent); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes guide-tab-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes route-fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-3px); }
+}
+
+@keyframes route-fade-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (min-width: 768px) {
   .dashboard-grid {
     gap: 1.25rem;
@@ -150,6 +178,13 @@ input[type="range"] { accent-color: var(--accent); }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+
   *, *::before, *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;

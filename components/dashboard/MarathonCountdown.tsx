@@ -3,11 +3,13 @@ import { Flag } from "lucide-react";
 interface MarathonCountdownProps {
   raceName: string;
   raceDate: string;
+  distanceKm: number | null;
+  location: string | null;
   days: number;
   progress: number;
 }
 
-export function MarathonCountdown({ raceName, raceDate, days, progress }: MarathonCountdownProps) {
+export function MarathonCountdown({ raceName, raceDate, distanceKm, location, days, progress }: MarathonCountdownProps) {
   const formattedRaceDate = new Intl.DateTimeFormat("es-MX", {
     day: "numeric",
     month: "short",
@@ -20,8 +22,13 @@ export function MarathonCountdown({ raceName, raceDate, days, progress }: Marath
       <div aria-hidden className="absolute -right-8 -bottom-12 size-36 rounded-full border-[22px] border-white/5" />
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-[10px] font-bold tracking-[0.13em] text-white/50 uppercase">{raceName.replace("Maratón de Guadalajara", "Maratón GDL")}</p>
+          <p className="text-[10px] font-bold tracking-[0.13em] text-white/50 uppercase">{raceName}</p>
           <p className="mt-2 text-sm font-semibold first-letter:uppercase">{formattedRaceDate}</p>
+          {(distanceKm !== null || location) && (
+            <p className="mt-1 text-[11px] text-white/45">
+              {[distanceKm === null ? null : `${distanceKm} km`, location].filter(Boolean).join(" · ")}
+            </p>
+          )}
         </div>
         <span className="grid size-10 place-items-center rounded-2xl bg-white/10">
           <Flag size={18} />

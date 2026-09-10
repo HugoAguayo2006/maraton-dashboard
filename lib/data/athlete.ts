@@ -42,6 +42,14 @@ export async function saveAthleteProfile(input: ProfileInput): Promise<void> {
       date_of_birth: input.date_of_birth,
       weight_kg: input.weight_kg,
       sex: input.sex,
+      goal_event_name: input.goal_event_name,
+      goal_event_distance_km: input.goal_event_distance_km,
+      goal_event_date: input.goal_event_date,
+      goal_event_location: input.goal_event_location,
+      goal_event_objective: input.goal_event_objective,
+      marathon_name: input.goal_event_name,
+      marathon_date: input.goal_event_date,
+      goal: input.goal_event_objective ?? "Completar el evento según el plan",
     };
     const { error } = await supabase
       .from("athlete_profiles")
@@ -60,9 +68,14 @@ export async function saveAthleteProfile(input: ProfileInput): Promise<void> {
     date_of_birth: input.date_of_birth,
     weight_kg: input.weight_kg,
     sex: input.sex,
-    marathon_name: "Maratón de Guadalajara",
-    marathon_date: "2026-11-08",
-    goal: "Terminar bien y sin lesiones",
+    goal_event_name: input.goal_event_name,
+    goal_event_distance_km: input.goal_event_distance_km,
+    goal_event_date: input.goal_event_date,
+    goal_event_location: input.goal_event_location,
+    goal_event_objective: input.goal_event_objective,
+    marathon_name: input.goal_event_name,
+    marathon_date: input.goal_event_date,
+    goal: input.goal_event_objective ?? "Completar el evento según el plan",
     natural_pace_seconds: 360,
   };
   const { error } = await supabase.from("athlete_profiles").insert(insert);

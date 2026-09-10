@@ -31,6 +31,10 @@ export function isAthleteProfileComplete(
       profile.dateOfBirth &&
       profile.age !== null &&
       profile.weightKg > 0 &&
-      athleteSexOptions.some((option) => option.value === profile.sex),
+      athleteSexOptions.some((option) => option.value === profile.sex) &&
+      profile.goalEventName?.trim() &&
+      profile.goalEventDistanceKm !== null &&
+      profile.goalEventDistanceKm > 0 &&
+      profile.goalEventDate,
   );
 }

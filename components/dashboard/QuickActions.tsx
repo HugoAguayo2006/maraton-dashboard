@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowUpRight,
   CalendarDays,
+  BookOpenText,
   ChartNoAxesCombined,
   Plus,
   Sparkles,
@@ -11,6 +12,7 @@ const actions = [
   { label: "Registrar entrenamiento", href: "/workouts/new", icon: Plus },
   { label: "Ver plan", href: "/plan", icon: CalendarDays },
   { label: "Ver progreso", href: "/progress", icon: ChartNoAxesCombined },
+  { label: "Consultar guía", href: "/guide", icon: BookOpenText },
 ];
 
 export function QuickActions() {

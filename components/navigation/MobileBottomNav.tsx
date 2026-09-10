@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, ChartNoAxesCombined, Gauge, Plus } from "lucide-react";
+import { BookOpenText, CalendarDays, ChartNoAxesCombined, Gauge, Plus } from "lucide-react";
 
 const items = [
   { label: "Inicio", href: "/dashboard", icon: Gauge },
   { label: "Plan", href: "/plan", icon: CalendarDays },
   { label: "Registrar", href: "/workouts/new", icon: Plus, emphasized: true },
   { label: "Progreso", href: "/progress", icon: ChartNoAxesCombined },
+  { label: "Guía", href: "/guide", icon: BookOpenText },
 ];
 
 export function MobileBottomNav() {
@@ -20,7 +21,7 @@ export function MobileBottomNav() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line/80 bg-white/88 px-3 pt-2 backdrop-blur-xl lg:hidden"
       style={{ paddingBottom: "max(0.55rem, env(safe-area-inset-bottom))" }}
     >
-      <div className="mx-auto grid max-w-lg grid-cols-4">
+      <div className="mx-auto grid max-w-lg grid-cols-5">
         {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { CalendarRange, CalendarX2 } from "lucide-react";
+import Link from "next/link";
+import { BookOpenText, CalendarX2 } from "lucide-react";
 import { PlanDayCard } from "@/components/plan/PlanDayCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -45,9 +46,9 @@ export default async function PlanPage() {
         title="Tu plan"
         description="Consulta cada sesión prescrita y abre sus indicaciones cuando las necesites."
         action={
-          <span className="hidden size-12 place-items-center rounded-2xl bg-white text-accent shadow-sm sm:grid">
-            <CalendarRange size={22} />
-          </span>
+          <Link href="/guide" className="hidden min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-xs font-bold text-accent shadow-sm transition-colors hover:bg-accent-soft sm:flex">
+            <BookOpenText size={18} /> Interpretar ritmos
+          </Link>
         }
       />
 

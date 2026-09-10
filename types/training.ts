@@ -30,11 +30,51 @@ export interface AthleteProfile {
   age: number | null;
   sex: AthleteSex;
   weightKg: number;
+  avatarUrl: string | null;
+  avatarPath: string | null;
+  goalEventName: string | null;
+  goalEventDistanceKm: number | null;
+  goalEventDate: string | null;
+  goalEventLocation: string | null;
+  goalEventObjective: string | null;
   raceName: string;
   raceDate: string;
   goal: string;
   naturalPace: string;
   naturalPaceSeconds: number;
+}
+
+export interface PaceGuideEntry {
+  id: string;
+  type: string;
+  pace: string;
+  rpe: string;
+  sensation: string;
+  purpose: string;
+  practicalRule: string;
+  effortType: EffortType | null;
+}
+
+export interface GuideTopicEntry {
+  id: string;
+  topic: string;
+  description: string;
+}
+
+export interface GymExerciseEntry {
+  exercise: string;
+  sets: string;
+  reps: string;
+  rir: string;
+  rest: string;
+  notes: string;
+}
+
+export interface GymGuideEntry {
+  id: "a" | "b" | "light";
+  name: string;
+  description: string;
+  exercises: readonly GymExerciseEntry[];
 }
 
 /** The prescribed session: what the athlete was expected to do. */

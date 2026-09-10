@@ -3,13 +3,31 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { saveAthleteProfile } from "@/lib/data/athlete";
+import {
+  getOptionalAvatarFile,
+  replaceAvatarForUser,
+  validateAvatarFile,
+} from "@/lib/data/avatar";
 import { DataAccessError } from "@/lib/data/errors";
 import { profileInputSchema } from "@/lib/profile/validation";
+import { requireUser } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 
 export interface ProfileActionState {
   error?: string;
   message?: string;
-  fieldErrors?: Partial<Record<"name" | "date_of_birth" | "weight_kg" | "sex", string[]>>;
+  fieldErrors?: Partial<Record<
+    | "name"
+    | "date_of_birth"
+    | "weight_kg"
+    | "sex"
+    | "goal_event_name"
+    | "goal_event_distance_km"
+    | "goal_event_date"
+    | "goal_event_location"
+    | "goal_event_objective",
+    string[]
+  >>;
 }
 
 export async function saveProfile(
@@ -21,6 +39,11 @@ export async function saveProfile(
     date_of_birth: formData.get("date_of_birth"),
     weight_kg: formData.get("weight_kg"),
     sex: formData.get("sex"),
+    goal_event_name: formData.get("goal_event_name"),
+    goal_event_distance_km: formData.get("goal_event_distance_km"),
+    goal_event_date: formData.get("goal_event_date"),
+    goal_event_location: formData.get("goal_event_location"),
+    goal_event_objective: formData.get("goal_event_objective"),
   });
 
   if (!parsed.success) {
@@ -28,7 +51,15 @@ export async function saveProfile(
   }
 
   try {
+    const avatar = getOptionalAvatarFile(formData.get("avatar"));
+    const removeAvatar = formData.get("remove_avatar") === "true";
+    validateAvatarFile(avatar);
     await saveAthleteProfile(parsed.data);
+    if (avatar || removeAvatar) {
+      const user = await requireUser();
+      const supabase = await createClient();
+      await replaceAvatarForUser(supabase, user.id, avatar, removeAvatar);
+    }
   } catch (error) {
     return {
       error: error instanceof DataAccessError

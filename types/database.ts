@@ -23,6 +23,12 @@ export interface Database {
           date_of_birth: string | null;
           sex: string;
           weight_kg: number;
+          avatar_url: string | null;
+          goal_event_name: string | null;
+          goal_event_distance_km: number | null;
+          goal_event_date: string | null;
+          goal_event_location: string | null;
+          goal_event_objective: string | null;
           marathon_name: string;
           marathon_date: string;
           goal: string;
@@ -36,6 +42,12 @@ export interface Database {
           date_of_birth?: string | null;
           sex: string;
           weight_kg: number;
+          avatar_url?: string | null;
+          goal_event_name?: string | null;
+          goal_event_distance_km?: number | null;
+          goal_event_date?: string | null;
+          goal_event_location?: string | null;
+          goal_event_objective?: string | null;
           marathon_name: string;
           marathon_date: string;
           goal: string;

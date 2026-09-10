@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Bell, CircleUserRound } from "lucide-react";
+import { Bell } from "lucide-react";
+import { AthleteAvatar } from "@/components/profile/AthleteAvatar";
 import { formatShortDate } from "@/lib/format";
 import type { AthleteProfile } from "@/types/training";
 
@@ -35,9 +36,9 @@ export function DashboardHeader({ athlete, date }: DashboardHeaderProps) {
         <Link
           href="/settings"
           aria-label="Abrir perfil"
-          className="grid size-11 place-items-center rounded-full bg-ink text-white shadow-sm sm:size-12"
+          className="rounded-full shadow-sm"
         >
-          <CircleUserRound size={23} strokeWidth={1.8} />
+          <AthleteAvatar name={athlete?.name ?? "Atleta"} src={athlete?.avatarUrl} className="size-11 text-xs sm:size-12" />
         </Link>
       </div>
     </header>

@@ -10,6 +10,7 @@ const protectedRoutes = [
   "/progress",
   "/settings",
   "/onboarding",
+  "/guide",
 ];
 
 export async function updateSession(request: NextRequest) {
@@ -61,7 +62,7 @@ export async function updateSession(request: NextRequest) {
     return redirectWithSession(loginUrl);
   }
 
-  if (pathname === "/login" && userId) {
+  if ((pathname === "/login" || pathname === "/signup") && userId) {
     return redirectWithSession(new URL("/dashboard", request.url));
   }
 

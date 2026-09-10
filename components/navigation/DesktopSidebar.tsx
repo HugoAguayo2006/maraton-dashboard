@@ -4,15 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CalendarDays,
+  BookOpenText,
   ChartNoAxesCombined,
   ChevronRight,
-  CircleUserRound,
   Gauge,
   LogOut,
   Settings,
   TimerReset,
 } from "lucide-react";
 import { logout } from "@/app/actions/auth";
+import { AthleteAvatar } from "@/components/profile/AthleteAvatar";
 import type { AthleteProfile } from "@/types/training";
 
 const navigation = [
@@ -20,6 +21,7 @@ const navigation = [
   { label: "Plan", href: "/plan", icon: CalendarDays },
   { label: "Entrenamientos", href: "/workouts", icon: TimerReset },
   { label: "Progreso", href: "/progress", icon: ChartNoAxesCombined },
+  { label: "Guía", href: "/guide", icon: BookOpenText },
   { label: "Configuración", href: "/settings", icon: Settings },
 ];
 
@@ -94,9 +96,7 @@ export function DesktopSidebar({ profile, userEmail, daysToRace }: DesktopSideba
         </div>
         <div className="flex items-center gap-1 rounded-2xl border border-line bg-white p-1.5">
           <Link href="/settings" className="flex min-w-0 flex-1 items-center gap-3 rounded-xl p-1.5">
-            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-surface-subtle text-muted">
-              <CircleUserRound size={20} />
-            </span>
+            <AthleteAvatar name={displayName} src={profile?.avatarUrl} className="size-9 text-[11px]" />
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold">{displayName}</span>
               <span className="block truncate text-[11px] text-muted">{userEmail ?? "Preparación personal"}</span>

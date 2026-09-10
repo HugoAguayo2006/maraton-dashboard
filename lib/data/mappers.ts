@@ -8,6 +8,7 @@ import type {
   WorkoutStatus,
 } from "@/types/training";
 import { calculateAge } from "@/lib/profile/calculateAge";
+import { getAvatarPublicUrl } from "@/lib/profile/avatar";
 import { getFirstName } from "@/lib/profile/profile";
 import { formatPaceSeconds } from "@/lib/format";
 import { formatPaceRange } from "@/lib/training/pace";
@@ -28,9 +29,18 @@ export function mapAthleteProfile(
     age: row.date_of_birth ? calculateAge(row.date_of_birth) : null,
     sex: row.sex as AthleteProfile["sex"],
     weightKg: Number(row.weight_kg),
-    raceName: row.marathon_name,
-    raceDate: row.marathon_date,
-    goal: row.goal,
+    avatarUrl: getAvatarPublicUrl(row.avatar_url),
+    avatarPath: row.avatar_url,
+    goalEventName: row.goal_event_name,
+    goalEventDistanceKm: row.goal_event_distance_km === null
+      ? null
+      : Number(row.goal_event_distance_km),
+    goalEventDate: row.goal_event_date,
+    goalEventLocation: row.goal_event_location,
+    goalEventObjective: row.goal_event_objective,
+    raceName: row.goal_event_name ?? row.marathon_name,
+    raceDate: row.goal_event_date ?? row.marathon_date,
+    goal: row.goal_event_objective ?? row.goal,
     naturalPace: formatPaceSeconds(row.natural_pace_seconds) ?? "—",
     naturalPaceSeconds: row.natural_pace_seconds,
   };

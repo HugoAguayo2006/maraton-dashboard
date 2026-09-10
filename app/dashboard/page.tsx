@@ -39,7 +39,7 @@ export default async function DashboardPage() {
           <EmptyState icon={Route} title="Sin tirada larga próxima" description="Aparecerá cuando cargues el plan." className="area-longrun min-h-48" />
         )}
         {dashboardData.athlete && dashboardData.daysToRace !== null ? (
-          <MarathonCountdown raceName={dashboardData.athlete.raceName} raceDate={dashboardData.athlete.raceDate} days={dashboardData.daysToRace} progress={dashboardData.raceProgress ?? 0} />
+          <MarathonCountdown raceName={dashboardData.athlete.raceName} raceDate={dashboardData.athlete.raceDate} distanceKm={dashboardData.athlete.goalEventDistanceKm} location={dashboardData.athlete.goalEventLocation} days={dashboardData.daysToRace} progress={dashboardData.raceProgress ?? 0} />
         ) : (
           <EmptyState icon={Flag} title="Configura tu carrera" description="Carga el perfil para activar el countdown." className="area-countdown min-h-48" />
         )}

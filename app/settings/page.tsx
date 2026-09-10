@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { CalendarDays, Database, Gauge, LogOut, Shield, Target, UserRound } from "lucide-react";
+import { CalendarDays, Database, Gauge, LogOut, MapPin, Medal, Shield, Target, UserRound } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 import { ProfileForm } from "@/components/profile/ProfileForm";
+import { AthleteAvatar } from "@/components/profile/AthleteAvatar";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getAthleteProfile } from "@/lib/data/athlete";
 import { formatShortDate } from "@/lib/format";
@@ -9,20 +10,29 @@ import { getAthleteSexLabel } from "@/lib/profile/profile";
 
 export const metadata: Metadata = { title: "Configuración" };
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ avatar?: string }>;
+}) {
   const profile = await getAthleteProfile();
+  const { avatar } = await searchParams;
 
   return (
     <>
       <PageHeader title="Configuración" description="Tu perfil personal y el objetivo que guía el plan." />
 
+      {avatar === "retry" && (
+        <div role="status" className="mb-5 rounded-2xl bg-warning-soft p-4 text-xs font-medium text-warning">
+          Tu cuenta quedó lista, pero no pudimos subir la foto. Puedes intentarlo nuevamente aquí.
+        </div>
+      )}
+
       {profile && (
         <>
           <section className="app-card mb-5 p-5 sm:p-6">
             <div className="flex items-center gap-4">
-              <span className="grid size-14 place-items-center rounded-full bg-ink text-lg font-bold text-white">
-                {profile.firstName.charAt(0).toUpperCase()}
-              </span>
+              <AthleteAvatar name={profile.name} src={profile.avatarUrl} className="size-14 text-sm" />
               <div>
                 <h2 className="text-lg font-bold">{profile.name}</h2>
                 <p className="mt-0.5 text-sm text-muted">
@@ -44,7 +54,9 @@ export default async function SettingsPage() {
             <p className="eyebrow mb-5">Carrera objetivo</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <ProfileDetail icon={Target} label="Carrera" value={profile.raceName} />
+              <ProfileDetail icon={Medal} label="Distancia" value={profile.goalEventDistanceKm === null ? "—" : `${profile.goalEventDistanceKm} km`} />
               <ProfileDetail icon={CalendarDays} label="Fecha" value={formatShortDate(profile.raceDate)} />
+              <ProfileDetail icon={MapPin} label="Lugar" value={profile.goalEventLocation ?? "Sin especificar"} />
               <ProfileDetail icon={Gauge} label="Pace natural" value={profile.naturalPace} />
               <ProfileDetail icon={Target} label="Objetivo" value={profile.goal} />
             </div>

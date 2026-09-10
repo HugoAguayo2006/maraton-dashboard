@@ -28,7 +28,7 @@ export default async function OnboardingPage() {
         <section className="app-card p-5 sm:p-8">
           <span className="grid size-11 place-items-center rounded-2xl bg-accent-soft text-accent"><Sparkles size={20} /></span>
           <h1 className="mt-5 text-[2rem] leading-none font-bold tracking-[-0.045em] sm:text-[2.5rem]">Cuéntanos sobre ti</h1>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-muted">Usaremos estos datos para personalizar tu preparación. Tu edad se calculará automáticamente.</p>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-muted">Completa los datos que falten de tu perfil y tu carrera objetivo. No volveremos a pedirlos cuando el perfil quede listo.</p>
           <div className="mt-7"><ProfileForm profile={profile} intent="onboarding" /></div>
         </section>
 

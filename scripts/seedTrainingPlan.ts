@@ -44,6 +44,11 @@ async function seed() {
     marathon_name: "Maratón de Guadalajara",
     marathon_date: "2026-11-08",
     goal: "Terminar bien y sin lesiones",
+    goal_event_name: "Maratón de Guadalajara",
+    goal_event_distance_km: 42.195,
+    goal_event_date: "2026-11-08",
+    goal_event_location: "Guadalajara, Jalisco",
+    goal_event_objective: "Terminar bien y sin lesiones",
     natural_pace_seconds: 360,
   };
 
