@@ -4,6 +4,16 @@ export type AthleteSex = "male" | "female" | "prefer_not_to_say";
 
 export type StrengthUnit = "kg" | "lbs";
 
+export type WorkoutSource = "manual" | "strava";
+
+export type RunActivityType =
+  | "easy"
+  | "long_run"
+  | "tempo"
+  | "interval"
+  | "race"
+  | "recovery";
+
 export type ExerciseCategory = "upper_body" | "lower_body" | "other";
 
 export type Equipment =
@@ -218,8 +228,8 @@ export interface WorkoutLog {
   distanceKm: number;
   durationSeconds: number;
   averagePace: string;
-  rpe: number;
-  pain: number;
+  rpe: number | null;
+  pain: number | null;
   fatigue: number | null;
   sleepHours: number | null;
   averageHeartRate: number | null;
@@ -229,6 +239,62 @@ export interface WorkoutLog {
   hydration: string | null;
   gels: string | null;
   notes: string | null;
+  source: WorkoutSource;
+  stravaActivityId: string | null;
+  activityType: RunActivityType;
+  providerActivityType: string | null;
+  feeling: number | null;
+  locationName: string | null;
+  locationCity: string | null;
+  routeName: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  elevationGain: number | null;
+  calories: number | null;
+  weather: Record<string, unknown> | null;
+}
+
+export interface RunSplit {
+  id: string;
+  workoutId: string;
+  kilometer: number;
+  paceSeconds: number;
+  distanceMeters: number;
+  elevationDifference: number | null;
+}
+
+export interface ActivityRoute {
+  id: string;
+  workoutId: string;
+  polyline: string;
+  distanceStream: number[];
+  elevationStream: number[];
+}
+
+export interface WorkoutDetail {
+  workout: WorkoutLog;
+  splits: RunSplit[];
+  route: ActivityRoute | null;
+}
+
+export interface StravaActivitySummary {
+  id: string;
+  name: string;
+  sportType: string;
+  date: string;
+  distanceKm: number;
+  durationSeconds: number;
+  averagePace: string;
+  elevationGain: number | null;
+  averageHeartRate: number | null;
+  importedWorkoutId: string | null;
+}
+
+export interface IntegrationStatus {
+  connected: boolean;
+  providerUserId: string | null;
+  expiresAt: string | null;
+  scopes: string[];
 }
 
 export interface WeeklySummary {
@@ -278,4 +344,7 @@ export interface ProgressSummary {
   averagePain: number | null;
   planCompliance: number | null;
   averagePace: string | null;
+  selectedKilometers: number;
+  selectedDurationSeconds: number;
+  selectedElevationGain: number;
 }

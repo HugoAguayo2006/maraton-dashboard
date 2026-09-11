@@ -22,26 +22,27 @@ export function RecentWorkouts({ workouts }: { workouts: WorkoutLog[] }) {
         </div>
       ) : <div className="mt-5 divide-y divide-line/80">
         {workouts.map((workout) => (
-          <article key={workout.id} className="flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
+          <Link href={`/workouts/${workout.id}`} key={workout.id} className="group flex items-center gap-3 py-3.5 first:pt-0 last:pb-0">
             <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-surface-subtle text-muted">
               <Footprints size={18} />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold">{workout.title}</p>
-              <p className="mt-0.5 text-[11px] font-medium text-muted first-letter:uppercase">
-                {formatDayAndDate(workout.date)}
+              <p className="truncate text-sm font-bold group-hover:text-accent">{workout.routeName ?? workout.title}</p>
+              <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-muted first-letter:uppercase">
+                <span>{formatDayAndDate(workout.date)}</span>
+                {workout.source === "strava" && <span className="rounded-full bg-[#fff0ea] px-1.5 py-0.5 text-[9px] font-bold text-[#fc4c02]">Strava</span>}
               </p>
             </div>
             <div className="text-right">
               <p className="text-sm font-bold">{workout.distanceKm} km</p>
               <p className="mt-0.5 text-[11px] font-medium text-muted">
-                {workout.averagePace.replace(" ", "")} · RPE {workout.rpe}
+                {workout.averagePace.replace(" ", "")} · RPE {workout.rpe ?? "—"}
               </p>
             </div>
             <span className="hidden size-5 place-items-center rounded-full bg-success-soft text-success sm:grid">
               <Check size={12} strokeWidth={3} />
             </span>
-          </article>
+          </Link>
         ))}
       </div>}
     </section>

@@ -104,7 +104,7 @@ export function TodayWorkoutCard({ workout, log, strengthCompleted }: TodayWorko
           <Metric
             icon={<HeartPulse size={16} />}
             label="RPE"
-            value={runCompleted && log ? `${log.rpe} / 10` : workout.targetRpe ?? "—"}
+            value={runCompleted && log ? (log.rpe === null ? "Sin captura" : `${log.rpe} / 10`) : workout.targetRpe ?? "—"}
           />
           <Metric
             icon={<Clock3 size={16} />}
@@ -166,12 +166,12 @@ export function TodayWorkoutCard({ workout, log, strengthCompleted }: TodayWorko
                 </span>
                 Sesión completada
               </span>
-              {runCompleted && log && <span className="text-xs font-medium text-muted">Dolor {log.pain}/10</span>}
+              {runCompleted && log && <span className="text-xs font-medium text-muted">Dolor {log.pain === null ? "sin captura" : `${log.pain}/10`}</span>}
             </div>
           )}
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             {hasRun && (runCompleted ? (
-              <TodayLink href="/workouts" variant="completed" icon={<Check size={16} />}>Ver carrera</TodayLink>
+              <TodayLink href={log ? `/workouts/${log.id}` : "/workouts"} variant="completed" icon={<Check size={16} />}>Ver carrera</TodayLink>
             ) : workout.status !== "skipped" ? (
               <TodayLink href={`/workouts/new?plan=${workout.id}&date=${workout.date}`} variant="run" icon={<Route size={17} />}>Registrar carrera</TodayLink>
             ) : null)}

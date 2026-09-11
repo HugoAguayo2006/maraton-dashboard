@@ -2,9 +2,11 @@ import type { TableRow } from "@/types/database";
 import type {
   AthleteProfile,
   EffortType,
+  RunActivityType,
   SessionType,
   TrainingPlanItem,
   WorkoutLog,
+  WorkoutSource,
   WorkoutStatus,
 } from "@/types/training";
 import { calculateAge } from "@/lib/profile/calculateAge";
@@ -102,5 +104,20 @@ export function mapWorkoutLog(
     hydration: row.hydration,
     gels: row.gels,
     notes: row.notes,
+    source: row.source as WorkoutSource,
+    stravaActivityId: row.strava_activity_id,
+    activityType: row.activity_type as RunActivityType,
+    providerActivityType: row.provider_activity_type,
+    feeling: row.feeling,
+    locationName: row.location_name,
+    locationCity: row.location_city,
+    routeName: row.route_name,
+    latitude: row.latitude === null ? null : Number(row.latitude),
+    longitude: row.longitude === null ? null : Number(row.longitude),
+    elevationGain: row.elevation_gain === null ? null : Number(row.elevation_gain),
+    calories: row.calories === null ? null : Number(row.calories),
+    weather: row.weather && typeof row.weather === "object" && !Array.isArray(row.weather)
+      ? row.weather as Record<string, unknown>
+      : null,
   };
 }

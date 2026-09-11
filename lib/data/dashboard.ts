@@ -104,7 +104,7 @@ export const getWeeklyMileageHistory = cache(
   },
 );
 
-export const getProgressData = cache(async (): Promise<{
+export const getProgressData = cache(async (range: "week" | "month" | "all" = "week"): Promise<{
   summary: ProgressSummary;
   mileageHistory: MileageWeek[];
 }> => {
@@ -117,11 +117,20 @@ export const getProgressData = cache(async (): Promise<{
   const weeklyWorkouts = workouts.filter(
     (workout) => workout.date >= start && workout.date <= end,
   );
-  const totalDistance = sumDistance(workouts);
-  const totalDuration = workouts.reduce(
+  const rangeStart = range === "week"
+    ? start
+    : range === "month"
+      ? `${referenceDate.slice(0, 7)}-01`
+      : null;
+  const selectedWorkouts = rangeStart
+    ? workouts.filter((workout) => workout.date >= rangeStart && workout.date <= referenceDate)
+    : workouts;
+  const selectedDistance = sumDistance(selectedWorkouts);
+  const selectedDuration = selectedWorkouts.reduce(
     (total, workout) => total + workout.durationSeconds,
     0,
   );
+  const totalDistance = sumDistance(workouts);
   const duePlan = plan.filter((item) => item.date <= referenceDate);
 
   return {
@@ -131,22 +140,18 @@ export const getProgressData = cache(async (): Promise<{
       longestRunKm: workouts.length
         ? Math.max(...workouts.map((workout) => workout.distanceKm))
         : null,
-      averageRpe: workouts.length
-        ? roundOneDecimal(
-            workouts.reduce((total, workout) => total + workout.rpe, 0) /
-              workouts.length,
-          )
-        : null,
-      averagePain: workouts.length
-        ? roundOneDecimal(
-            workouts.reduce((total, workout) => total + workout.pain, 0) /
-              workouts.length,
-          )
-        : null,
+      averageRpe: averageNullable(workouts.map((workout) => workout.rpe)),
+      averagePain: averageNullable(workouts.map((workout) => workout.pain)),
       planCompliance: calculatePlanCompliance(duePlan),
-      averagePace: totalDistance > 0
-        ? formatPace(totalDuration, totalDistance)
+      averagePace: selectedDistance > 0
+        ? formatPace(selectedDuration, selectedDistance)
         : null,
+      selectedKilometers: roundDistance(selectedDistance),
+      selectedDurationSeconds: selectedDuration,
+      selectedElevationGain: Math.round(selectedWorkouts.reduce(
+        (total, workout) => total + (workout.elevationGain ?? 0),
+        0,
+      )),
     },
     mileageHistory: buildWeeklyMileageHistory(plan, workouts),
   };
@@ -200,12 +205,7 @@ function buildMileageWeek(
     label,
     kilometers: roundDistance(sumDistance(workouts)),
     plannedKilometers: roundDistance(sumPlannedDistance(plan)),
-    averageRpe: workouts.length
-      ? roundOneDecimal(
-          workouts.reduce((total, workout) => total + workout.rpe, 0) /
-            workouts.length,
-        )
-      : undefined,
+    averageRpe: averageNullable(workouts.map((workout) => workout.rpe)) ?? undefined,
   };
 }
 
@@ -223,4 +223,11 @@ function roundDistance(value: number): number {
 
 function roundOneDecimal(value: number): number {
   return Math.round(value * 10) / 10;
+}
+
+function averageNullable(values: Array<number | null>): number | null {
+  const available = values.filter((value): value is number => value !== null);
+  return available.length
+    ? roundOneDecimal(available.reduce((total, value) => total + value, 0) / available.length)
+    : null;
 }

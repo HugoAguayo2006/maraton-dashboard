@@ -1,6 +1,6 @@
 # Marathon Dashboard
 
-Aplicación personal, mobile-first, para administrar una preparación de carrera. Incluye autenticación, perfil y evento objetivo, plan prescrito, registro de carrera y fuerza, dashboard diario, guía de entrenamiento y métricas de progreso.
+Aplicación personal, mobile-first, para administrar una preparación de carrera. Incluye autenticación, perfil y evento objetivo, plan prescrito, registro avanzado de carrera y fuerza, importación desde Strava, dashboard diario, guía de entrenamiento y métricas de progreso.
 
 ## Stack
 
@@ -8,6 +8,7 @@ Aplicación personal, mobile-first, para administrar una preparación de carrera
 - Tailwind CSS
 - Supabase Auth y PostgreSQL
 - Recharts y Lucide Icons
+- Leaflet y OpenStreetMap
 - Vercel
 
 ## Configuración completa
@@ -54,6 +55,8 @@ También puedes ejecutar el contenido de la migración desde **SQL Editor**. Est
 - `exercise_library`, catálogo global de ejercicios de solo lectura
 - `strength_routines` y `routine_exercises`, rutinas privadas del atleta
 - `strength_sessions`, `strength_session_exercises` y `strength_sets`, historial real de fuerza
+- `connected_integrations`, credenciales OAuth cifradas y privadas
+- `run_splits` y `activity_routes`, parciales, polyline y perfil de elevación
 - bucket `profile-images`, con límite de 4 MB y soporte para JPG, PNG y WebP
 - constraints, índices y triggers de `updated_at`
 - policies RLS de SELECT, INSERT, UPDATE y DELETE para cada propietario
@@ -116,6 +119,29 @@ npm run seed:exercises
 El script utiliza `SEED_EMAIL`, `SEED_PASSWORD` y el `SEED_USER_ID` opcional de `.env.local`. No requiere ni acepta una clave `service_role`. Los usuarios autenticados pueden leer el catálogo global, pero no insertar ejercicios arbitrarios. La función del seed únicamente vuelve a procesar el catálogo fijo incluido en la migración.
 
 Todas las tablas personales de fuerza están protegidas por RLS. `strength_routines` y `strength_sessions` verifican directamente `auth.uid() = user_id`; las tablas hijas comprueban la propiedad a través de su rutina o sesión. El navegador nunca define el propietario.
+
+## Integración con Strava
+
+Crea una aplicación desde el panel de API de Strava y configura el callback local como:
+
+```text
+http://localhost:3000/api/strava/callback
+```
+
+Agrega estas variables privadas a `.env.local`:
+
+```bash
+STRAVA_CLIENT_ID=your-client-id
+STRAVA_CLIENT_SECRET=your-client-secret
+STRAVA_REDIRECT_URI=http://localhost:3000/api/strava/callback
+INTEGRATION_ENCRYPTION_KEY=replace-with-a-random-key
+```
+
+Puedes generar la última variable con `openssl rand -base64 32`. Debe conservar el mismo valor: cambiarla invalida el descifrado de las conexiones existentes. Reinicia `npm run dev`, abre **Configuración → Integraciones** y autoriza Strava.
+
+El OAuth, el intercambio y la renovación de tokens se ejecutan únicamente en el servidor. Los tokens de acceso y renovación se cifran con AES-256-GCM antes de guardarse; la interfaz y los endpoints de actividades nunca los devuelven. Cada importación usa `strava_activity_id` para evitar duplicados y puede enlazarse con una sesión del plan.
+
+`/workouts/new` permite elegir entre captura manual avanzada e importación. El registro manual incluye tipo de carrera, sensaciones, ubicación, desnivel y parciales opcionales. `/workouts/[id]` reúne métricas, splits, mapa OpenStreetMap y gráfica de elevación cuando existen esos datos.
 
 ## Guía de entrenamiento
 
@@ -198,6 +224,9 @@ npm start
 - `lib/profile/avatar.ts` y `lib/data/avatar.ts`: URL pública, validación y reemplazo seguro de avatar.
 - `lib/guide/data.ts`: contenido tipado de la guía, derivado del Excel.
 - `lib/data/strength.ts`: consultas y agregados privados de rutinas, sesiones y progresión.
+- `lib/strava/`: OAuth, renovación de tokens y cliente de la API de Strava, solo servidor.
+- `lib/integrations/crypto.ts`: cifrado autenticado de credenciales externas.
+- `lib/maps/polyline.ts`: decodificación local de recorridos para Leaflet.
 - `lib/strength/`: unidades, filtros y plantillas de fuerza.
 - `components/strength/`: selector, constructor, registrador, historial y gráficas.
 - `scripts/seedExercises.ts`: seed idempotente del catálogo global.
@@ -212,8 +241,9 @@ El cumplimiento excluye descanso. Las sesiones de carrera y fuerza sí son elegi
 
 1. Sube el repositorio a Git.
 2. Importa el proyecto en Vercel.
-3. Configura únicamente `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Agrega la URL de producción a las Redirect URLs permitidas en Supabase Auth.
-5. Despliega con `npm run build`.
+3. Configura las dos variables públicas de Supabase y las cuatro variables privadas de Strava.
+4. Cambia `STRAVA_REDIRECT_URI` al dominio de producción terminado en `/api/strava/callback` y permite ese dominio en tu aplicación de Strava.
+5. Agrega la URL de producción a las Redirect URLs permitidas en Supabase Auth.
+6. Despliega con `npm run build`.
 
-No hay dependencias del filesystem en runtime. El bucket y sus policies se crean con la migración, así que Vercel no requiere variables adicionales. Gemini, Strava, Apple Health, notificaciones y ajustes automáticos del plan quedan fuera de esta fase.
+No hay dependencias del filesystem en runtime. El bucket, las tablas y sus policies se crean con las migraciones. Gemini, Apple Health, notificaciones y ajustes automáticos del plan quedan fuera de esta fase.

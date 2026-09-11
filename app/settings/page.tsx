@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { CalendarDays, Database, Gauge, LogOut, MapPin, Medal, Shield, Target, UserRound } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, CalendarDays, Database, Gauge, Link2, LogOut, MapPin, Medal, Shield, Target, UserRound } from "lucide-react";
 import { logout } from "@/app/actions/auth";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { AthleteAvatar } from "@/components/profile/AthleteAvatar";
@@ -68,6 +69,12 @@ export default async function SettingsPage({
         <ProfileDetail icon={Database} label="Datos" value="Supabase conectado" />
         <ProfileDetail icon={Shield} label="Privacidad" value="Protegido con RLS" />
       </section>
+
+      <Link href="/settings/integrations" className="app-card mb-5 flex min-w-0 items-center gap-4 p-4 sm:p-5">
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#fff0ea] text-[#fc4c02]"><Link2 size={20} /></span>
+        <span className="min-w-0 flex-1"><span className="block text-sm font-bold">Integraciones</span><span className="mt-1 block truncate text-xs text-muted">Conecta Strava e importa tus carreras</span></span>
+        <ArrowUpRight size={17} className="shrink-0 text-muted" />
+      </Link>
 
       <form action={logout}>
         <button type="submit" className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-danger/15 bg-danger-soft px-5 text-sm font-bold text-danger sm:w-fit">

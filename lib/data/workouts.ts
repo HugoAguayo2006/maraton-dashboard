@@ -7,8 +7,28 @@ import { DataAccessError } from "@/lib/data/errors";
 import { mapWorkoutLog } from "@/lib/data/mappers";
 import { syncTrainingPlanItemStatus } from "@/lib/data/planStatus";
 import { createClient } from "@/lib/supabase/server";
-import type { TableInsert, TableRow } from "@/types/database";
-import type { WorkoutLog } from "@/types/training";
+import type { Json, TableInsert, TableRow } from "@/types/database";
+import type {
+  ActivityRoute,
+  RunActivityType,
+  RunSplit,
+  WorkoutDetail,
+  WorkoutLog,
+  WorkoutSource,
+} from "@/types/training";
+
+interface NewRunSplitInput {
+  kilometer: number;
+  paceSeconds: number;
+  distanceMeters: number;
+  elevationDifference: number | null;
+}
+
+interface NewActivityRouteInput {
+  polyline: string;
+  distanceStream: number[];
+  elevationStream: number[];
+}
 
 export interface NewWorkoutInput {
   trainingPlanItemId: string | null;
@@ -16,8 +36,8 @@ export interface NewWorkoutInput {
   distanceKm: number;
   durationSeconds: number;
   averagePaceSeconds: number;
-  rpe: number;
-  pain: number;
+  rpe: number | null;
+  pain: number | null;
   fatigue: number | null;
   sleepHours: number | null;
   averageHr: number | null;
@@ -27,6 +47,21 @@ export interface NewWorkoutInput {
   hydration: string | null;
   gels: string | null;
   notes: string | null;
+  source?: WorkoutSource;
+  stravaActivityId?: string | null;
+  activityType?: RunActivityType;
+  providerActivityType?: string | null;
+  feeling?: number | null;
+  locationName?: string | null;
+  locationCity?: string | null;
+  routeName?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  elevationGain?: number | null;
+  calories?: number | null;
+  weather?: Record<string, unknown> | null;
+  splits?: NewRunSplitInput[];
+  route?: NewActivityRouteInput | null;
 }
 
 export const getRecentWorkoutLogs = cache(
@@ -155,6 +190,19 @@ export async function createWorkoutLog(input: NewWorkoutInput): Promise<string> 
     hydration: input.hydration,
     gels: input.gels,
     notes: input.notes,
+    source: input.source ?? "manual",
+    strava_activity_id: input.stravaActivityId ?? null,
+    activity_type: input.activityType ?? "easy",
+    provider_activity_type: input.providerActivityType ?? null,
+    feeling: input.feeling ?? null,
+    location_name: input.locationName ?? null,
+    location_city: input.locationCity ?? null,
+    route_name: input.routeName ?? null,
+    latitude: input.latitude ?? null,
+    longitude: input.longitude ?? null,
+    elevation_gain: input.elevationGain ?? null,
+    calories: input.calories ?? null,
+    weather: (input.weather ?? null) as Json,
   };
 
   const { data, error } = await supabase
@@ -163,7 +211,39 @@ export async function createWorkoutLog(input: NewWorkoutInput): Promise<string> 
     .select("id")
     .single();
 
-  if (error) throw new DataAccessError("No pudimos guardar el entrenamiento.");
+  if (error) {
+    if (error.code === "23505" && input.stravaActivityId) {
+      throw new DataAccessError("Esta actividad de Strava ya fue importada.");
+    }
+    throw new DataAccessError("No pudimos guardar el entrenamiento.");
+  }
+
+  try {
+    if (input.splits?.length) {
+      const splitRecords: TableInsert<"run_splits">[] = input.splits.map((split) => ({
+        workout_id: data.id,
+        kilometer: split.kilometer,
+        pace_seconds: split.paceSeconds,
+        distance_meters: split.distanceMeters,
+        elevation_difference: split.elevationDifference,
+      }));
+      const { error: splitError } = await supabase.from("run_splits").insert(splitRecords);
+      if (splitError) throw splitError;
+    }
+
+    if (input.route?.polyline) {
+      const { error: routeError } = await supabase.from("activity_routes").insert({
+        workout_id: data.id,
+        polyline: input.route.polyline,
+        distance_stream: input.route.distanceStream,
+        elevation_stream: input.route.elevationStream,
+      });
+      if (routeError) throw routeError;
+    }
+  } catch {
+    await supabase.from("workout_logs").delete().eq("id", data.id).eq("user_id", user.id);
+    throw new DataAccessError("Guardamos la carrera, pero no sus parciales o recorrido. Intenta nuevamente.");
+  }
 
   if (planItemId) {
     try {
@@ -175,6 +255,48 @@ export async function createWorkoutLog(input: NewWorkoutInput): Promise<string> 
   }
 
   return data.id;
+}
+
+export async function getWorkoutDetail(id: string): Promise<WorkoutDetail | null> {
+  const user = await requireUser();
+  const supabase = await createClient();
+  const { data: row, error } = await supabase
+    .from("workout_logs")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) throw new DataAccessError("No pudimos cargar el entrenamiento.");
+  if (!row) return null;
+
+  const [{ data: splitRows, error: splitError }, { data: routeRow, error: routeError }] =
+    await Promise.all([
+      supabase.from("run_splits").select("*").eq("workout_id", id).order("kilometer"),
+      supabase.from("activity_routes").select("*").eq("workout_id", id).maybeSingle(),
+    ]);
+  if (splitError || routeError) throw new DataAccessError("No pudimos cargar los detalles de la ruta.");
+
+  const [workout] = await hydrateWorkoutLogs([row]);
+  const splits: RunSplit[] = (splitRows ?? []).map((split) => ({
+    id: split.id,
+    workoutId: split.workout_id,
+    kilometer: split.kilometer,
+    paceSeconds: split.pace_seconds,
+    distanceMeters: Number(split.distance_meters),
+    elevationDifference: split.elevation_difference === null
+      ? null
+      : Number(split.elevation_difference),
+  }));
+  const route: ActivityRoute | null = routeRow ? {
+    id: routeRow.id,
+    workoutId: routeRow.workout_id,
+    polyline: routeRow.polyline,
+    distanceStream: numberArray(routeRow.distance_stream),
+    elevationStream: numberArray(routeRow.elevation_stream),
+  } : null;
+
+  return { workout, splits, route };
 }
 
 async function getWorkoutRows(
@@ -198,6 +320,12 @@ async function getWorkoutRows(
   const { data, error } = await query;
   if (error) throw new DataAccessError("No pudimos cargar tus entrenamientos.");
   return data ?? [];
+}
+
+function numberArray(value: unknown): number[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is number => typeof item === "number" && Number.isFinite(item))
+    : [];
 }
 
 async function hydrateWorkoutLogs(
@@ -228,7 +356,7 @@ async function hydrateWorkoutLogs(
       row,
       row.training_plan_item_id
         ? titleById.get(row.training_plan_item_id) ?? "Entrenamiento"
-        : "Entrenamiento libre",
+        : row.route_name ?? "Entrenamiento libre",
     ),
   );
 }

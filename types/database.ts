@@ -125,8 +125,8 @@ export interface Database {
           distance_km: number;
           duration_seconds: number;
           average_pace_seconds: number;
-          rpe: number;
-          pain: number;
+          rpe: number | null;
+          pain: number | null;
           fatigue: number | null;
           sleep_hours: number | null;
           average_hr: number | null;
@@ -136,6 +136,19 @@ export interface Database {
           hydration: string | null;
           gels: string | null;
           notes: string | null;
+          source: string;
+          strava_activity_id: string | null;
+          activity_type: string;
+          provider_activity_type: string | null;
+          feeling: number | null;
+          location_name: string | null;
+          location_city: string | null;
+          route_name: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          elevation_gain: number | null;
+          calories: number | null;
+          weather: Json | null;
         };
         Insert: {
           id?: string;
@@ -145,8 +158,8 @@ export interface Database {
           distance_km: number;
           duration_seconds: number;
           average_pace_seconds: number;
-          rpe: number;
-          pain: number;
+          rpe?: number | null;
+          pain?: number | null;
           fatigue?: number | null;
           sleep_hours?: number | null;
           average_hr?: number | null;
@@ -156,6 +169,19 @@ export interface Database {
           hydration?: string | null;
           gels?: string | null;
           notes?: string | null;
+          source?: string;
+          strava_activity_id?: string | null;
+          activity_type?: string;
+          provider_activity_type?: string | null;
+          feeling?: number | null;
+          location_name?: string | null;
+          location_city?: string | null;
+          route_name?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          elevation_gain?: number | null;
+          calories?: number | null;
+          weather?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -169,6 +195,73 @@ export interface Database {
             referencedColumns: ["id", "user_id"];
           },
         ];
+      };
+      connected_integrations: {
+        Row: TimestampColumns & {
+          user_id: string;
+          provider: string;
+          provider_user_id: string;
+          access_token: string;
+          refresh_token: string;
+          expires_at: string;
+          scopes: string[];
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          provider: string;
+          provider_user_id: string;
+          access_token: string;
+          refresh_token: string;
+          expires_at: string;
+          scopes?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["connected_integrations"]["Insert"]>;
+        Relationships: [];
+      };
+      run_splits: {
+        Row: {
+          id: string;
+          workout_id: string;
+          kilometer: number;
+          pace_seconds: number;
+          distance_meters: number;
+          elevation_difference: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          workout_id: string;
+          kilometer: number;
+          pace_seconds: number;
+          distance_meters?: number;
+          elevation_difference?: number | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["run_splits"]["Insert"]>;
+        Relationships: [];
+      };
+      activity_routes: {
+        Row: {
+          id: string;
+          workout_id: string;
+          polyline: string;
+          distance_stream: Json;
+          elevation_stream: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          workout_id: string;
+          polyline: string;
+          distance_stream?: Json;
+          elevation_stream?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["activity_routes"]["Insert"]>;
+        Relationships: [];
       };
       exercise_library: {
         Row: TimestampColumns & {
