@@ -6,6 +6,8 @@ import { getAthleteProfile } from "@/lib/data/athlete";
 import { differenceInCalendarDays, getTodayIso } from "@/lib/date";
 import { isAthleteProfileComplete } from "@/lib/profile/profile";
 import { redirect } from "next/navigation";
+import { BoltWidget } from "@/components/bolt/BoltWidget";
+import { isBoltConfigured } from "@/lib/ai/config";
 
 export async function ProtectedShell({ children }: { children: ReactNode }) {
   const user = await requireUser();
@@ -24,6 +26,7 @@ export async function ProtectedShell({ children }: { children: ReactNode }) {
         </main>
       </div>
       <MobileBottomNav />
+      {isBoltConfigured() && <BoltWidget />}
     </>
   );
 }

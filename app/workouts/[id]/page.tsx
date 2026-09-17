@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Activity, ArrowUpRight, ChevronLeft, Clock3, Flame, Gauge, HeartPulse, MapPin, Mountain, Route, SmilePlus } from "lucide-react";
+import { Activity, ArrowUpRight, ChevronLeft, Clock3, Flame, Gauge, HeartPulse, MapPin, Mountain, Route, SmilePlus, Sparkles } from "lucide-react";
 import { ElevationChart } from "@/components/workouts/ElevationChart";
 import { RouteMap } from "@/components/workouts/RouteMap";
 import { getWorkoutDetail } from "@/lib/data/workouts";
 import { formatDayAndDate, formatDuration, formatPaceSeconds } from "@/lib/format";
 import type { RunActivityType } from "@/types/training";
+import { BoltPromptButton } from "@/components/bolt/BoltPromptButton";
+import { isBoltConfigured } from "@/lib/ai/config";
 
 export const metadata: Metadata = { title: "Detalle del entrenamiento" };
 
@@ -25,6 +27,7 @@ export default async function WorkoutDetailPage({ params }: { params: Promise<{ 
   if (!detail) notFound();
   const { workout, splits, route } = detail;
   const location = [workout.locationName, workout.locationCity].filter(Boolean).join(" · ");
+  const boltEnabled = isBoltConfigured();
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -45,6 +48,7 @@ export default async function WorkoutDetailPage({ params }: { params: Promise<{ 
             <HeroMetric icon={<Mountain size={16} />} label="Desnivel" value={workout.elevationGain === null ? "—" : `${Math.round(workout.elevationGain)} m`} />
           </div>
           {workout.stravaActivityId && <a href={`https://www.strava.com/activities/${workout.stravaActivityId}`} target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#fc4c02]">Ver actividad original <ArrowUpRight size={15} /></a>}
+          {boltEnabled && <BoltPromptButton prompt="Analiza este entrenamiento: compáralo con mi plan, esfuerzo y recuperación reciente." contextType="workout" contextRefId={workout.id} className="mt-6 flex min-h-11 items-center gap-2 rounded-2xl bg-ink px-4 text-xs font-bold text-white"><Sparkles size={15} /> Analizar con Bolt AI</BoltPromptButton>}
         </div>
       </section>
 
@@ -67,4 +71,3 @@ export default async function WorkoutDetailPage({ params }: { params: Promise<{ 
 function HeroMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="rounded-[20px] border border-white/80 bg-white/80 p-4 shadow-sm"><div className="flex items-center gap-1.5 text-muted">{icon}<span className="text-[10px] font-bold uppercase">{label}</span></div><p className="mt-3 text-lg font-bold tracking-[-0.035em]">{value}</p></div>; }
 function SideMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="rounded-2xl bg-surface-subtle p-3.5"><div className="flex items-center gap-1.5 text-muted">{icon}<span className="text-[10px] font-bold uppercase">{label}</span></div><p className="mt-2 text-sm font-bold">{value}</p></div>; }
 function TextDetail({ label, value }: { label: string; value: string | null }) { return value ? <div><p className="text-[10px] font-bold text-muted uppercase">{label}</p><p className="mt-1 whitespace-pre-line leading-6">{value}</p></div> : null; }
-

@@ -12,6 +12,8 @@ import { DataAccessError } from "@/lib/data/errors";
 import { profileInputSchema } from "@/lib/profile/validation";
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { getAllTrainingPlanItems } from "@/lib/data/trainingPlan";
+import { isBoltConfigured } from "@/lib/ai/config";
 
 export interface ProfileActionState {
   error?: string;
@@ -73,7 +75,8 @@ export async function saveProfile(
   revalidatePath("/", "layout");
 
   if (formData.get("profile_intent") === "onboarding") {
-    redirect("/dashboard");
+    const plan = await getAllTrainingPlanItems();
+    redirect(isBoltConfigured() && plan.length === 0 ? "/plan/generate" : "/dashboard");
   }
 
   return { message: "Perfil actualizado correctamente." };

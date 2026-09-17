@@ -12,6 +12,7 @@ import { DataAccessError } from "@/lib/data/errors";
 import { profileInputSchema } from "@/lib/profile/validation";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { isBoltConfigured } from "@/lib/ai/config";
 
 export interface AuthActionState {
   error?: string;
@@ -155,7 +156,7 @@ export async function signup(
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  redirect(isBoltConfigured() ? "/plan/generate" : "/dashboard");
 }
 
 export async function logout() {

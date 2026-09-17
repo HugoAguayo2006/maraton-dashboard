@@ -1,6 +1,6 @@
 # Marathon Dashboard
 
-Aplicación personal, mobile-first, para administrar una preparación de carrera. Incluye autenticación, perfil y evento objetivo, plan prescrito, registro avanzado de carrera y fuerza, importación desde Strava, dashboard diario, guía de entrenamiento y métricas de progreso.
+Aplicación mobile-first para administrar una preparación de carrera. Incluye autenticación, perfil y evento objetivo, plan prescrito, registro avanzado de carrera y fuerza, importación desde Strava, dashboard diario, guía, métricas de progreso y Bolt AI como entrenador inteligente contextual.
 
 ## Stack
 
@@ -9,6 +9,7 @@ Aplicación personal, mobile-first, para administrar una preparación de carrera
 - Supabase Auth y PostgreSQL
 - Recharts y Lucide Icons
 - Leaflet y OpenStreetMap
+- Google Gen AI SDK en servidor, detrás de una interfaz de proveedor propia
 - Vercel
 
 ## Configuración completa
@@ -57,6 +58,11 @@ También puedes ejecutar el contenido de la migración desde **SQL Editor**. Est
 - `strength_sessions`, `strength_session_exercises` y `strength_sets`, historial real de fuerza
 - `connected_integrations`, credenciales OAuth cifradas y privadas
 - `run_splits` y `activity_routes`, parciales, polyline y perfil de elevación
+- `ai_conversations` y `ai_messages`, historial privado de Bolt AI
+- `athlete_ai_preferences`, disponibilidad y preferencias de entrenamiento
+- `ai_plan_changes`, propuestas pendientes o aplicadas con su auditoría
+- `training_plan_versions`, instantáneas versionadas de cada plan confirmado
+- `ai_usage_events`, control de uso sin guardar prompts ni secretos en logs
 - bucket `profile-images`, con límite de 4 MB y soporte para JPG, PNG y WebP
 - constraints, índices y triggers de `updated_at`
 - policies RLS de SELECT, INSERT, UPDATE y DELETE para cada propietario
@@ -69,7 +75,40 @@ También puedes ejecutar el contenido de la migración desde **SQL Editor**. Est
 
 Si la confirmación de correo está habilitada, el perfil ya queda creado y completo antes de confirmar. Al iniciar sesión por primera vez, el usuario entra al Dashboard sin repetir onboarding. La foto debe agregarse desde Configuración después de confirmar el correo porque todavía no existe una sesión autenticada para Storage.
 
-`/onboarding` se mantiene como fallback para usuarios históricos o metadata incompleta. Solicita los datos personales y del evento que falten; los perfiles completos se redirigen inmediatamente a `/dashboard`, evitando ciclos y pasos redundantes.
+`/onboarding` se mantiene como fallback para usuarios históricos o metadata incompleta. Solicita los datos personales y del evento que falten. Cuando Bolt AI está configurado y la cuenta todavía no tiene un plan, el siguiente paso es `/plan/generate`; en cualquier otro caso continúa a `/dashboard`.
+
+## Bolt AI
+
+Bolt AI aparece como un widget flotante dentro de Dashboard, Plan, Entrenamientos, Progreso y Guía. Construye un contexto compacto con perfil, carrera objetivo, próximas sesiones, registros reales, RPE, dolor, fuerza, carga reciente y reglas de la guía. No envía correo, UUID de usuario, credenciales de integraciones ni secretos al proveedor.
+
+El modelo externo está encapsulado en `lib/ai/`. La interfaz nunca muestra el nombre del proveedor o del modelo: para el atleta siempre es **Bolt AI**. Los prompts, esquemas de salida y configuración están centralizados, por lo que el proveedor puede sustituirse sin reescribir la experiencia ni el acceso a datos.
+
+Las herramientas de lectura controlada incluyen `get_athlete_profile`, `get_goal_event`, `get_current_plan`, `get_upcoming_workouts`, `get_recent_workouts`, `get_weekly_volume`, `get_latest_workout`, `get_training_load`, `get_today_workout`, `get_next_long_run`, `get_progress_summary`, `get_strength_history`, `get_workout_detail` y `get_guide`. Las escrituras viven en un registro separado: proponer, aplicar o rechazar cambios, proponer un plan completo y guardar una recomendación. Todas se ejecutan en servidor, vuelven a derivar el usuario desde Auth y no ofrecen SQL al modelo.
+
+Para activarlo en local, crea una API key de servidor en Google AI Studio y agrega a `.env.local`:
+
+```bash
+AI_ENABLED=true
+GEMINI_API_KEY=your-server-api-key
+GEMINI_MODEL=gemini-3.6-flash
+GEMINI_PLAN_MODEL=gemini-3.1-flash-lite
+GEMINI_PLAN_FALLBACK_MODEL=gemini-3.5-flash-lite
+GEMINI_FALLBACK_MODEL=gemini-3.5-flash
+AI_MAX_CHAT_REQUESTS=30
+AI_MAX_PLAN_GENERATIONS=4
+```
+
+`GEMINI_API_KEY` nunca debe usar el prefijo `NEXT_PUBLIC_`, incluirse en el repositorio o exponerse desde un Client Component. `GEMINI_PLAN_MODEL` y `GEMINI_PLAN_FALLBACK_MODEL` usan modelos rápidos para la salida estructurada extensa del plan; `GEMINI_FALLBACK_MODEL` corresponde al chat. Si `AI_ENABLED` no es exactamente `true` o falta la key, todo Marathon continúa funcionando y la interfaz de Bolt se mantiene oculta.
+
+### Generación y cambios de plan
+
+`/plan/generate` solicita experiencia, días disponibles, día de tirada larga, carga reciente y restricciones. Bolt AI devuelve datos estructurados que se validan nuevamente en el servidor: fechas, disponibilidad, distancias positivas, ausencia de intensidad consecutiva, duplicados y aumentos bruscos de volumen.
+
+El resultado siempre es una propuesta. El atleta ve el plan semanal completo antes de guardarlo; regenerar descarta la propuesta pendiente anterior. Ningún mensaje del chat ni generación modifica `training_plan_items` directamente. Para aplicar se exige `{ "confirmed": true }` y una función transaccional de PostgreSQL vuelve a comprobar propietario y estado, conserva sesiones completadas, crea una nueva versión y registra la confirmación. Si algo falla, la transacción completa se revierte.
+
+El chat puede proponer ajustes con comparación antes/después, motivo y botones **Aplicar cambio** / **No cambiar**. Bolt AI no diagnostica lesiones; ante dolor relevante orienta a detener o reducir y consultar a un profesional de salud.
+
+Los límites predeterminados son 30 solicitudes de chat/análisis por usuario por hora y 4 generaciones completas por 24 horas. Se pueden ajustar con las variables anteriores. La reserva del límite es atómica en PostgreSQL; el usuario puede consultar sus eventos, pero no insertarlos, editarlos ni borrarlos directamente. Los logs operativos contienen solamente request id, tipo de operación, resultado, duración y estimación de tokens.
 
 La edad no se edita ni se guarda como fuente de verdad. Se calcula dinámicamente desde `date_of_birth`, considerando si el cumpleaños ya ocurrió en el año actual. `/settings` permite editar nombre, nacimiento, peso, sexo, avatar, nombre/distancia/fecha/lugar del evento y objetivo personal.
 
@@ -205,6 +244,7 @@ Abre [http://localhost:3000](http://localhost:3000). Las rutas de la aplicación
 ```bash
 npm run dev
 npm run lint
+npm test
 npm run build
 npm run seed:plan
 npm run seed:exercises
@@ -225,6 +265,8 @@ npm start
 - `lib/guide/data.ts`: contenido tipado de la guía, derivado del Excel.
 - `lib/data/strength.ts`: consultas y agregados privados de rutinas, sesiones y progresión.
 - `lib/strava/`: OAuth, renovación de tokens y cliente de la API de Strava, solo servidor.
+- `lib/ai/`: proveedor, prompts, contexto, herramientas de lectura, validación, rate limit y flujo seguro de propuestas.
+- `components/bolt/`: widget global, accesos contextuales y generador visual del plan.
 - `lib/integrations/crypto.ts`: cifrado autenticado de credenciales externas.
 - `lib/maps/polyline.ts`: decodificación local de recorridos para Leaflet.
 - `lib/strength/`: unidades, filtros y plantillas de fuerza.
@@ -241,9 +283,10 @@ El cumplimiento excluye descanso. Las sesiones de carrera y fuerza sí son elegi
 
 1. Sube el repositorio a Git.
 2. Importa el proyecto en Vercel.
-3. Configura las dos variables públicas de Supabase y las cuatro variables privadas de Strava.
+3. Configura las dos variables públicas de Supabase, las cuatro variables privadas de Strava y, si habilitarás Bolt AI, sus variables privadas.
 4. Cambia `STRAVA_REDIRECT_URI` al dominio de producción terminado en `/api/strava/callback` y permite ese dominio en tu aplicación de Strava.
 5. Agrega la URL de producción a las Redirect URLs permitidas en Supabase Auth.
-6. Despliega con `npm run build`.
+6. Ejecuta las migraciones, incluyendo las incrementales `202609100006` a `202609100008` de Bolt AI.
+7. Despliega con `npm run build`.
 
-No hay dependencias del filesystem en runtime. El bucket, las tablas y sus policies se crean con las migraciones. Gemini, Apple Health, notificaciones y ajustes automáticos del plan quedan fuera de esta fase.
+No hay dependencias del filesystem en runtime. El bucket, las tablas y sus policies se crean con las migraciones. Apple Health, notificaciones y cambios autónomos del plan quedan fuera de esta fase.

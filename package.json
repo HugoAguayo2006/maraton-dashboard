@@ -7,12 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test tests/**/*.test.ts",
     "seed:plan": "tsx scripts/seedTrainingPlan.ts",
     "seed:exercises": "tsx scripts/seedExercises.ts",
     "import:plan": "tsx scripts/importTrainingPlanFromExcel.ts",
     "import:plan:apply": "tsx scripts/importTrainingPlanFromExcel.ts --apply"
   },
   "dependencies": {
+    "@google/genai": "^2.22.0",
     "@supabase/ssr": "^0.12.6",
     "@supabase/supabase-js": "^2.116.0",
     "leaflet": "^1.9.4",

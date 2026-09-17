@@ -7,6 +7,7 @@ import {
   Footprints,
   Gauge,
   Timer,
+  Zap,
 } from "lucide-react";
 import { formatDayAndDate } from "@/lib/format";
 import { EffortTypeBadge } from "@/components/training/EffortTypeBadge";
@@ -16,6 +17,7 @@ import {
   isPlanItemFullyCompleted,
 } from "@/lib/training/planComponents";
 import type { TrainingPlanItem } from "@/types/training";
+import { BoltPromptButton } from "@/components/bolt/BoltPromptButton";
 
 const statusLabels = {
   pending: "Pendiente",
@@ -35,10 +37,12 @@ export function PlanDayCard({
   item,
   runCompleted,
   strengthCompleted,
+  boltEnabled,
 }: {
   item: TrainingPlanItem;
   runCompleted: boolean;
   strengthCompleted: boolean;
+  boltEnabled: boolean;
 }) {
   const hasRun = hasRunningComponent(item);
   const hasStrength = hasStrengthComponent(item);
@@ -108,6 +112,18 @@ export function PlanDayCard({
                 <Dumbbell size={17} /> Registrar sesión de fuerza
               </Link>
             ))}
+          </div>
+        )}
+        {boltEnabled && (
+          <div className="mt-3 border-t border-line/70 pt-3">
+            <BoltPromptButton
+              prompt={`Explícame la sesión ${item.title} y dime cómo ejecutarla hoy.`}
+              contextType="plan"
+              contextRefId={item.id}
+              className="flex min-h-10 items-center gap-2 rounded-xl px-2 text-xs font-bold text-accent hover:bg-accent-soft"
+            >
+              <Zap size={15} fill="currentColor" /> Preguntar a Bolt AI sobre esta sesión
+            </BoltPromptButton>
           </div>
         )}
       </div>

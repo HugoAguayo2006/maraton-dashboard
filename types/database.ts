@@ -423,6 +423,161 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["ai_recommendations"]["Insert"]>;
         Relationships: [];
       };
+      ai_conversations: {
+        Row: TimestampColumns & {
+          user_id: string;
+          title: string;
+          context_type: string;
+          context_ref_id: string | null;
+          summary: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title?: string;
+          context_type?: string;
+          context_ref_id?: string | null;
+          summary?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ai_conversations"]["Insert"]>;
+        Relationships: [];
+      };
+      ai_messages: {
+        Row: {
+          id: string;
+          conversation_id: string;
+          user_id: string;
+          role: string;
+          content: string;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          conversation_id: string;
+          user_id: string;
+          role: string;
+          content: string;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ai_messages"]["Insert"]>;
+        Relationships: [];
+      };
+      ai_plan_changes: {
+        Row: {
+          id: string;
+          user_id: string;
+          conversation_id: string | null;
+          kind: string;
+          status: string;
+          reason: string;
+          summary: string;
+          previous_plan_data: Json;
+          new_plan_data: Json;
+          user_confirmed: boolean;
+          confirmed_at: string | null;
+          applied_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          conversation_id?: string | null;
+          kind?: string;
+          status?: string;
+          reason: string;
+          summary: string;
+          previous_plan_data?: Json;
+          new_plan_data?: Json;
+          user_confirmed?: boolean;
+          confirmed_at?: string | null;
+          applied_at?: string | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ai_plan_changes"]["Insert"]>;
+        Relationships: [];
+      };
+      training_plan_versions: {
+        Row: {
+          id: string;
+          user_id: string;
+          version: number;
+          source: string;
+          summary: string;
+          generation_reason: string | null;
+          plan_data: Json;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          version: number;
+          source?: string;
+          summary: string;
+          generation_reason?: string | null;
+          plan_data: Json;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["training_plan_versions"]["Insert"]>;
+        Relationships: [];
+      };
+      athlete_ai_preferences: {
+        Row: TimestampColumns & {
+          user_id: string;
+          experience_level: string | null;
+          running_days: number[];
+          strength_days: number[];
+          preferred_long_run_day: number | null;
+          current_weekly_km: number | null;
+          longest_recent_run_km: number | null;
+          time_constraints: string | null;
+          training_notes: string | null;
+        };
+        Insert: {
+          user_id: string;
+          experience_level?: string | null;
+          running_days?: number[];
+          strength_days?: number[];
+          preferred_long_run_day?: number | null;
+          current_weekly_km?: number | null;
+          longest_recent_run_km?: number | null;
+          time_constraints?: string | null;
+          training_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["athlete_ai_preferences"]["Insert"]>;
+        Relationships: [];
+      };
+      ai_usage_events: {
+        Row: {
+          id: string;
+          user_id: string;
+          request_id: string;
+          operation: string;
+          success: boolean;
+          duration_ms: number | null;
+          token_estimate: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          request_id?: string;
+          operation: string;
+          success?: boolean;
+          duration_ms?: number | null;
+          token_estimate?: number | null;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["ai_usage_events"]["Insert"]>;
+        Relationships: [];
+      };
       training_plan_imports: {
         Row: TimestampColumns & {
           user_id: string;
@@ -449,6 +604,23 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      begin_bolt_ai_usage: {
+        Args: { p_operation: string; p_maximum: number; p_window_seconds: number };
+        Returns: Array<{ event_id: string; request_id: string }>;
+      };
+      complete_bolt_ai_usage: {
+        Args: {
+          p_event_id: string;
+          p_success: boolean;
+          p_duration_ms: number;
+          p_token_estimate: number | null;
+        };
+        Returns: boolean;
+      };
+      apply_bolt_plan_change: {
+        Args: { p_change_id: string; p_confirm: boolean };
+        Returns: number;
+      };
       seed_exercise_library: {
         Args: Record<PropertyKey, never>;
         Returns: number;

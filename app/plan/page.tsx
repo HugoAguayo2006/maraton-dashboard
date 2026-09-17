@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BookOpenText, CalendarX2 } from "lucide-react";
+import { BookOpenText, CalendarX2, Sparkles } from "lucide-react";
 import { PlanDayCard } from "@/components/plan/PlanDayCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -16,10 +16,12 @@ import {
 import { getTodayIso, getWeekRange } from "@/lib/date";
 import { formatDistance } from "@/lib/format";
 import { isEligiblePlanSession } from "@/lib/training/compliance";
+import { isBoltConfigured } from "@/lib/ai/config";
 
 export const metadata: Metadata = { title: "Plan" };
 
 export default async function PlanPage() {
+  const boltEnabled = isBoltConfigured();
   const today = getTodayIso();
   const { start, end } = getWeekRange(today);
   const [
@@ -59,12 +61,13 @@ export default async function PlanPage() {
         eyebrow={weeks.length ? `${weeks.length} semanas cargadas` : "Plan de entrenamiento"}
         title="Tu plan"
         description="Consulta cada sesión prescrita y abre sus indicaciones cuando las necesites."
-        action={
-          <Link href="/guide" className="hidden min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-xs font-bold text-accent shadow-sm transition-colors hover:bg-accent-soft sm:flex">
-            <BookOpenText size={18} /> Interpretar ritmos
-          </Link>
-        }
+        action={<div className="hidden items-center gap-2 sm:flex">
+          <Link href="/guide" className="flex min-h-11 items-center gap-2 rounded-2xl bg-white px-4 text-xs font-bold text-accent shadow-sm transition-colors hover:bg-accent-soft"><BookOpenText size={18} /> Interpretar ritmos</Link>
+          {boltEnabled && <Link href="/plan/generate" className="flex min-h-11 items-center gap-2 rounded-2xl bg-ink px-4 text-xs font-bold text-white"><Sparkles size={17} /> {trainingPlan.length ? "Regenerar con Bolt AI" : "Crear con Bolt AI"}</Link>}
+        </div>}
       />
+
+      {boltEnabled && trainingPlan.length > 0 && <Link href="/plan/generate" className="mb-5 flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-ink px-4 text-xs font-bold text-white sm:hidden"><Sparkles size={16} /> Regenerar con Bolt AI</Link>}
 
       {trainingPlan.length > 0 && (
         <section className="mb-5 rounded-[24px] bg-ink p-5 text-white sm:flex sm:items-center sm:justify-between sm:p-6">
@@ -90,7 +93,9 @@ export default async function PlanPage() {
         <EmptyState
           icon={CalendarX2}
           title="Tu plan aún está vacío"
-          description="Ejecuta el seed cuando tengas listo el plan real de 9 semanas."
+          description={boltEnabled ? "Cuéntale a Bolt AI tu disponibilidad y revisa una propuesta completa antes de guardarla." : "Carga un plan para comenzar tu preparación."}
+          actionLabel={boltEnabled ? "Crear plan con Bolt AI" : undefined}
+          actionHref={boltEnabled ? "/plan/generate" : undefined}
         />
       ) : (
         <div className="space-y-7">
@@ -109,6 +114,7 @@ export default async function PlanPage() {
                       item={item}
                       runCompleted={runIds.has(item.id)}
                       strengthCompleted={strengthIds.has(item.id)}
+                      boltEnabled={boltEnabled}
                     />
                   ))}
               </div>

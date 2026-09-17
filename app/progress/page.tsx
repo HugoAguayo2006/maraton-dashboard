@@ -14,6 +14,8 @@ import { ProgressCharts } from "@/components/progress/ProgressCharts";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { getProgressData } from "@/lib/data/dashboard";
 import { formatDuration } from "@/lib/format";
+import { BoltPromptButton } from "@/components/bolt/BoltPromptButton";
+import { isBoltConfigured } from "@/lib/ai/config";
 
 export const metadata: Metadata = { title: "Progreso" };
 
@@ -42,7 +44,7 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <PageHeader eyebrow="Tu evolución" title="Progreso" description="Tendencias calculadas exclusivamente a partir de tu plan y tus registros reales." />
+      <PageHeader eyebrow="Tu evolución" title="Progreso" description="Tendencias calculadas exclusivamente a partir de tu plan y tus registros reales." action={isBoltConfigured() ? <BoltPromptButton prompt={`Analiza mi progreso ${rangeLabel} y dame una recomendación concreta.`} contextType="progress" className="hidden min-h-11 items-center gap-2 rounded-2xl bg-ink px-4 text-xs font-bold text-white sm:flex">✦ Analizar con Bolt AI</BoltPromptButton> : undefined} />
       <nav aria-label="Periodo de progreso" className="mb-5 inline-flex rounded-2xl border border-line bg-white p-1 shadow-sm">
         {(["week", "month", "all"] as const).map((value) => (
           <Link key={value} href={`/progress?range=${value}`} aria-current={range === value ? "page" : undefined} className={`rounded-xl px-4 py-2.5 text-xs font-bold transition-colors ${range === value ? "bg-ink text-white" : "text-muted hover:text-ink"}`}>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Activity, BookOpenText, Dumbbell } from "lucide-react";
+import { Activity, BookOpenText, Dumbbell, Sparkles } from "lucide-react";
 import { EffortTypeBadge } from "@/components/training/EffortTypeBadge";
 import {
   gymGuideEntries,
@@ -9,6 +9,7 @@ import {
   paceGuideEntries,
   practicalGuideEntries,
 } from "@/lib/guide/data";
+import { BoltPromptButton } from "@/components/bolt/BoltPromptButton";
 
 type GuideTab = "paces" | "gym" | "rules";
 
@@ -18,7 +19,7 @@ const tabs = [
   { id: "rules", label: "Reglas prácticas", icon: BookOpenText },
 ] as const;
 
-export function GuideTabs() {
+export function GuideTabs({ boltEnabled = false }: { boltEnabled?: boolean }) {
   const [activeTab, setActiveTab] = useState<GuideTab>("paces");
 
   return (
@@ -48,6 +49,8 @@ export function GuideTabs() {
         })}
       </div>
 
+      {boltEnabled && <BoltPromptButton prompt={guidePrompt(activeTab)} contextType="guide" contextRefId={activeTab} className="mb-5 flex min-h-11 items-center gap-2 rounded-2xl bg-accent-soft px-4 text-xs font-bold text-accent"><Sparkles size={15} /> Preguntar a Bolt AI sobre esta sección</BoltPromptButton>}
+
       <div key={activeTab} id={`guide-panel-${activeTab}`} role="tabpanel" aria-labelledby={`guide-tab-${activeTab}`} className="guide-tab-enter">
         {activeTab === "paces" && <PacesPanel />}
         {activeTab === "gym" && <GymPanel />}
@@ -55,6 +58,12 @@ export function GuideTabs() {
       </div>
     </div>
   );
+}
+
+function guidePrompt(tab: GuideTab): string {
+  if (tab === "paces") return "Ayúdame a interpretar los ritmos y RPE de esta guía para mi próxima sesión.";
+  if (tab === "gym") return "Explícame cómo aplicar la sección de gimnasio de esta guía dentro de mi plan.";
+  return "Ayúdame a aplicar las reglas prácticas de esta guía a mi semana actual.";
 }
 
 function moveTabFocus(event: React.KeyboardEvent<HTMLButtonElement>, current: GuideTab) {
