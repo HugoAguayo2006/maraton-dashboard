@@ -7,6 +7,7 @@ import {
   getOptionalAvatarFile,
   replaceAvatarForUser,
   validateAvatarFile,
+  validateAvatarFileContents,
 } from "@/lib/data/avatar";
 import { DataAccessError } from "@/lib/data/errors";
 import { profileInputSchema } from "@/lib/profile/validation";
@@ -58,6 +59,7 @@ export async function saveProfile(
     const avatar = getOptionalAvatarFile(formData.get("avatar"));
     const removeAvatar = formData.get("remove_avatar") === "true";
     validateAvatarFile(avatar);
+    await validateAvatarFileContents(avatar);
     await saveAthleteProfile(parsed.data);
     if (avatar || removeAvatar) {
       const user = await requireUser();

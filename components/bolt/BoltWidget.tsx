@@ -163,7 +163,10 @@ export function BoltWidget() {
     if (!proposal || loading) return;
     setLoading(true);
     try {
-      await fetch(`/api/bolt/plan-changes/${proposal.id}`, { method: "DELETE" });
+      await fetch(`/api/bolt/plan-changes/${proposal.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
       setProposal(null);
     } finally {
       setLoading(false);
@@ -215,12 +218,12 @@ export function BoltWidget() {
       <button
         type="button"
         onClick={toggleWidget}
-        className={`group fixed right-4 flex items-center gap-2 text-left lg:right-6 lg:bottom-6 ${open ? "bottom-[calc(1.25rem+env(safe-area-inset-bottom))] z-[90]" : "bottom-[calc(6.25rem+env(safe-area-inset-bottom))] z-[60]"}`}
+        className={`group fixed right-3 max-w-[calc(100vw-1.5rem)] items-center gap-2 text-left sm:right-4 md:right-6 min-[1200px]:bottom-6 ${open ? "bottom-[calc(1.25rem+env(safe-area-inset-bottom))] z-[90] hidden min-[1200px]:flex" : "bottom-[calc(6.25rem+env(safe-area-inset-bottom))] z-[60] flex"}`}
         aria-label={open ? "Cerrar Bolt AI" : "Abrir Bolt AI"}
         aria-expanded={open}
         title={open ? "Cerrar Bolt AI" : "Bolt AI · Tu entrenador inteligente"}
       >
-        {!open && <span className="max-w-48 rounded-[18px] border border-line bg-white px-3.5 py-2.5 text-ink shadow-[0_10px_30px_rgba(17,17,20,.12)] transition-transform group-hover:-translate-y-0.5 sm:max-w-56">
+        {!open && <span className="bolt-launcher-greeting max-w-48 rounded-[18px] border border-line bg-white px-3.5 py-2.5 text-ink shadow-[0_10px_30px_rgba(17,17,20,.12)] transition-transform group-hover:-translate-y-0.5 sm:max-w-56">
           <span className="block text-[11px] font-bold">Hola, soy Bolt AI</span>
           <span className="mt-0.5 block text-[10px] leading-4 font-medium text-muted">¿En qué puedo ayudarte?</span>
         </span>}
@@ -229,12 +232,12 @@ export function BoltWidget() {
         </span>
       </button>
 
-      {open && <div className="fixed inset-0 z-[80] bg-ink/20 backdrop-blur-[2px] lg:pointer-events-none lg:bg-transparent lg:backdrop-blur-none" onMouseDown={(event) => { if (event.target === event.currentTarget) closeWidget(); }}>
-        <section role="dialog" aria-modal="true" aria-label="Bolt AI" className="pointer-events-auto fixed inset-x-3 top-[max(1rem,env(safe-area-inset-top))] bottom-[calc(5.5rem+env(safe-area-inset-bottom))] flex flex-col overflow-hidden rounded-[28px] border border-line bg-white shadow-[0_24px_80px_rgba(17,17,20,.22)] lg:inset-auto lg:right-6 lg:bottom-20 lg:h-[min(680px,calc(100vh-7rem))] lg:w-[420px]">
-          <header className="flex items-center gap-3 border-b border-line/80 px-4 py-3.5 sm:px-5">
+      {open && <div className="fixed inset-0 z-[80] bg-ink/20 backdrop-blur-[2px] md:pointer-events-none md:bg-transparent md:backdrop-blur-none" onMouseDown={(event) => { if (event.target === event.currentTarget) closeWidget(); }}>
+        <section role="dialog" aria-modal="true" aria-label="Bolt AI" className="pointer-events-auto fixed inset-x-3 top-[max(.75rem,env(safe-area-inset-top))] bottom-[calc(5.5rem+env(safe-area-inset-bottom))] flex min-w-0 flex-col overflow-hidden rounded-[24px] border border-line bg-white shadow-[0_24px_80px_rgba(17,17,20,.22)] sm:inset-x-4 sm:top-[max(1rem,env(safe-area-inset-top))] sm:rounded-[28px] md:inset-auto md:right-6 md:bottom-20 md:h-[min(680px,calc(100dvh-7rem))] md:w-[420px]">
+          <header className="flex min-w-0 items-center gap-2 border-b border-line/80 px-3 py-3 sm:gap-3 sm:px-5 sm:py-3.5">
             <span className="grid size-10 place-items-center rounded-2xl bg-ink text-white"><Zap size={18} fill="currentColor" /></span>
             <div className="min-w-0 flex-1"><h2 className="text-sm font-bold">Bolt AI</h2><p className="mt-0.5 text-[11px] text-muted">Tu entrenador inteligente</p></div>
-            <button type="button" onClick={restartChat} disabled={loading || loadingHistory} className="flex min-h-9 shrink-0 items-center gap-1.5 rounded-xl border border-line px-2.5 text-[10px] font-bold text-muted transition hover:border-accent/25 hover:bg-accent-soft hover:text-accent disabled:cursor-not-allowed disabled:opacity-40" aria-label="Reiniciar chat de Bolt AI" title="Empezar una conversación nueva"><RotateCcw size={13} /><span>Reiniciar chat</span></button>
+            <button type="button" onClick={restartChat} disabled={loading || loadingHistory} className="flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl border border-line px-2.5 text-[10px] font-bold text-muted transition hover:border-accent/25 hover:bg-accent-soft hover:text-accent disabled:cursor-not-allowed disabled:opacity-40" aria-label="Reiniciar chat de Bolt AI" title="Empezar una conversación nueva"><RotateCcw size={14} /><span className="hidden min-[390px]:inline">Reiniciar chat</span></button>
             <button type="button" onClick={closeWidget} aria-label="Cerrar Bolt AI" className="grid size-10 place-items-center rounded-xl text-muted hover:bg-surface-subtle"><X size={19} /></button>
           </header>
 
@@ -242,7 +245,7 @@ export function BoltWidget() {
             {loadingHistory ? <Thinking text="Bolt AI está revisando tu contexto…" /> : messages.length === 0 ? (
               <div>
                 <div className="rounded-[22px] bg-[linear-gradient(145deg,#111114,#292933)] p-5 text-white"><Sparkles size={20} className="text-[#8dbdff]" /><h3 className="mt-5 text-lg font-bold tracking-[-0.035em]">¿En qué te ayudo hoy?</h3><p className="mt-2 text-xs leading-5 text-white/60">Ya conozco tu plan, tu carrera objetivo y tus registros recientes.</p></div>
-                <div className="mt-4 grid grid-cols-2 gap-2">{starters.map((starter) => <button key={starter} type="button" onClick={() => void submitMessage(starter)} className="min-h-14 cursor-pointer rounded-2xl border border-line bg-surface-subtle px-3 py-2 text-left text-[11px] leading-4 font-semibold hover:border-accent/25">{starter}</button>)}</div>
+                <div className="mt-4 grid grid-cols-1 gap-2 min-[360px]:grid-cols-2">{starters.map((starter) => <button key={starter} type="button" onClick={() => void submitMessage(starter)} className="min-h-12 cursor-pointer rounded-2xl border border-line bg-surface-subtle px-3 py-2 text-left text-[11px] leading-4 font-semibold hover:border-accent/25 min-[360px]:min-h-14">{starter}</button>)}</div>
               </div>
             ) : <div className="space-y-4">{messages.map((message) => <ChatMessage key={message.id} message={message} />)}</div>}
             {proposal && <PlanChangeCard proposal={proposal} loading={loading} onApply={applyProposal} onReject={rejectProposal} />}
@@ -265,17 +268,17 @@ export function BoltWidget() {
 }
 
 function ChatMessage({ message }: { message: BoltMessage }) {
-  if (message.role === "user") return <div className="ml-10 rounded-[20px] rounded-br-md bg-accent px-4 py-3 text-sm leading-5 text-white">{message.content}</div>;
+  if (message.role === "user") return <div className="ml-6 min-w-0 break-words rounded-[20px] rounded-br-md bg-accent px-4 py-3 text-sm leading-5 text-white sm:ml-10">{message.content}</div>;
   const metadata = message.metadata;
   const title = typeof metadata.title === "string" ? metadata.title : "Bolt AI";
   const relevantData = Array.isArray(metadata.relevantData) ? metadata.relevantData.filter((item): item is string => typeof item === "string") : [];
   const recommendation = typeof metadata.recommendation === "string" ? metadata.recommendation : null;
   const safetyNotice = typeof metadata.safetyNotice === "string" ? metadata.safetyNotice : null;
-  return <article className="mr-4 rounded-[22px] rounded-bl-md border border-line bg-white p-4 shadow-sm"><p className="text-[10px] font-bold tracking-[.1em] text-accent uppercase">{title}</p><p className="mt-2 whitespace-pre-line text-sm leading-6">{message.content}</p>{relevantData.length > 0 && <ul className="mt-3 space-y-1.5 rounded-2xl bg-surface-subtle p-3 text-xs text-muted">{relevantData.map((item) => <li key={item}>• {item}</li>)}</ul>}{recommendation && <p className="mt-3 border-l-2 border-accent pl-3 text-xs leading-5 font-semibold">{recommendation}</p>}{safetyNotice && <p className="mt-3 rounded-xl bg-warning-soft p-3 text-[11px] leading-5 text-warning">{safetyNotice}</p>}</article>;
+  return <article className="mr-0 min-w-0 break-words rounded-[22px] rounded-bl-md border border-line bg-white p-4 shadow-sm sm:mr-4"><p className="text-[10px] font-bold tracking-[.1em] text-accent uppercase">{title}</p><p className="mt-2 whitespace-pre-line text-sm leading-6">{message.content}</p>{relevantData.length > 0 && <ul className="mt-3 space-y-1.5 rounded-2xl bg-surface-subtle p-3 text-xs text-muted">{relevantData.map((item) => <li key={item} className="break-words">• {item}</li>)}</ul>}{recommendation && <p className="mt-3 border-l-2 border-accent pl-3 text-xs leading-5 font-semibold">{recommendation}</p>}{safetyNotice && <p className="mt-3 rounded-xl bg-warning-soft p-3 text-[11px] leading-5 text-warning">{safetyNotice}</p>}</article>;
 }
 
 function PlanChangeCard({ proposal, loading, onApply, onReject }: { proposal: BoltPlanChangePreview; loading: boolean; onApply: () => void; onReject: () => void }) {
-  return <section className="mt-4 rounded-[22px] border border-accent/20 bg-accent-soft/55 p-4"><p className="text-[10px] font-bold tracking-[.1em] text-accent uppercase">Cambio propuesto</p><p className="mt-2 text-sm font-bold">{proposal.summary}</p><div className="mt-3 grid grid-cols-2 gap-2"><div className="space-y-2"><p className="px-1 text-[9px] font-bold text-muted uppercase">Antes</p>{proposal.previousPlan.length ? proposal.previousPlan.map((session) => <SessionPreview key={`before-${session.date}-${session.title}`} session={session} />) : <SessionPreview session={null} />}</div><div className="space-y-2"><p className="px-1 text-[9px] font-bold text-muted uppercase">Después</p>{proposal.newPlan.length ? proposal.newPlan.map((session) => <SessionPreview key={`after-${session.date}-${session.title}`} session={session} />) : <SessionPreview session={null} />}</div></div><p className="mt-3 text-[11px] leading-5 text-muted"><strong>Motivo:</strong> {proposal.reason}</p><p className="mt-2 text-[10px] leading-4 text-muted">Nada cambiará hasta que lo confirmes.</p>{proposal.status === "proposed" ? <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" disabled={loading} onClick={onApply} className="min-h-11 rounded-2xl bg-ink px-3 text-xs font-bold text-white">Aplicar cambio</button><button type="button" disabled={loading} onClick={onReject} className="min-h-11 rounded-2xl border border-line bg-white px-3 text-xs font-bold text-muted">No cambiar</button></div> : <p className="mt-4 flex items-center gap-1.5 text-xs font-bold text-success"><Check size={15} /> Cambio aplicado</p>}</section>;
+  return <section className="mt-4 min-w-0 rounded-[22px] border border-accent/20 bg-accent-soft/55 p-4"><p className="text-[10px] font-bold tracking-[.1em] text-accent uppercase">Cambio propuesto</p><p className="mt-2 break-words text-sm font-bold">{proposal.summary}</p><div className="mt-3 grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 min-[380px]:gap-2"><div className="min-w-0 space-y-2"><p className="px-1 text-[9px] font-bold text-muted uppercase">Antes</p>{proposal.previousPlan.length ? proposal.previousPlan.map((session) => <SessionPreview key={`before-${session.date}-${session.title}`} session={session} />) : <SessionPreview session={null} />}</div><div className="min-w-0 space-y-2"><p className="px-1 text-[9px] font-bold text-muted uppercase">Después</p>{proposal.newPlan.length ? proposal.newPlan.map((session) => <SessionPreview key={`after-${session.date}-${session.title}`} session={session} />) : <SessionPreview session={null} />}</div></div><p className="mt-3 break-words text-[11px] leading-5 text-muted"><strong>Motivo:</strong> {proposal.reason}</p><p className="mt-2 text-[10px] leading-4 text-muted">Nada cambiará hasta que lo confirmes.</p>{proposal.status === "proposed" ? <div className="mt-4 grid grid-cols-1 gap-2 min-[360px]:grid-cols-2"><button type="button" disabled={loading} onClick={onApply} className="min-h-11 rounded-2xl bg-ink px-3 text-xs font-bold text-white">Aplicar cambio</button><button type="button" disabled={loading} onClick={onReject} className="min-h-11 rounded-2xl border border-line bg-white px-3 text-xs font-bold text-muted">No cambiar</button></div> : <p className="mt-4 flex items-center gap-1.5 text-xs font-bold text-success"><Check size={15} /> Cambio aplicado</p>}</section>;
 }
 
 function SessionPreview({ session }: { session: BoltPlanSession | null }) {

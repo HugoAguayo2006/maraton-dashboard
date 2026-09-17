@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from "@/lib/auth";
 import { isBoltConfigured } from "@/lib/ai/config";
 import { getPlanChangePreview } from "@/lib/ai/plan";
 import { boltWriteTools } from "@/lib/ai/writeTools";
+import { isTrustedJsonMutation } from "@/lib/http/security";
 
 const confirmationSchema = z.object({ confirmed: z.literal(true) });
 
@@ -24,6 +25,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!isTrustedJsonMutation(request)) {
+    return NextResponse.json({ error: "Solicitud no permitida." }, { status: 403 });
+  }
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Inicia sesión para continuar." }, { status: 401 });
   if (!isBoltConfigured()) return unavailable();
@@ -39,12 +43,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const version = await boltWriteTools.apply_plan_change(id, confirmation.data.confirmed);
     ["/dashboard", "/plan", "/progress", "/workouts"].forEach((path) => revalidatePath(path));
     return NextResponse.json({ applied: true, version });
-  } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "No pudimos aplicar el cambio." }, { status: 409 });
+  } catch {
+    return NextResponse.json({ error: "No pudimos aplicar el cambio." }, { status: 409 });
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!isTrustedJsonMutation(request)) {
+    return NextResponse.json({ error: "Solicitud no permitida." }, { status: 403 });
+  }
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Inicia sesión para continuar." }, { status: 401 });
   const { id } = await params;

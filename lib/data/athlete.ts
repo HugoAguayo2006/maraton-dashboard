@@ -9,6 +9,7 @@ import { calculateAge } from "@/lib/profile/calculateAge";
 import type { ProfileInput } from "@/lib/profile/validation";
 import type { TableInsert, TableUpdate } from "@/types/database";
 import type { AthleteProfile } from "@/types/training";
+import { PROFILE_IMAGE_BUCKET } from "@/lib/profile/avatar";
 
 export const getAthleteProfile = cache(async (): Promise<AthleteProfile | null> => {
   const user = await requireUser();
@@ -20,7 +21,19 @@ export const getAthleteProfile = cache(async (): Promise<AthleteProfile | null> 
     .maybeSingle();
 
   if (error) throw new DataAccessError("No pudimos cargar tu perfil.");
-  return data ? mapAthleteProfile(data) : null;
+  if (!data) return null;
+
+  const profile = mapAthleteProfile(data);
+  if (!profile.avatarPath) return profile;
+
+  const { data: signedAvatar, error: avatarError } = await supabase.storage
+    .from(PROFILE_IMAGE_BUCKET)
+    .createSignedUrl(profile.avatarPath, 60 * 60);
+
+  return {
+    ...profile,
+    avatarUrl: avatarError ? null : signedAvatar.signedUrl,
+  };
 });
 
 export async function saveAthleteProfile(input: ProfileInput): Promise<void> {

@@ -206,7 +206,7 @@ async function generateWithFallback<T>(
   try {
     return await retryTransientProviderError(() => operation(primaryModel), attempts.primary);
   } catch (error) {
-    if (!isTransientProviderError(error) || fallbackModel === primaryModel) throw error;
+    if (!shouldUseFallbackModel(error) || fallbackModel === primaryModel) throw error;
     return retryTransientProviderError(() => operation(fallbackModel), attempts.fallback);
   }
 }
@@ -232,6 +232,13 @@ function isTransientProviderError(error: unknown): boolean {
   if (candidate.name === "InvalidProviderResponseError" || candidate.name === "ZodError") return true;
   if (candidate.name === "TypeError" && candidate.code !== "ERR_INVALID_ARG_TYPE") return true;
   return candidate.code === "ECONNRESET" || candidate.code === "ETIMEDOUT" || candidate.code === "EAI_AGAIN";
+}
+
+function shouldUseFallbackModel(error: unknown): boolean {
+  if (isTransientProviderError(error)) return true;
+  if (!error || typeof error !== "object") return false;
+  const status = (error as { status?: unknown }).status;
+  return status === 404;
 }
 
 function delay(milliseconds: number): Promise<void> {

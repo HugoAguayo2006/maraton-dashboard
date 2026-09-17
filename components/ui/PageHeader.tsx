@@ -9,10 +9,10 @@ interface PageHeaderProps {
 
 export function PageHeader({ eyebrow, title, description, action }: PageHeaderProps) {
   return (
-    <header className="mb-6 flex items-end justify-between gap-4 sm:mb-8">
-      <div>
+    <header className="mb-6 flex min-w-0 items-end justify-between gap-3 sm:mb-8 sm:gap-4">
+      <div className="min-w-0">
         {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
-        <h1 className="text-[2rem] leading-none font-bold tracking-[-0.045em] sm:text-[2.5rem]">
+        <h1 className="break-words text-[clamp(1.85rem,8vw,2rem)] leading-none font-bold tracking-[-0.045em] sm:text-[2.5rem]">
           {title}
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-muted sm:text-base">

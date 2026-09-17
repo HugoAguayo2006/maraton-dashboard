@@ -7,12 +7,14 @@ import {
   getOptionalAvatarFile,
   replaceAvatarForUser,
   validateAvatarFile,
+  validateAvatarFileContents,
 } from "@/lib/data/avatar";
 import { DataAccessError } from "@/lib/data/errors";
 import { profileInputSchema } from "@/lib/profile/validation";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { isBoltConfigured } from "@/lib/ai/config";
+import { getAuthRedirectOrigin, getSafeRelativePath } from "@/lib/authUrl";
 
 export interface AuthActionState {
   error?: string;
@@ -113,15 +115,18 @@ export async function signup(
   const avatar = getOptionalAvatarFile(formData.get("avatar"));
   try {
     validateAvatarFile(avatar);
+    await validateAvatarFileContents(avatar);
   } catch (error) {
     return { error: getFriendlyDataError(error) };
   }
 
   const supabase = await createClient();
+  const emailRedirectTo = await getAuthRedirectOrigin();
   const { data, error } = await supabase.auth.signUp({
     email: account.data.email,
     password: account.data.password,
     options: {
+      emailRedirectTo,
       data: {
         name: profile.data.name,
         date_of_birth: profile.data.date_of_birth,
@@ -170,11 +175,7 @@ export async function logout() {
 }
 
 function getSafeNextPath(value: FormDataEntryValue | null): string {
-  return typeof value === "string"
-    && value.startsWith("/")
-    && !value.startsWith("//")
-    ? value
-    : "/dashboard";
+  return getSafeRelativePath(typeof value === "string" ? value : null, "/dashboard");
 }
 
 function getFriendlyAuthError(code: string | undefined): string {

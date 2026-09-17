@@ -118,7 +118,7 @@ export function StravaActivityPicker({ planItemId }: { planItemId?: string }) {
                   <p className="mt-1 text-xs font-medium text-muted first-letter:uppercase">{formatDayAndDate(activity.date)}</p>
                 </div>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="mt-4 grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">
                 <Metric value={`${activity.distanceKm} km`} label="Distancia" />
                 <Metric value={activity.averagePace.replace(" ", "")} label="Pace" />
                 <Metric value={formatDuration(activity.durationSeconds)} label="Tiempo" />
@@ -196,7 +196,7 @@ async function loadActivities(page: number): Promise<{ activities?: StravaActivi
 }
 
 function Metric({ value, label, icon }: { value: string; label: string; icon?: React.ReactNode }) {
-  return <div className="rounded-2xl bg-surface-subtle p-3"><p className="flex items-center gap-1 text-sm font-bold">{icon}{value}</p><p className="mt-1 text-[10px] font-semibold text-muted">{label}</p></div>;
+  return <div className="min-w-0 rounded-2xl bg-surface-subtle p-3"><p className="flex min-w-0 items-center gap-1 break-words text-sm font-bold">{icon}{value}</p><p className="mt-1 text-[10px] font-semibold text-muted">{label}</p></div>;
 }
 
 function WellnessSlider({ icon, label, value, onChange, lowLabel, highLabel }: { icon: React.ReactNode; label: string; value: number; onChange: (value: number) => void; lowLabel: string; highLabel: string }) {

@@ -33,11 +33,11 @@ export default async function SettingsPage({
       {profile && (
         <>
           <section className="app-card mb-5 p-5 sm:p-6">
-            <div className="flex items-center gap-4">
+            <div className="flex min-w-0 items-center gap-4">
               <AthleteAvatar name={profile.name} src={profile.avatarUrl} className="size-14 text-sm" />
-              <div>
-                <h2 className="text-lg font-bold">{profile.name}</h2>
-                <p className="mt-0.5 text-sm text-muted">
+              <div className="min-w-0">
+                <h2 className="break-words text-lg font-bold">{profile.name}</h2>
+                <p className="mt-0.5 break-words text-sm text-muted">
                   {profile.age ?? "—"} años · {profile.weightKg} kg · {getAthleteSexLabel(profile.sex)}
                 </p>
               </div>
@@ -102,9 +102,9 @@ function ProfileDetail({
   value: string;
 }) {
   return (
-    <div className="flex min-h-16 items-center gap-3 rounded-2xl bg-surface-subtle p-3.5">
+    <div className="flex min-h-16 min-w-0 items-center gap-3 rounded-2xl bg-surface-subtle p-3.5">
       <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white text-muted shadow-sm"><Icon size={17} /></span>
-      <span><span className="block text-[10px] font-bold tracking-wide text-muted uppercase">{label}</span><span className="mt-0.5 block text-sm font-semibold first-letter:uppercase">{value}</span></span>
+      <span className="min-w-0"><span className="block text-[10px] font-bold tracking-wide text-muted uppercase">{label}</span><span className="mt-0.5 block break-words text-sm font-semibold first-letter:uppercase">{value}</span></span>
     </div>
   );
 }

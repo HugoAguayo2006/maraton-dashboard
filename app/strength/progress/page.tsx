@@ -27,7 +27,7 @@ export default async function StrengthProgressPage({ searchParams }: { searchPar
       </form>
       {selected && <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3"><Metric icon={Trophy} label="Peso máximo" value={maximum ? `${formatStrengthValue(convertKilograms(maximum, unit))} ${unit}` : "—"} /><Metric icon={Activity} label="Últimas reps" value={latest ? String(latest.maximumRepetitions) : "—"} /><div className="col-span-2 sm:col-span-1"><Metric icon={Activity} label="Sesiones" value={String(points.length)} /></div></section>}
       <StrengthProgressChart data={points} unit={unit} />
-      {points.length > 0 && <section className="app-card mt-4 overflow-hidden"><header className="border-b border-line p-4 sm:px-5"><p className="text-sm font-bold">Últimas marcas</p></header><div className="divide-y divide-line">{[...points].reverse().slice(0, 8).map((point) => <div key={point.sessionId} className="flex items-center justify-between gap-4 px-4 py-3 text-xs sm:px-5"><span className="font-semibold text-muted">{point.date}</span><span className="font-bold">{formatStrengthValue(convertKilograms(point.maximumKg, unit))} {unit} · {point.maximumRepetitions} reps</span></div>)}</div></section>}
+      {points.length > 0 && <section className="app-card mt-4 min-w-0 overflow-hidden"><header className="border-b border-line p-4 sm:px-5"><p className="text-sm font-bold">Últimas marcas</p></header><div className="divide-y divide-line">{[...points].reverse().slice(0, 8).map((point) => <div key={point.sessionId} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 px-4 py-3 text-xs sm:px-5"><span className="font-semibold text-muted">{point.date}</span><span className="break-words text-right font-bold">{formatStrengthValue(convertKilograms(point.maximumKg, unit))} {unit} · {point.maximumRepetitions} reps</span></div>)}</div></section>}
     </>
   );
 }
@@ -35,4 +35,3 @@ export default async function StrengthProgressPage({ searchParams }: { searchPar
 function Metric({ icon: Icon, label, value }: { icon: typeof Trophy; label: string; value: string }) {
   return <div className="app-card flex min-h-20 items-center gap-3 p-4"><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent"><Icon size={16} /></span><span className="min-w-0"><span className="block truncate text-base font-bold">{value}</span><span className="mt-0.5 block truncate text-[9px] font-bold tracking-wide text-muted uppercase">{label}</span></span></div>;
 }
-

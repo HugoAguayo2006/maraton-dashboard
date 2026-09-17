@@ -167,13 +167,13 @@ export function WorkoutTracker({
                   <input type="text" value={entry.notes} onChange={(event) => setEntries((current) => current.map((item) => item.exercise.id === entry.exercise.id ? { ...item, notes: event.target.value } : item))} placeholder="Nota del ejercicio · técnica, molestia o ajuste" maxLength={500} className="h-10 w-full rounded-xl border border-line bg-surface-subtle px-3 text-xs font-medium placeholder:text-muted/50" />
                 </label>
 
-                <div className="mt-4 grid grid-cols-[2.25rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,.8fr)_2.5rem] gap-2 px-0.5 text-center text-[9px] font-bold tracking-wide text-muted uppercase">
+                <div className="mt-4 grid grid-cols-[2rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,.8fr)_2.25rem] gap-1.5 px-0.5 text-center text-[8px] font-bold tracking-wide text-muted uppercase sm:grid-cols-[2.25rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,.8fr)_2.5rem] sm:gap-2 sm:text-[9px]">
                   <span>Serie</span><span>Peso</span><span>Reps</span><span>RIR</span><span>Listo</span>
                 </div>
                 <div className="mt-2 space-y-2">
                   {entry.sets.map((set, setIndex) => (
                     <div key={set.id} className={`rounded-2xl border p-2 transition-colors ${set.completed ? "border-success/25 bg-success-soft" : "border-line bg-surface-subtle/70"}`}>
-                      <div className="grid grid-cols-[2.25rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,.8fr)_2.5rem] items-center gap-2">
+                      <div className="grid grid-cols-[2rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,.8fr)_2.25rem] items-center gap-1.5 sm:grid-cols-[2.25rem_minmax(0,1fr)_minmax(0,1fr)_minmax(0,.8fr)_2.5rem] sm:gap-2">
                         <button type="button" onClick={() => setEntries((current) => current.map((item) => item.exercise.id === entry.exercise.id ? { ...item, sets: item.sets.filter((row) => row.id !== set.id) } : item))} className="grid size-8 place-items-center rounded-xl text-xs font-bold text-muted hover:bg-danger-soft hover:text-danger" aria-label={`Eliminar serie ${setIndex + 1}`}>{setIndex + 1}</button>
                         <NumberInput label={`Peso serie ${setIndex + 1}`} value={set.weight} onChange={(value) => updateSet(entry.exercise.id, set.id, { weight: value })} placeholder="0" step="0.25" />
                         <NumberInput label={`Repeticiones serie ${setIndex + 1}`} value={set.repetitions} onChange={(value) => updateSet(entry.exercise.id, set.id, { repetitions: value })} placeholder="10" />
@@ -208,7 +208,7 @@ export function WorkoutTracker({
           </div>
         )}
 
-        <div className="sticky bottom-20 z-20 rounded-[22px] border border-line bg-white/92 p-2.5 shadow-[0_12px_40px_rgba(17,17,20,.14)] backdrop-blur-xl lg:bottom-4">
+        <div className="sticky bottom-[calc(5.2rem+env(safe-area-inset-bottom))] z-20 rounded-[22px] border border-line bg-white/92 p-2.5 shadow-[0_12px_40px_rgba(17,17,20,.14)] backdrop-blur-xl min-[1200px]:bottom-4">
           <button type="submit" disabled={pending || completedSets === 0} className="pressable flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-accent px-6 text-sm font-bold text-white shadow-[0_8px_22px_rgba(36,120,238,.25)] disabled:cursor-not-allowed disabled:opacity-50">
             <Save size={18} /> {pending ? "Guardando…" : completedSets ? `Guardar ${completedSets} serie${completedSets === 1 ? "" : "s"}` : "Completa una serie"}
           </button>

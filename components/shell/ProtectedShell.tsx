@@ -20,8 +20,8 @@ export async function ProtectedShell({ children }: { children: ReactNode }) {
   return (
     <>
       <DesktopSidebar profile={profile} userEmail={user.email} daysToRace={daysToRace} />
-      <div className="min-h-screen lg:pl-[264px]">
-        <main className="mx-auto w-full max-w-[1440px] px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-7 lg:px-10 lg:pb-12 lg:pt-8 xl:px-12">
+      <div className="min-h-screen min-h-dvh min-w-0 min-[1200px]:pl-[264px]">
+        <main className="mx-auto w-full min-w-0 max-w-[1440px] px-4 pt-5 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:px-6 sm:pt-7 min-[1200px]:px-10 min-[1200px]:pt-8 min-[1200px]:pb-12 min-[1440px]:px-12">
           {children}
         </main>
       </div>

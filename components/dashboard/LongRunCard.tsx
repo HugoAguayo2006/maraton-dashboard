@@ -24,9 +24,9 @@ export function LongRunCard({ workout, daysUntil }: { workout: TrainingPlanItem;
         </div>
       </div>
       {workout.effortType && <div className="mt-4"><EffortTypeBadge effortType={workout.effortType} /></div>}
-      <div className="mt-5 flex items-center justify-between border-t border-line/80 pt-4 text-xs font-semibold">
-        <span className="text-muted">{workout.targetPace ?? "Ritmo libre"} · {workout.targetRpe ?? "RPE —"}</span>
-        <span className="text-accent">{daysUntil === null ? "Fecha pendiente" : daysUntil === 0 ? "Hoy" : `Faltan ${daysUntil} días`}</span>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-line/80 pt-4 text-xs font-semibold">
+        <span className="min-w-0 text-muted">{workout.targetPace ?? "Ritmo libre"} · {workout.targetRpe ?? "RPE —"}</span>
+        <span className="shrink-0 text-accent">{daysUntil === null ? "Fecha pendiente" : daysUntil === 0 ? "Hoy" : `Faltan ${daysUntil} días`}</span>
       </div>
     </section>
   );

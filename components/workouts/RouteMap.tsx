@@ -37,6 +37,5 @@ export function RouteMap({ polyline }: { polyline: string }) {
   }, [points]);
 
   if (points.length < 2) return null;
-  return <div ref={container} className="h-72 w-full overflow-hidden rounded-[22px] bg-surface-subtle sm:h-96" aria-label="Mapa del recorrido" />;
+  return <div ref={container} className="h-64 min-w-0 w-full overflow-hidden rounded-[22px] bg-surface-subtle sm:h-96" aria-label="Mapa del recorrido" />;
 }
-

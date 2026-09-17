@@ -40,10 +40,15 @@
 
 * { box-sizing: border-box; }
 
-html { background: var(--canvas); }
+html {
+  min-width: 0;
+  background: var(--canvas);
+}
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
+  min-width: 0;
   background: var(--canvas);
   color: var(--ink);
   font-family: var(--font-sans);
@@ -158,7 +163,7 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
 .dashboard-grid {
   display: grid;
   gap: 1rem;
-  grid-template-areas: "today" "weekly" "tomorrow" "longrun" "countdown" "strength" "recovery" "chart" "recent" "actions";
+  grid-template-areas: "today" "weekly" "tomorrow" "longrun" "chart" "recent" "recovery" "strength" "countdown" "actions";
 }
 
 .area-today { grid-area: today; }
@@ -194,7 +199,21 @@ input[type="range"] { accent-color: var(--accent); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-  @media (min-width: 768px) {
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 359px), (max-width: 1199px) and (max-height: 700px), (max-width: 1199px) and (orientation: landscape) {
+  .bolt-launcher-greeting {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) {
   .dashboard-grid {
     gap: 1.25rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -202,10 +221,27 @@ input[type="range"] { accent-color: var(--accent); }
   }
 }
 
+@media (min-width: 960px) and (max-width: 1199px) and (orientation: landscape) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
+    grid-template-areas: "today weekly" "today tomorrow" "chart longrun" "chart countdown" "recovery strength" "recent actions";
+  }
+
+  .area-recent,
+  .area-actions {
+    align-self: start;
+  }
+}
+
 @media (min-width: 1200px) {
   .dashboard-grid {
     grid-template-columns: minmax(0, 1.65fr) minmax(310px, 0.85fr);
     grid-template-areas: "today weekly" "today tomorrow" "chart longrun" "chart countdown" "recovery strength" "recent actions";
+  }
+
+  .area-recent,
+  .area-actions {
+    align-self: start;
   }
 }
 

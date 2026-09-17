@@ -32,6 +32,25 @@ export function validateAvatarFile(file: File | null): void {
   }
 }
 
+export async function validateAvatarFileContents(file: File | null): Promise<void> {
+  if (!file) return;
+
+  const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const isJpeg = file.type === "image/jpeg"
+    && bytes[0] === 0xff
+    && bytes[1] === 0xd8
+    && bytes[2] === 0xff;
+  const isPng = file.type === "image/png"
+    && matches(bytes, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  const isWebp = file.type === "image/webp"
+    && matches(bytes, [0x52, 0x49, 0x46, 0x46])
+    && matches(bytes, [0x57, 0x45, 0x42, 0x50], 8);
+
+  if (!isJpeg && !isPng && !isWebp) {
+    throw new DataAccessError("El contenido del archivo no coincide con una imagen JPG, PNG o WebP válida.");
+  }
+}
+
 export async function replaceAvatarForUser(
   supabase: SupabaseClient<Database>,
   userId: string,
@@ -39,6 +58,7 @@ export async function replaceAvatarForUser(
   remove: boolean,
 ): Promise<string | null> {
   validateAvatarFile(file);
+  await validateAvatarFileContents(file);
 
   const { data: profile, error: profileError } = await supabase
     .from("athlete_profiles")
@@ -89,6 +109,10 @@ export async function replaceAvatarForUser(
 
   await removeOwnedAvatar(supabase, userId, previousPath);
   return nextPath;
+}
+
+function matches(bytes: Uint8Array, signature: number[], offset = 0): boolean {
+  return signature.every((byte, index) => bytes[offset + index] === byte);
 }
 
 async function removeOwnedAvatar(

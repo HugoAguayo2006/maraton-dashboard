@@ -10,6 +10,7 @@ import type { RunActivityType } from "@/types/training";
 const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
 const RUN_SPORT_TYPES = new Set(["Run", "TrailRun", "VirtualRun", "Wheelchair"]);
+const STRAVA_REQUEST_TIMEOUT_MS = 20_000;
 
 export class StravaError extends Error {
   constructor(message: string, public readonly status = 502) {
@@ -159,6 +160,7 @@ export async function disconnectStrava(): Promise<void> {
         },
         body: new URLSearchParams({ token, token_type_hint: "access_token" }),
         cache: "no-store",
+        signal: AbortSignal.timeout(STRAVA_REQUEST_TIMEOUT_MS),
       });
     } catch {
       // The local connection is still removed when Strava is temporarily unavailable.
@@ -181,6 +183,7 @@ async function stravaFetch<T>(path: string, token: string, allowMissing = false)
   const response = await fetch(`${STRAVA_API_BASE}${path}`, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
     cache: "no-store",
+    signal: AbortSignal.timeout(STRAVA_REQUEST_TIMEOUT_MS),
   });
   if (allowMissing && response.status === 404) return {} as T;
   if (!response.ok) {
@@ -235,6 +238,7 @@ async function requestToken(values: Record<string, string>): Promise<StravaToken
     headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
     body: new URLSearchParams(values),
     cache: "no-store",
+    signal: AbortSignal.timeout(STRAVA_REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) throw new StravaError("Strava rechazó la autorización. Intenta conectarte otra vez.", response.status);
   return response.json() as Promise<StravaTokenResponse>;

@@ -57,7 +57,7 @@ export function StrengthProgressChart({ data, unit }: { data: StrengthProgressPo
 }
 
 function ChartShell({ eyebrow, description, className = "", children }: { eyebrow: string; description: string; className?: string; children: React.ReactNode }) {
-  return <section className={`app-card p-5 sm:p-6 ${className}`}><p className="eyebrow">{eyebrow}</p><p className="mt-2 text-sm text-muted">{description}</p><div className="mt-5 h-64">{children}</div></section>;
+  return <section className={`app-card min-w-0 p-4 sm:p-6 ${className}`}><p className="eyebrow">{eyebrow}</p><p className="mt-2 text-sm text-muted">{description}</p><div className="mt-5 h-56 min-w-0 sm:h-64">{children}</div></section>;
 }
 
 function tooltipStyle() {

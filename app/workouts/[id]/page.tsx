@@ -40,7 +40,7 @@ export default async function WorkoutDetailPage({ params }: { params: Promise<{ 
           <span className="mt-8 grid size-12 place-items-center rounded-2xl bg-accent text-white"><Route size={22} /></span>
           <p className="mt-5 text-xs font-bold text-accent">{activityLabels[workout.activityType]}</p>
           <h1 className="mt-2 max-w-3xl text-[2rem] leading-tight font-bold tracking-[-0.05em] sm:text-[2.6rem]">{workout.routeName ?? workout.title}</h1>
-          {location && <p className="mt-3 flex items-center gap-1.5 text-sm font-medium text-muted"><MapPin size={15} /> {location}</p>}
+          {location && <p className="mt-3 flex min-w-0 items-start gap-1.5 break-words text-sm font-medium text-muted"><MapPin size={15} className="mt-0.5 shrink-0" /> <span className="min-w-0">{location}</span></p>}
           <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <HeroMetric icon={<Route size={16} />} label="Distancia" value={`${workout.distanceKm} km`} />
             <HeroMetric icon={<Clock3 size={16} />} label="Tiempo" value={formatDuration(workout.durationSeconds)} />
@@ -68,6 +68,6 @@ export default async function WorkoutDetailPage({ params }: { params: Promise<{ 
   );
 }
 
-function HeroMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="rounded-[20px] border border-white/80 bg-white/80 p-4 shadow-sm"><div className="flex items-center gap-1.5 text-muted">{icon}<span className="text-[10px] font-bold uppercase">{label}</span></div><p className="mt-3 text-lg font-bold tracking-[-0.035em]">{value}</p></div>; }
-function SideMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="rounded-2xl bg-surface-subtle p-3.5"><div className="flex items-center gap-1.5 text-muted">{icon}<span className="text-[10px] font-bold uppercase">{label}</span></div><p className="mt-2 text-sm font-bold">{value}</p></div>; }
+function HeroMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="min-w-0 rounded-[20px] border border-white/80 bg-white/80 p-3.5 shadow-sm sm:p-4"><div className="flex min-w-0 items-start gap-1.5 text-muted"><span className="shrink-0">{icon}</span><span className="break-words text-[9px] leading-3 font-bold uppercase sm:text-[10px]">{label}</span></div><p className="mt-3 break-words text-base leading-tight font-bold tracking-[-0.035em] sm:text-lg">{value}</p></div>; }
+function SideMetric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div className="min-w-0 rounded-2xl bg-surface-subtle p-3.5"><div className="flex min-w-0 items-start gap-1.5 text-muted"><span className="shrink-0">{icon}</span><span className="break-words text-[10px] leading-3 font-bold uppercase">{label}</span></div><p className="mt-2 break-words text-sm font-bold">{value}</p></div>; }
 function TextDetail({ label, value }: { label: string; value: string | null }) { return value ? <div><p className="text-[10px] font-bold text-muted uppercase">{label}</p><p className="mt-1 whitespace-pre-line leading-6">{value}</p></div> : null; }

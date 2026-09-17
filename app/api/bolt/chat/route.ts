@@ -5,6 +5,9 @@ import { getLatestConversation, BoltRateLimitError } from "@/lib/ai/data";
 import { boltChatRequestSchema } from "@/lib/ai/schemas";
 import { runBoltChat, BoltUnavailableError } from "@/lib/ai/service";
 import type { BoltContextType } from "@/lib/ai/types";
+import { isTrustedJsonMutation } from "@/lib/http/security";
+
+export const maxDuration = 180;
 
 export async function GET(request: Request) {
   const user = await getAuthenticatedUser();
@@ -21,6 +24,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (!isTrustedJsonMutation(request)) {
+    return NextResponse.json({ error: "Solicitud no permitida." }, { status: 403 });
+  }
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Inicia sesión para continuar." }, { status: 401 });
   if (!isBoltConfigured()) return unavailable();

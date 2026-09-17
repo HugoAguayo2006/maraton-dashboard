@@ -56,9 +56,9 @@ export default async function ProgressPage({ searchParams }: { searchParams: Pro
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <article key={stat.label} className="app-card p-4 sm:p-5">
+            <article key={stat.label} className="app-card min-w-0 p-4 sm:p-5">
               <span className={`grid size-9 place-items-center rounded-2xl ${toneClasses[stat.tone]}`}><Icon size={17} /></span>
-              <p className="mt-5 text-xl leading-none font-bold tracking-[-0.045em] sm:text-2xl">{stat.value}</p>
+              <p className="mt-5 break-words text-lg leading-tight font-bold tracking-[-0.045em] sm:text-2xl">{stat.value}</p>
               <p className="mt-2 text-[11px] font-bold text-muted">{stat.label}</p>
               <p className="mt-0.5 text-[10px] text-muted/75">{stat.detail}</p>
             </article>

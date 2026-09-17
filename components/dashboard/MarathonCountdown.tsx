@@ -20,12 +20,12 @@ export function MarathonCountdown({ raceName, raceDate, distanceKm, location, da
   return (
     <section className="area-countdown card-enter app-card app-card-dark relative overflow-hidden p-5 sm:p-6">
       <div aria-hidden className="absolute -right-8 -bottom-12 size-36 rounded-full border-[22px] border-white/5" />
-      <div className="relative flex items-start justify-between">
-        <div>
-          <p className="text-[10px] font-bold tracking-[0.13em] text-white/50 uppercase">{raceName}</p>
+      <div className="relative flex min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="break-words text-[10px] font-bold tracking-[0.13em] text-white/50 uppercase">{raceName}</p>
           <p className="mt-2 text-sm font-semibold first-letter:uppercase">{formattedRaceDate}</p>
           {(distanceKm !== null || location) && (
-            <p className="mt-1 text-[11px] text-white/45">
+            <p className="mt-1 break-words text-[11px] text-white/45">
               {[distanceKm === null ? null : `${distanceKm} km`, location].filter(Boolean).join(" · ")}
             </p>
           )}

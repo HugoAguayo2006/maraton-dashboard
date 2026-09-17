@@ -10,9 +10,9 @@ export function TomorrowWorkoutCard({ workout }: { workout: TrainingPlanItem }) 
   return (
     <section className="area-tomorrow card-enter app-card p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="min-w-0">
           <span className="eyebrow">Mañana</span>
-          <h2 className="mt-5 text-xl font-bold tracking-[-0.035em]">{workout.title}</h2>
+          <h2 className="mt-5 break-words text-xl font-bold tracking-[-0.035em]">{workout.title}</h2>
           {workout.effortType && <div className="mt-2"><EffortTypeBadge effortType={workout.effortType} /></div>}
         </div>
         <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-surface-subtle text-muted">

@@ -10,7 +10,6 @@ import type {
   WorkoutStatus,
 } from "@/types/training";
 import { calculateAge } from "@/lib/profile/calculateAge";
-import { getAvatarPublicUrl } from "@/lib/profile/avatar";
 import { getFirstName } from "@/lib/profile/profile";
 import { formatPaceSeconds } from "@/lib/format";
 import { formatPaceRange } from "@/lib/training/pace";
@@ -32,7 +31,7 @@ export function mapAthleteProfile(
     sex: row.sex as AthleteProfile["sex"],
     weightKg: Number(row.weight_kg),
     strengthUnit: row.strength_unit as AthleteProfile["strengthUnit"],
-    avatarUrl: getAvatarPublicUrl(row.avatar_url),
+    avatarUrl: null,
     avatarPath: row.avatar_url,
     goalEventName: row.goal_event_name,
     goalEventDistanceKm: row.goal_event_distance_km === null

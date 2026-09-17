@@ -37,12 +37,12 @@ export function ExercisePickerModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/35 p-0 backdrop-blur-sm sm:items-center sm:p-5" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-ink/35 p-0 backdrop-blur-sm sm:items-center sm:p-5" onMouseDown={onClose}>
       <section
         role="dialog"
         aria-modal="true"
         aria-labelledby="exercise-picker-title"
-        className="flex max-h-[92dvh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[28px] bg-white shadow-2xl sm:max-h-[86vh] sm:rounded-[28px]"
+        className="flex max-h-[calc(100dvh-env(safe-area-inset-top))] min-w-0 w-full max-w-3xl flex-col overflow-hidden rounded-t-[28px] bg-white pb-[env(safe-area-inset-bottom)] shadow-2xl sm:max-h-[86dvh] sm:rounded-[28px] sm:pb-0"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <header className="flex items-start justify-between border-b border-line px-5 py-4 sm:px-6">
@@ -50,7 +50,7 @@ export function ExercisePickerModal({
             <p className="eyebrow">Catálogo</p>
             <h2 id="exercise-picker-title" className="mt-2 text-xl font-bold tracking-[-0.03em]">Agregar ejercicio</h2>
           </div>
-          <button type="button" onClick={onClose} className="grid size-10 place-items-center rounded-2xl bg-surface-subtle text-muted" aria-label="Cerrar selector">
+          <button type="button" onClick={onClose} className="grid size-11 place-items-center rounded-2xl bg-surface-subtle text-muted" aria-label="Cerrar selector">
             <X size={19} />
           </button>
         </header>
@@ -68,7 +68,7 @@ export function ExercisePickerModal({
               className="h-12 w-full rounded-2xl border border-line bg-surface-subtle pr-4 pl-11 text-sm font-semibold placeholder:text-muted/50"
             />
           </label>
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-1 gap-2.5 min-[380px]:grid-cols-2">
             <FilterSelect label="Grupo muscular" value={muscle} onChange={(value) => setMuscle(value as MuscleGroup | "all")}>
               <option value="all">Todos los músculos</option>
               {muscleGroupOptions.map((option) => <option key={option} value={option}>{option}</option>)}
@@ -126,4 +126,3 @@ function FilterSelect({ label, value, onChange, children }: { label: string; val
 function normalize(value: string): string {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
-

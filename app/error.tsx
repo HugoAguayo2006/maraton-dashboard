@@ -5,8 +5,8 @@ import { RefreshCw, TriangleAlert } from "lucide-react";
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
-    console.error(error);
-  }, [error]);
+    console.error("Unexpected application error", { digest: error.digest ?? null });
+  }, [error.digest]);
 
   return (
     <main className="grid min-h-screen place-items-center bg-canvas px-4 py-10">

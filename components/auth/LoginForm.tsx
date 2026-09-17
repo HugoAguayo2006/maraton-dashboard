@@ -30,7 +30,7 @@ export function LoginForm({
         name="password"
         label="Contraseña"
         autoComplete="current-password"
-        placeholder="Mínimo 8 caracteres"
+        placeholder="Mín. 8 caracteres"
         error={state.fieldErrors?.password?.[0]}
       />
 

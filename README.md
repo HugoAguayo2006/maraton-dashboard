@@ -32,6 +32,7 @@ En **Project Settings → API** copia la URL del proyecto y la clave anónima:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 La clave anónima puede estar en el cliente; la seguridad real está en las policies RLS. Nunca uses una clave `service_role` en esta aplicación.
@@ -126,9 +127,9 @@ Los campos `marathon_name`, `marathon_date` y `goal` se mantienen por compatibil
 
 ## Foto de perfil
 
-La foto se guarda en Supabase Storage dentro de `profile-images/<auth.uid()>/`. `avatar_url` conserva la ruta del objeto y la aplicación genera la URL pública al mostrarla. Si no hay imagen, se usan las iniciales del atleta.
+La foto se guarda en Supabase Storage dentro de `profile-images/<auth.uid()>/`. `avatar_url` conserva solamente la ruta del objeto y el servidor genera una URL firmada de una hora al mostrarla. Si no hay imagen, se usan las iniciales del atleta.
 
-El bucket es público para poder renderizar el avatar sin URLs firmadas, pero las policies solo permiten que cada usuario autenticado liste, suba, reemplace o elimine objetos dentro de su propia carpeta. La acción de servidor valida nuevamente tipo y tamaño y nunca recibe un `user_id` confiable desde el navegador.
+El bucket es privado. Las policies solo permiten que cada usuario autenticado lea, suba, reemplace o elimine objetos dentro de su propia carpeta. La acción de servidor valida tamaño, MIME y firma binaria; nunca recibe un `user_id` confiable desde el navegador.
 
 Next.js permite hasta 4.25 MB en el cuerpo multipart de estas Server Actions para dejar margen de transporte; la imagen en sí está limitada a 4 MB tanto en la aplicación como en Supabase Storage. Esto mantiene la petición debajo del límite de 4.5 MB de Vercel Functions.
 
@@ -279,14 +280,109 @@ Cada Server Action vuelve a comprobar la sesión. El navegador nunca proporciona
 
 El cumplimiento excluye descanso. Las sesiones de carrera y fuerza sí son elegibles; únicamente `status = completed` cuenta como completada. Una sesión `modified` todavía queda pendiente hasta completarse.
 
-## Deploy en Vercel
+## Deployment
 
-1. Sube el repositorio a Git.
-2. Importa el proyecto en Vercel.
-3. Configura las dos variables públicas de Supabase, las cuatro variables privadas de Strava y, si habilitarás Bolt AI, sus variables privadas.
-4. Cambia `STRAVA_REDIRECT_URI` al dominio de producción terminado en `/api/strava/callback` y permite ese dominio en tu aplicación de Strava.
-5. Agrega la URL de producción a las Redirect URLs permitidas en Supabase Auth.
-6. Ejecuta las migraciones, incluyendo las incrementales `202609100006` a `202609100008` de Bolt AI.
-7. Despliega con `npm run build`.
+### 1. Preparar GitHub y Supabase
 
-No hay dependencias del filesystem en runtime. El bucket, las tablas y sus policies se crean con las migraciones. Apple Health, notificaciones y cambios autónomos del plan quedan fuera de esta fase.
+1. Sube el repositorio a GitHub sin `.env.local`, `.next`, `node_modules`, `supabase/.temp` ni archivos temporales de Office.
+2. Vincula el proyecto de Supabase y ejecuta todas las migraciones versionadas:
+
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref YOUR_PROJECT_REF
+   npx supabase db push
+   ```
+
+3. Confirma en Supabase que las tablas tienen RLS activo y que `profile-images` existe como bucket privado. No agregues una clave `service_role` a Vercel.
+
+Las migraciones no se ejecutan durante `npm run build` ni al desplegar. Deben aplicarse manualmente antes de probar la versión publicada.
+
+### 2. Configurar Supabase Auth
+
+En **Authentication → URL Configuration** configura:
+
+- **Site URL:** `https://<tu-proyecto>.vercel.app`
+- **Redirect URLs:**
+  - `http://localhost:3000/**`
+  - `https://<tu-proyecto>.vercel.app/**`
+  - `https://*-<tu-team-o-usuario>.vercel.app/**` solamente si usarás Vercel Preview.
+
+En **Authentication → Email Templates → Confirm signup**, utiliza un enlace SSR basado en el hash del token:
+
+```html
+<a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">
+  Confirmar correo
+</a>
+```
+
+El alta envía como `RedirectTo` el origen de la petición. Producción utiliza `NEXT_PUBLIC_SITE_URL`; los deployments Preview utilizan su propio origen de Vercel. El endpoint `/auth/confirm` verifica el token, escribe la sesión en cookies y redirige al Dashboard u onboarding.
+
+No uses un wildcard general como `https://**`; limita el patrón Preview al slug de tu cuenta o equipo.
+
+### 3. Importar en Vercel
+
+1. En Vercel selecciona **Add New → Project** e importa el repositorio de GitHub.
+2. Framework: **Next.js**.
+3. Build command: `npm run build`.
+4. Output directory: valor predeterminado de Next.js; no uses `out` ni static export.
+5. Node.js: `22.x`, también declarado en `package.json`.
+
+### 4. Variables de entorno de Vercel
+
+Variables públicas necesarias para la aplicación:
+
+| Variable | Production | Preview | Development |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Sí | Sí | Sí |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Sí | Sí | Sí |
+| `NEXT_PUBLIC_SITE_URL` | URL canónica | Opcional; se usa el origen Preview | `http://localhost:3000` |
+
+Variables privadas de Strava, si habilitarás la integración:
+
+| Variable | Alcance recomendado |
+| --- | --- |
+| `STRAVA_CLIENT_ID` | Production y Development |
+| `STRAVA_CLIENT_SECRET` | Production y Development |
+| `STRAVA_REDIRECT_URI` | URL exacta terminada en `/api/strava/callback` |
+| `INTEGRATION_ENCRYPTION_KEY` | Production y Development; valor estable y distinto por entorno |
+
+Variables privadas de Bolt AI:
+
+| Variable | Uso |
+| --- | --- |
+| `AI_ENABLED` | `true` para mostrar y habilitar Bolt AI |
+| `GEMINI_API_KEY` | API key del servidor |
+| `GEMINI_MODEL` | Modelo Flash principal para chat |
+| `GEMINI_FALLBACK_MODEL` | Modelo Flash alterno para chat |
+| `GEMINI_PLAN_MODEL` | Modelo principal para generación estructurada |
+| `GEMINI_PLAN_FALLBACK_MODEL` | Modelo alterno para planes |
+| `AI_MAX_CHAT_REQUESTS` | Límite por usuario y hora |
+| `AI_MAX_PLAN_GENERATIONS` | Límite por usuario cada 24 horas |
+
+`GEMINI_API_KEY`, secretos de Strava e `INTEGRATION_ENCRYPTION_KEY` nunca deben llevar el prefijo `NEXT_PUBLIC_`. `SEED_EMAIL`, `SEED_PASSWORD` y `SEED_USER_ID` son exclusivamente locales y no se agregan a Vercel.
+
+Configura las variables por separado para **Production**, **Preview** y **Development**. Si Preview usa la misma base de datos que Production, sus usuarios y datos también serán reales; para pruebas destructivas utiliza otro proyecto de Supabase.
+
+### 5. Configurar Strava
+
+En la aplicación de Strava permite el dominio de producción y configura:
+
+```text
+STRAVA_REDIRECT_URI=https://<tu-proyecto>.vercel.app/api/strava/callback
+```
+
+Strava debe aceptar exactamente ese callback. La aplicación funciona en Preview aunque Strava no esté configurado, pero el flujo OAuth de Strava solamente funcionará en los dominios permitidos por la aplicación de Strava.
+
+### 6. Desplegar y verificar
+
+1. Ejecuta localmente `npm run lint`, `npm test` y `npm run build`.
+2. Haz push a GitHub y ejecuta el deployment en Vercel.
+3. Crea un usuario nuevo y confirma el correo.
+4. Prueba login, logout, refresh y acceso directo a una ruta privada.
+5. Completa onboarding y verifica Dashboard, Plan, Entrenamientos, Progreso, Configuración y Guía.
+6. Sube, reemplaza y elimina un avatar para comprobar Storage privado.
+7. Conecta Strava e importa una carrera si habilitaste la integración.
+8. Abre Bolt AI, envía un mensaje, genera una vista previa y confirma un cambio de plan.
+9. Revisa `PRODUCTION_CHECKLIST.md` antes de considerar terminado el lanzamiento.
+
+No hay dependencias del filesystem en runtime, procesos persistentes, cron local ni estado en memoria como fuente de verdad. Supabase es la fuente de verdad; Bolt AI funciona bajo demanda y sus fallas no impiden usar las demás secciones.

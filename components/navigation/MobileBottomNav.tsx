@@ -18,7 +18,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Navegación móvil"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line/80 bg-white/88 px-3 pt-2 backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line/80 bg-white/88 px-2 pt-2 backdrop-blur-xl min-[1200px]:hidden sm:px-3"
       style={{ paddingBottom: "max(0.55rem, env(safe-area-inset-bottom))" }}
     >
       <div className="mx-auto grid max-w-lg grid-cols-5">

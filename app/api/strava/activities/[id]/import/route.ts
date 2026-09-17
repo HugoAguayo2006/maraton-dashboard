@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from "@/lib/auth";
 import { DataAccessError } from "@/lib/data/errors";
 import { createWorkoutLog } from "@/lib/data/workouts";
 import { getStravaActivityBundle, inferRunActivityType, StravaError } from "@/lib/strava/client";
+import { isTrustedJsonMutation } from "@/lib/http/security";
 
 const importSchema = z.object({
   trainingPlanItemId: z.string().min(1).nullable().optional(),
@@ -18,6 +19,9 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  if (!isTrustedJsonMutation(request)) {
+    return NextResponse.json({ error: "Solicitud no permitida." }, { status: 403 });
+  }
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Inicia sesión para continuar." }, { status: 401 });
 

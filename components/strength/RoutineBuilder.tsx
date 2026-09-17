@@ -69,8 +69,8 @@ export function RoutineBuilder({
         </section>
 
         <section className="app-card overflow-hidden">
-          <header className="flex items-center justify-between gap-3 border-b border-line p-5 sm:px-6">
-            <div><p className="text-base font-bold">Ejercicios</p><p className="mt-0.5 text-xs text-muted">{selected.length || "Ningún"} ejercicio{selected.length === 1 ? "" : "s"}</p></div>
+          <header className="flex min-w-0 items-center justify-between gap-3 border-b border-line p-4 sm:px-6 sm:py-5">
+            <div className="min-w-0"><p className="text-base font-bold">Ejercicios</p><p className="mt-0.5 text-xs text-muted">{selected.length || "Ningún"} ejercicio{selected.length === 1 ? "" : "s"}</p></div>
             <button type="button" onClick={() => setPickerOpen(true)} className="pressable flex min-h-11 items-center gap-2 rounded-2xl bg-accent px-4 text-xs font-bold text-white">
               <Plus size={17} /> Agregar
             </button>
@@ -86,7 +86,7 @@ export function RoutineBuilder({
                       <h2 className="truncate text-sm font-bold">{item.exercise.nameEs}</h2>
                       <p className="mt-0.5 truncate text-[10px] font-semibold text-muted">{item.exercise.muscleGroup} · {item.exercise.equipment}</p>
                     </div>
-                    <div className="flex shrink-0 gap-1">
+                    <div className="flex shrink-0 gap-0.5 sm:gap-1">
                       <IconButton label="Subir ejercicio" disabled={index === 0} onClick={() => moveExercise(index, -1)}><ArrowUp size={15} /></IconButton>
                       <IconButton label="Bajar ejercicio" disabled={index === selected.length - 1} onClick={() => moveExercise(index, 1)}><ArrowDown size={15} /></IconButton>
                       <IconButton label="Eliminar ejercicio" danger onClick={() => setSelected((current) => current.filter((entry) => entry.exercise.id !== item.exercise.id))}><Trash2 size={15} /></IconButton>
@@ -133,4 +133,3 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function IconButton({ label, disabled, danger = false, onClick, children }: { label: string; disabled?: boolean; danger?: boolean; onClick: () => void; children: React.ReactNode }) {
   return <button type="button" disabled={disabled} onClick={onClick} aria-label={label} className={`grid size-9 place-items-center rounded-xl disabled:opacity-25 ${danger ? "bg-danger-soft text-danger" : "bg-surface-subtle text-muted"}`}>{children}</button>;
 }
-

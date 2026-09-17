@@ -12,7 +12,7 @@ export function ElevationChart({ distances, elevations }: { distances: number[];
   if (data.length < 2) return null;
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-56 min-w-0 w-full sm:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 4, bottom: 0, left: -20 }}>
           <defs><linearGradient id="elevationFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#2478ee" stopOpacity={0.3} /><stop offset="100%" stopColor="#2478ee" stopOpacity={0.02} /></linearGradient></defs>
@@ -26,4 +26,3 @@ export function ElevationChart({ distances, elevations }: { distances: number[];
     </div>
   );
 }
-

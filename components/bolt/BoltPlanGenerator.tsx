@@ -111,7 +111,10 @@ export function BoltPlanGenerator({
     setError(null);
     try {
       if (proposal?.status === "proposed") {
-        await fetch(`/api/bolt/plan-changes/${proposal.id}`, { method: "DELETE" });
+        await fetch(`/api/bolt/plan-changes/${proposal.id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
       }
       const response = await fetch("/api/bolt/plan/generate", {
         method: "POST",
@@ -209,7 +212,7 @@ export function BoltPlanGenerator({
         </div>
 
         {error && <p role="alert" className="mt-5 rounded-2xl bg-danger-soft p-4 text-xs font-medium text-danger">{error}</p>}
-        <div className="sticky bottom-[calc(5.2rem+env(safe-area-inset-bottom))] z-20 mt-6 rounded-[24px] border border-line bg-white/95 p-3 shadow-[0_16px_46px_rgba(17,17,20,.14)] backdrop-blur sm:flex sm:items-center sm:justify-between lg:bottom-4">
+        <div className="sticky bottom-[calc(5.2rem+env(safe-area-inset-bottom))] z-20 mt-6 rounded-[24px] border border-line bg-white/95 p-3 shadow-[0_16px_46px_rgba(17,17,20,.14)] backdrop-blur sm:flex sm:items-center sm:justify-between min-[1200px]:bottom-4">
           <p className="hidden max-w-sm px-2 text-[11px] leading-5 text-muted sm:block"><ShieldCheck size={14} className="mr-1 inline" /> Bolt AI no modificará nada hasta que confirmes.</p>
           <div className="grid gap-2 sm:grid-cols-3">
             <button type="button" disabled={saving} onClick={() => setProposal(null)} className="min-h-11 rounded-2xl border border-line bg-white px-4 text-xs font-bold text-muted">Editar datos</button>

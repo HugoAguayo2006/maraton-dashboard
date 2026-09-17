@@ -24,7 +24,7 @@ export function GuideTabs({ boltEnabled = false }: { boltEnabled?: boolean }) {
 
   return (
     <div>
-      <div role="tablist" aria-label="Secciones de la guía" className="mb-5 grid grid-cols-3 gap-1 rounded-[20px] border border-line bg-white p-1.5 shadow-sm">
+      <div role="tablist" aria-label="Secciones de la guía" className="mb-5 grid min-w-0 grid-cols-3 gap-1 rounded-[20px] border border-line bg-white p-1.5 shadow-sm">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
@@ -39,7 +39,7 @@ export function GuideTabs({ boltEnabled = false }: { boltEnabled?: boolean }) {
               tabIndex={active ? 0 : -1}
               onClick={() => setActiveTab(tab.id)}
               onKeyDown={(event) => moveTabFocus(event, tab.id)}
-              className={`flex min-h-12 items-center justify-center gap-2 rounded-2xl px-2 text-[10px] font-bold transition-all sm:text-xs ${active ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-surface-subtle hover:text-ink"}`}
+              className={`flex min-h-12 min-w-0 items-center justify-center gap-1.5 rounded-2xl px-1.5 text-[10px] font-bold transition-all sm:gap-2 sm:px-2 sm:text-xs ${active ? "bg-ink text-white shadow-sm" : "text-muted hover:bg-surface-subtle hover:text-ink"}`}
             >
               <Icon size={16} aria-hidden="true" />
               <span className="hidden xs:inline sm:inline">{tab.label}</span>
@@ -88,7 +88,7 @@ function PacesPanel() {
     <section aria-labelledby="paces-title">
       <SectionIntro id="paces-title" eyebrow="Referencia rápida" title="Guía de ritmos y esfuerzo" description="El pace orienta; la respiración, la conversación y el RPE confirman si estás haciendo la sesión correcta." />
 
-      <div className="space-y-3 md:hidden">
+      <div className="grid gap-3 md:grid-cols-2 min-[1100px]:hidden">
         {paceGuideEntries.map((entry) => (
           <article key={entry.id} className="app-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -106,7 +106,7 @@ function PacesPanel() {
         ))}
       </div>
 
-      <div className="app-card hidden overflow-hidden md:block">
+      <div className="app-card hidden min-w-0 overflow-hidden min-[1100px]:block">
         <div className="grid grid-cols-[1.1fr_1fr_.55fr_1.15fr_1fr_1.6fr] gap-4 border-b border-line bg-surface-subtle px-5 py-3 text-[10px] font-bold tracking-wide text-muted uppercase">
           <span>Tipo</span><span>Pace aprox.</span><span>RPE</span><span>Sensación</span><span>Para qué</span><span>Regla práctica</span>
         </div>
@@ -129,7 +129,7 @@ function GymPanel() {
   return (
     <section aria-labelledby="gym-title">
       <SectionIntro id="gym-title" eyebrow="Fuerza para correr" title="Rutinas de gimnasio" description="Tres fichas derivadas del plan original. Prioriza técnica, reserva y llegar con buenas piernas a la siguiente carrera." />
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 min-[1200px]:grid-cols-3">
         {gymGuideEntries.map((routine) => (
           <article key={routine.id} className="app-card overflow-hidden">
             <div className="border-b border-line bg-ink p-5 text-white">
@@ -154,7 +154,7 @@ function GymPanel() {
           </article>
         ))}
       </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 min-[1100px]:grid-cols-3">
         {gymRules.map((rule, index) => (
           <TopicCard
             key={rule.id}
@@ -190,7 +190,7 @@ function SectionIntro({ id, eyebrow, title, description }: { id: string; eyebrow
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-2xl bg-surface-subtle p-3"><span className="block text-[9px] font-bold tracking-wide text-muted uppercase">{label}</span><span className="mt-1 block text-xs font-bold">{value}</span></div>;
+  return <div className="min-w-0 rounded-2xl bg-surface-subtle p-3"><span className="block text-[9px] font-bold tracking-wide text-muted uppercase">{label}</span><span className="mt-1 block break-words text-xs font-bold">{value}</span></div>;
 }
 
 function TopicCard({ number, title, description, featured = false }: { number: string; title: string; description: string; featured?: boolean }) {

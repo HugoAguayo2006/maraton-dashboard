@@ -4,8 +4,14 @@ import { isBoltConfigured } from "@/lib/ai/config";
 import { BoltRateLimitError } from "@/lib/ai/data";
 import { boltPlanGenerationRequestSchema } from "@/lib/ai/schemas";
 import { runBoltPlanGeneration } from "@/lib/ai/service";
+import { isTrustedJsonMutation } from "@/lib/http/security";
+
+export const maxDuration = 180;
 
 export async function POST(request: Request) {
+  if (!isTrustedJsonMutation(request)) {
+    return NextResponse.json({ error: "Solicitud no permitida." }, { status: 403 });
+  }
   const user = await getAuthenticatedUser();
   if (!user) return NextResponse.json({ error: "Inicia sesión para continuar." }, { status: 401 });
   if (!isBoltConfigured()) return unavailable();

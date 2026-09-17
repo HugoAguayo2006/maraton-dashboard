@@ -59,7 +59,7 @@ export function TodayWorkoutCard({ workout, log, strengthCompleted }: TodayWorko
   ].filter(Boolean).length;
 
   return (
-    <section className="area-today card-enter app-card relative min-h-[390px] overflow-hidden bg-[linear-gradient(145deg,#ffffff_34%,#f3f8ff_100%)] p-5 sm:p-7 lg:min-h-[430px]">
+    <section className="area-today card-enter app-card relative min-h-[320px] min-w-0 overflow-hidden bg-[linear-gradient(145deg,#ffffff_34%,#f3f8ff_100%)] p-4 sm:min-h-[390px] sm:p-7 min-[1200px]:min-h-[430px]">
       <div aria-hidden className="absolute -top-24 -right-28 size-64 rounded-full border-[42px] border-accent/5" />
       <div aria-hidden className="absolute top-10 -right-24 size-48 rounded-full border border-accent/10" />
 
@@ -74,18 +74,18 @@ export function TodayWorkoutCard({ workout, log, strengthCompleted }: TodayWorko
           </span>
         </div>
 
-        <div className="mt-8 sm:mt-10">
+        <div className="mt-7 sm:mt-10">
           <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-accent text-white shadow-[0_8px_22px_rgba(36,120,238,0.25)]">
             <PrimaryIcon size={23} />
           </div>
-          <h2 className="text-[1.55rem] font-bold tracking-[-0.035em] sm:text-[1.75rem]">
+          <h2 className="break-words text-[clamp(1.4rem,7vw,1.75rem)] leading-tight font-bold tracking-[-0.035em]">
             {workout.title}
           </h2>
           {workout.effortType && <div className="mt-3"><EffortTypeBadge effortType={workout.effortType} /></div>}
           {strengthOnly ? (
-            <p className="mt-2 text-[2.6rem] leading-none font-bold tracking-[-0.055em] sm:text-[3.25rem]">
+            <p className="mt-2 text-[clamp(2.2rem,11vw,3.25rem)] leading-none font-bold tracking-[-0.055em]">
               Fuerza
-              <span className="ml-2 text-base font-semibold tracking-[-0.02em] text-muted sm:text-lg">programada</span>
+              <span className="ml-2 inline-block text-sm font-semibold tracking-[-0.02em] text-muted sm:text-lg">programada</span>
             </p>
           ) : (
             <p className="mt-1 text-[3.25rem] leading-none font-bold tracking-[-0.065em] sm:text-[4rem]">
@@ -95,7 +95,7 @@ export function TodayWorkoutCard({ workout, log, strengthCompleted }: TodayWorko
           )}
         </div>
 
-        <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="mt-7 grid min-w-0 grid-cols-3 gap-1.5 sm:mt-8 sm:gap-3">
           <Metric
             icon={strengthOnly ? <Dumbbell size={16} /> : <Gauge size={16} />}
             label={strengthOnly ? "Modalidad" : runCompleted ? "Pace real" : "Pace objetivo"}
@@ -119,7 +119,7 @@ export function TodayWorkoutCard({ workout, log, strengthCompleted }: TodayWorko
 
         {detailCount > 0 && (
           <section className="mt-7 rounded-[24px] border border-line/80 bg-white/76 p-4 shadow-sm backdrop-blur-sm sm:p-5">
-            <header className="flex items-center justify-between gap-3 border-b border-line/75 pb-4">
+            <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line/75 pb-4">
               <div className="flex min-w-0 items-center gap-3">
                 <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent-soft text-accent">
                   <ListChecks size={18} />
@@ -249,12 +249,12 @@ function TodayLink({
 
 function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-[18px] border border-white/70 bg-white/72 p-3 shadow-sm backdrop-blur-sm sm:p-4">
+    <div className="min-w-0 overflow-hidden rounded-[18px] border border-white/70 bg-white/72 p-2.5 shadow-sm backdrop-blur-sm sm:p-4">
       <div className="mb-2 flex items-center gap-1.5 text-muted">
-        {icon}
-        <span className="text-[10px] font-bold tracking-[0.05em] uppercase">{label}</span>
+        <span className="shrink-0">{icon}</span>
+        <span className="min-w-0 text-[9px] leading-3 font-bold tracking-[0.03em] uppercase sm:text-[10px] sm:tracking-[0.05em]">{label}</span>
       </div>
-      <p className="truncate text-sm font-bold tracking-[-0.02em] sm:text-base">{value}</p>
+      <p className="break-words text-xs leading-4 font-bold tracking-[-0.02em] sm:text-base sm:leading-5">{value}</p>
     </div>
   );
 }

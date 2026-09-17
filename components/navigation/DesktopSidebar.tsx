@@ -39,7 +39,7 @@ export function DesktopSidebar({ profile, userEmail, daysToRace }: DesktopSideba
   const displayName = profile?.firstName || userEmail?.split("@")[0] || "Atleta";
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] border-r border-line/80 bg-white/85 px-5 py-7 backdrop-blur-xl lg:flex lg:flex-col">
+    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] border-r border-line/80 bg-white/85 px-5 py-7 backdrop-blur-xl min-[1200px]:flex min-[1200px]:flex-col">
       <Link
         href="/dashboard"
         className="mb-10 flex items-center gap-3 rounded-2xl px-2 focus-visible:rounded-2xl"

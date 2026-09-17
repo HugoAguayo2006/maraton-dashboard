@@ -43,7 +43,7 @@ export default async function DashboardPage() {
             strengthCompleted={strengthIds.has(dashboardData.today.id)}
           />
         ) : (
-          <EmptyState icon={CalendarX2} title="Hoy no hay sesión programada" description="Disfruta la recuperación o registra una actividad libre." actionLabel="Registrar actividad" actionHref="/workouts/new" className="area-today min-h-[390px]" />
+          <EmptyState icon={CalendarX2} title="Hoy no hay sesión programada" description="Disfruta la recuperación o registra una actividad libre." actionLabel="Registrar actividad" actionHref="/workouts/new" className="area-today min-h-[300px] sm:min-h-[390px] min-[1200px]:min-h-[430px]" />
         )}
         <WeeklyProgressCard summary={dashboardData.weeklySummary} />
         {dashboardData.tomorrow ? (

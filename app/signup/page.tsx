@@ -14,7 +14,7 @@ export default async function SignupPage() {
   if (configured && (await getAuthenticatedUser())) redirect("/dashboard");
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-canvas px-4 py-8 sm:py-12">
+    <main className="relative min-h-screen min-h-dvh overflow-x-hidden bg-canvas px-4 py-8 sm:py-12">
       <div aria-hidden className="absolute -top-40 -right-28 size-[440px] rounded-full border-[80px] border-accent/5" />
       <div aria-hidden className="absolute -bottom-32 -left-28 size-80 rounded-full border-[55px] border-ink/[0.025]" />
 

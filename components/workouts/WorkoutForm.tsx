@@ -173,12 +173,12 @@ export function WorkoutForm({
           </div>
         </fieldset>
 
-        <div className="mt-5 flex items-center justify-between rounded-[20px] bg-ink p-4 text-white">
-          <div className="flex items-center gap-3">
+        <div className="mt-5 flex min-w-0 items-center justify-between gap-3 rounded-[20px] bg-ink p-4 text-white">
+          <div className="flex min-w-0 items-center gap-3">
             <span className="grid size-9 place-items-center rounded-xl bg-white/10"><Gauge size={18} /></span>
-            <div><p className="text-[10px] font-bold tracking-wide text-white/50 uppercase">Pace calculado</p><p className="mt-0.5 text-xs text-white/55">Tiempo ÷ distancia</p></div>
+            <div className="min-w-0"><p className="text-[10px] font-bold tracking-wide text-white/50 uppercase">Pace calculado</p><p className="mt-0.5 text-xs text-white/55">Tiempo ÷ distancia</p></div>
           </div>
-          <output className="text-xl font-bold tracking-[-0.04em]" aria-live="polite">{pace.replace(" ", "")}</output>
+          <output className="shrink-0 text-lg font-bold tracking-[-0.04em] sm:text-xl" aria-live="polite">{pace.replace(" ", "")}</output>
         </div>
       </section>
 
@@ -254,9 +254,9 @@ export function WorkoutForm({
       </section>
 
       <section className="app-card p-5 sm:p-7">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-2xl bg-success-soft text-success"><ListPlus size={19} /></span><div><p className="text-base font-bold">Parciales manuales</p><p className="mt-0.5 text-xs text-muted">Ritmo por kilómetro, si lo tienes</p></div></div>
-          <button type="button" onClick={addSplit} className="min-h-10 shrink-0 rounded-xl bg-ink px-3 text-xs font-bold text-white">+ Agregar km</button>
+        <div className="flex flex-col items-start gap-4 min-[390px]:flex-row min-[390px]:justify-between">
+          <div className="flex min-w-0 items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-success-soft text-success"><ListPlus size={19} /></span><div className="min-w-0"><p className="text-base font-bold">Parciales manuales</p><p className="mt-0.5 text-xs text-muted">Ritmo por kilómetro, si lo tienes</p></div></div>
+          <button type="button" onClick={addSplit} className="min-h-11 shrink-0 rounded-xl bg-ink px-3 text-xs font-bold text-white">+ Agregar km</button>
         </div>
         {showSplits && splits.length > 0 ? <div className="mt-6 space-y-3">
           {splits.map((split) => <div key={split.id} className="grid grid-cols-2 items-end gap-2 rounded-2xl bg-surface-subtle p-3 sm:grid-cols-[52px_1fr_1fr_88px_88px_40px]">
@@ -312,11 +312,11 @@ export function WorkoutForm({
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="block"><span className="mb-2 block text-xs font-bold text-muted">{label}</span>{children}</label>;
+  return <label className="block min-w-0"><span className="mb-2 block text-xs font-bold text-muted">{label}</span>{children}</label>;
 }
 
 function SmallField({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label><span className="mb-1 block text-[9px] font-bold text-muted uppercase">{label}</span>{children}</label>;
+  return <label className="min-w-0"><span className="mb-1 block text-[9px] font-bold text-muted uppercase">{label}</span>{children}</label>;
 }
 
 function DurationField({ label, name, value, onChange, max }: { label: string; name: string; value: string; onChange: (value: string) => void; max: number }) {

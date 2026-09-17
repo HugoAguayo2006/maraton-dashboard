@@ -26,12 +26,12 @@ export function QuickActions() {
             <Link
               key={action.href}
               href={action.href}
-              className="group flex min-h-12 items-center gap-3 rounded-2xl px-3 text-sm font-semibold transition-colors hover:bg-surface-subtle"
+              className="group flex min-h-12 min-w-0 items-center gap-3 rounded-2xl px-3 text-sm font-semibold transition-colors hover:bg-surface-subtle"
             >
               <span className="grid size-8 place-items-center rounded-xl bg-accent-soft text-accent">
                 <Icon size={16} />
               </span>
-              {action.label}
+              <span className="min-w-0 flex-1 break-words">{action.label}</span>
               <ArrowUpRight size={15} className="ml-auto text-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
           );
