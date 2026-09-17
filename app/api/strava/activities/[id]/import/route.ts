@@ -1,9 +1,18 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { DataAccessError } from "@/lib/data/errors";
 import { createWorkoutLog } from "@/lib/data/workouts";
 import { getStravaActivityBundle, inferRunActivityType, StravaError } from "@/lib/strava/client";
+
+const importSchema = z.object({
+  trainingPlanItemId: z.string().min(1).nullable().optional(),
+  rpe: z.number().int().min(1).max(10),
+  pain: z.number().int().min(0).max(10),
+  fatigue: z.number().int().min(0).max(10),
+  sleepHours: z.number().min(0).max(24),
+});
 
 export async function POST(
   request: Request,
@@ -14,16 +23,21 @@ export async function POST(
 
   try {
     const { id } = await params;
-    const body = await readBody(request);
+    const parsed = importSchema.safeParse(await readBody(request));
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Completa RPE, dolor, fatiga y horas de sueño con valores válidos." },
+        { status: 400 },
+      );
+    }
+    const body = parsed.data;
     const { activity, streams } = await getStravaActivityBundle(id);
     const distanceKm = activity.distance / 1000;
     if (!(distanceKm > 0) || !(activity.moving_time > 0)) {
       return NextResponse.json({ error: "La actividad no tiene distancia o tiempo válidos." }, { status: 400 });
     }
 
-    const planItemId = typeof body.trainingPlanItemId === "string" && body.trainingPlanItemId
-      ? body.trainingPlanItemId
-      : null;
+    const planItemId = body.trainingPlanItemId ?? null;
     const start = activity.start_latlng?.length === 2 ? activity.start_latlng : null;
     const workoutId = await createWorkoutLog({
       trainingPlanItemId: planItemId,
@@ -31,10 +45,10 @@ export async function POST(
       distanceKm: Math.round(distanceKm * 1000) / 1000,
       durationSeconds: activity.moving_time,
       averagePaceSeconds: Math.round(activity.moving_time / distanceKm),
-      rpe: null,
-      pain: null,
-      fatigue: null,
-      sleepHours: null,
+      rpe: body.rpe,
+      pain: body.pain,
+      fatigue: body.fatigue,
+      sleepHours: body.sleepHours,
       averageHr: typeof activity.average_heartrate === "number"
         ? Math.round(activity.average_heartrate)
         : null,
@@ -103,4 +117,3 @@ async function readBody(request: Request): Promise<Record<string, unknown>> {
     return {};
   }
 }
-

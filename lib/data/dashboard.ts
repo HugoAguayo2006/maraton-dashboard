@@ -164,6 +164,8 @@ function getRecoveryMetricsFromLogs(workouts: WorkoutLog[]): RecoveryMetrics {
     pain: latest?.pain ?? null,
     fatigue: latest?.fatigue ?? null,
     sleepHours: latest?.sleepHours ?? null,
+    distanceKm: latest?.distanceKm ?? null,
+    averagePace: latest?.averagePace ?? null,
   };
 }
 

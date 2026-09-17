@@ -1,4 +1,4 @@
-import { BatteryMedium, Gauge, MoonStar, ShieldCheck } from "lucide-react";
+import { BatteryMedium, Gauge, MoonStar, Route, ShieldCheck, Timer } from "lucide-react";
 import type { RecoveryMetrics } from "@/types/training";
 
 export function RecoveryCard({ recovery }: { recovery: RecoveryMetrics }) {
@@ -8,6 +8,8 @@ export function RecoveryCard({ recovery }: { recovery: RecoveryMetrics }) {
     { label: "Dolor", value: recovery.pain, suffix: "/10", icon: ShieldCheck, color: "bg-success" },
     { label: "Fatiga", value: recovery.fatigue, suffix: "/10", icon: BatteryMedium, color: "bg-warning" },
     { label: "Sueño", value: recovery.sleepHours, suffix: " h", icon: MoonStar, color: "bg-[#8071d8]" },
+    { label: "Distancia", value: recovery.distanceKm, suffix: " km", icon: Route, color: "bg-[#16a3a3]" },
+    { label: "Pace", value: recovery.averagePace?.replace(" ", "") ?? null, suffix: "", icon: Timer, color: "bg-[#e8558d]" },
   ];
 
   return (
@@ -21,7 +23,7 @@ export function RecoveryCard({ recovery }: { recovery: RecoveryMetrics }) {
           Último registro
         </span>}
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-6">
         {metrics.map((metric) => {
           const Icon = metric.icon;
           return (

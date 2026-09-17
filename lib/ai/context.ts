@@ -1,6 +1,7 @@
 import "server-only";
 
 import { requireUser } from "@/lib/auth";
+import { boltAppHelp } from "@/lib/ai/appHelp";
 import { boltReadTools } from "@/lib/ai/tools";
 import { addDays, differenceInCalendarDays, getTodayIso } from "@/lib/date";
 import { paceGuideEntries, practicalGuideEntries } from "@/lib/guide/data";
@@ -49,6 +50,7 @@ export async function buildBoltContext(pageContext: {
   return {
     generatedAt: new Date().toISOString(),
     pageContext: { type: pageContext.type, refId: contextRefId ? "selected" : null },
+    applicationHelp: boltAppHelp,
     athlete: athlete ? {
       age: athlete.age,
       weightKg: athlete.weightKg,

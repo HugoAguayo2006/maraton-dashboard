@@ -53,6 +53,39 @@ body {
 button, a, input, textarea, select, summary { -webkit-tap-highlight-color: transparent; }
 button, a, input, textarea, select { outline: none; }
 
+@media (hover: hover) and (pointer: fine) {
+  :where(
+    a[href],
+    button:not(:disabled),
+    summary,
+    select:not(:disabled),
+    label[for],
+    [role="button"]:not([aria-disabled="true"]),
+    [role="tab"]:not([aria-disabled="true"]),
+    input[type="button"]:not(:disabled),
+    input[type="submit"]:not(:disabled),
+    input[type="reset"]:not(:disabled),
+    input[type="checkbox"]:not(:disabled),
+    input[type="radio"]:not(:disabled),
+    input[type="range"]:not(:disabled),
+    input[type="file"]:not(:disabled),
+    input[type="color"]:not(:disabled),
+    input[type="date"]:not(:disabled),
+    input[type="time"]:not(:disabled)
+  ) {
+    cursor: pointer;
+  }
+
+  :where(
+    button:disabled,
+    select:disabled,
+    input:disabled,
+    [aria-disabled="true"]
+  ) {
+    cursor: not-allowed;
+  }
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
@@ -125,7 +158,7 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
 .dashboard-grid {
   display: grid;
   gap: 1rem;
-  grid-template-areas: "today" "weekly" "tomorrow" "longrun" "countdown" "bolt" "strength" "recovery" "chart" "recent" "actions";
+  grid-template-areas: "today" "weekly" "tomorrow" "longrun" "countdown" "strength" "recovery" "chart" "recent" "actions";
 }
 
 .area-today { grid-area: today; }
@@ -138,7 +171,6 @@ summary:focus-visible { box-shadow: 0 0 0 3px rgb(36 120 238 / 0.22); }
 .area-chart { grid-area: chart; }
 .area-recent { grid-area: recent; }
 .area-actions { grid-area: actions; }
-.area-bolt { grid-area: bolt; }
 
 input[type="range"] { accent-color: var(--accent); }
 
@@ -162,18 +194,18 @@ input[type="range"] { accent-color: var(--accent); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media (min-width: 768px) {
+  @media (min-width: 768px) {
   .dashboard-grid {
     gap: 1.25rem;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas: "today today" "weekly tomorrow" "longrun countdown" "bolt bolt" "strength strength" "recovery recovery" "chart chart" "recent actions";
+    grid-template-areas: "today today" "weekly tomorrow" "longrun countdown" "strength strength" "recovery recovery" "chart chart" "recent actions";
   }
 }
 
 @media (min-width: 1200px) {
   .dashboard-grid {
     grid-template-columns: minmax(0, 1.65fr) minmax(310px, 0.85fr);
-    grid-template-areas: "today weekly" "today tomorrow" "chart longrun" "chart countdown" "recovery bolt" "recovery strength" "recent actions";
+    grid-template-areas: "today weekly" "today tomorrow" "chart longrun" "chart countdown" "recovery strength" "recent actions";
   }
 }
 

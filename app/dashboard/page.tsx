@@ -11,26 +11,22 @@ import { TomorrowWorkoutCard } from "@/components/dashboard/TomorrowWorkoutCard"
 import { WeeklyMileageChart } from "@/components/dashboard/WeeklyMileageChart";
 import { WeeklyProgressCard } from "@/components/dashboard/WeeklyProgressCard";
 import { StrengthDashboardCard } from "@/components/dashboard/StrengthDashboardCard";
-import { BoltDashboardCard } from "@/components/bolt/BoltDashboardCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { isBoltConfigured } from "@/lib/ai/config";
 import { getDashboardData } from "@/lib/data/dashboard";
 import {
   getLatestStrengthSession,
   getNextStrengthPlanItem,
   getRecordedStrengthPlanItemIds,
 } from "@/lib/data/strength";
-import { getAllTrainingPlanItems } from "@/lib/data/trainingPlan";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const [dashboardData, latestStrength, nextStrength, recordedStrengthIds, plan] = await Promise.all([
+  const [dashboardData, latestStrength, nextStrength, recordedStrengthIds] = await Promise.all([
     getDashboardData(),
     getLatestStrengthSession(),
     getNextStrengthPlanItem(),
     getRecordedStrengthPlanItemIds(),
-    getAllTrainingPlanItems(),
   ]);
   const strengthIds = new Set(recordedStrengthIds);
 
@@ -63,7 +59,6 @@ export default async function DashboardPage() {
         ) : (
           <EmptyState icon={Flag} title="Configura tu carrera" description="Carga el perfil para activar el countdown." className="area-countdown min-h-48" />
         )}
-        {isBoltConfigured() && <BoltDashboardCard hasPlan={plan.length > 0} />}
         <RecoveryCard recovery={dashboardData.recovery} />
         <StrengthDashboardCard latest={latestStrength} nextPlan={nextStrength} />
         <WeeklyMileageChart data={dashboardData.mileageHistory} />

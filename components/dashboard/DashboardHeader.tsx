@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Bell } from "lucide-react";
 import { AthleteAvatar } from "@/components/profile/AthleteAvatar";
 import { formatShortDate } from "@/lib/format";
 import type { AthleteProfile } from "@/types/training";
@@ -26,13 +25,6 @@ export function DashboardHeader({ athlete, date }: DashboardHeaderProps) {
         </p>
       </div>
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          aria-label="Notificaciones"
-          className="hidden size-11 place-items-center rounded-full border border-line bg-white text-muted transition-colors hover:text-ink sm:grid"
-        >
-          <Bell size={19} />
-        </button>
         <Link
           href="/settings"
           aria-label="Abrir perfil"

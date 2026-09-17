@@ -14,7 +14,7 @@ import type { MileageWeek } from "@/types/training";
 export function WeeklyMileageChart({ data }: { data: MileageWeek[] }) {
   const hasMileage = data.some((week) => week.kilometers > 0 || (week.plannedKilometers ?? 0) > 0);
   return (
-    <section className="area-chart card-enter app-card min-h-[330px] p-5 sm:p-6">
+    <section className="area-chart card-enter app-card flex min-h-[330px] flex-col p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <span className="eyebrow">Volumen semanal</span>
@@ -25,7 +25,7 @@ export function WeeklyMileageChart({ data }: { data: MileageWeek[] }) {
           <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-accent-soft" /> Plan</span>
         </div>
       </div>
-      {hasMileage ? <div className="mt-5 h-[230px] w-full">
+      {hasMileage ? <div className="mt-5 min-h-[230px] w-full flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 0, left: -24, bottom: 0 }} barGap={-14}>
             <CartesianGrid vertical={false} stroke="#ededf1" strokeDasharray="3 5" />
@@ -64,7 +64,7 @@ export function WeeklyMileageChart({ data }: { data: MileageWeek[] }) {
           </BarChart>
         </ResponsiveContainer>
       </div> : (
-        <div className="mt-5 grid h-[230px] place-items-center rounded-2xl bg-surface-subtle text-center">
+        <div className="mt-5 grid min-h-[230px] flex-1 place-items-center rounded-2xl bg-surface-subtle text-center">
           <div><p className="text-sm font-bold">Sin volumen todavía</p><p className="mt-1 text-xs text-muted">La gráfica se activará con tu plan o primer registro.</p></div>
         </div>
       )}

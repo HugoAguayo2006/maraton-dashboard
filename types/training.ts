@@ -311,6 +311,8 @@ export interface RecoveryMetrics {
   pain: number | null;
   fatigue: number | null;
   sleepHours: number | null;
+  distanceKm: number | null;
+  averagePace: string | null;
 }
 
 export interface MileageWeek {

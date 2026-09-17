@@ -1,4 +1,5 @@
 import type { EffortType, SessionType } from "@/types/training";
+import type { BoltAppHelp } from "@/lib/ai/appHelp";
 
 export type BoltContextType = "global" | "dashboard" | "plan" | "workout" | "progress" | "guide";
 export type BoltMessageRole = "user" | "assistant";
@@ -128,6 +129,7 @@ export interface BoltContextWorkout {
 export interface BoltContext {
   generatedAt: string;
   pageContext: { type: BoltContextType; refId: string | null };
+  applicationHelp: BoltAppHelp;
   athlete: {
     age: number | null;
     weightKg: number;

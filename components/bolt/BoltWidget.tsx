@@ -19,6 +19,8 @@ const starters = [
   "¿Estoy recuperado?",
   "Explícame mi plan",
   "Analiza mi semana",
+  "¿Cómo uso Marathon?",
+  "¿Qué puedes hacer?",
 ];
 
 interface WidgetContext {
@@ -184,6 +186,14 @@ export function BoltWidget() {
     setOpen(true);
   }
 
+  function toggleWidget() {
+    if (open) {
+      closeWidget();
+      return;
+    }
+    openDefault();
+  }
+
   function restartChat() {
     if (loading || loadingHistory) return;
     setConversation(null);
@@ -204,12 +214,19 @@ export function BoltWidget() {
     <>
       <button
         type="button"
-        onClick={openDefault}
-        className="pressable fixed right-4 bottom-[calc(6.25rem+env(safe-area-inset-bottom))] z-[60] grid size-13 place-items-center rounded-full bg-ink text-white shadow-[0_14px_38px_rgba(17,17,20,.28)] lg:right-6 lg:bottom-6"
-        aria-label="Abrir Bolt AI"
-        title="Bolt AI · Tu entrenador inteligente"
+        onClick={toggleWidget}
+        className={`group fixed right-4 flex items-center gap-2 text-left lg:right-6 lg:bottom-6 ${open ? "bottom-[calc(1.25rem+env(safe-area-inset-bottom))] z-[90]" : "bottom-[calc(6.25rem+env(safe-area-inset-bottom))] z-[60]"}`}
+        aria-label={open ? "Cerrar Bolt AI" : "Abrir Bolt AI"}
+        aria-expanded={open}
+        title={open ? "Cerrar Bolt AI" : "Bolt AI · Tu entrenador inteligente"}
       >
-        <Zap size={21} fill="currentColor" />
+        {!open && <span className="max-w-48 rounded-[18px] border border-line bg-white px-3.5 py-2.5 text-ink shadow-[0_10px_30px_rgba(17,17,20,.12)] transition-transform group-hover:-translate-y-0.5 sm:max-w-56">
+          <span className="block text-[11px] font-bold">Hola, soy Bolt AI</span>
+          <span className="mt-0.5 block text-[10px] leading-4 font-medium text-muted">¿En qué puedo ayudarte?</span>
+        </span>}
+        <span className="grid size-13 shrink-0 place-items-center rounded-full bg-ink text-white shadow-[0_14px_38px_rgba(17,17,20,.28)] transition-transform group-hover:-translate-y-0.5 group-active:scale-[.985]">
+          <Zap size={21} fill="currentColor" />
+        </span>
       </button>
 
       {open && <div className="fixed inset-0 z-[80] bg-ink/20 backdrop-blur-[2px] lg:pointer-events-none lg:bg-transparent lg:backdrop-blur-none" onMouseDown={(event) => { if (event.target === event.currentTarget) closeWidget(); }}>
@@ -225,7 +242,7 @@ export function BoltWidget() {
             {loadingHistory ? <Thinking text="Bolt AI está revisando tu contexto…" /> : messages.length === 0 ? (
               <div>
                 <div className="rounded-[22px] bg-[linear-gradient(145deg,#111114,#292933)] p-5 text-white"><Sparkles size={20} className="text-[#8dbdff]" /><h3 className="mt-5 text-lg font-bold tracking-[-0.035em]">¿En qué te ayudo hoy?</h3><p className="mt-2 text-xs leading-5 text-white/60">Ya conozco tu plan, tu carrera objetivo y tus registros recientes.</p></div>
-                <div className="mt-4 grid grid-cols-2 gap-2">{starters.map((starter) => <button key={starter} type="button" onClick={() => void submitMessage(starter)} className="min-h-14 rounded-2xl border border-line bg-surface-subtle px-3 py-2 text-left text-[11px] leading-4 font-semibold hover:border-accent/25">{starter}</button>)}</div>
+                <div className="mt-4 grid grid-cols-2 gap-2">{starters.map((starter) => <button key={starter} type="button" onClick={() => void submitMessage(starter)} className="min-h-14 cursor-pointer rounded-2xl border border-line bg-surface-subtle px-3 py-2 text-left text-[11px] leading-4 font-semibold hover:border-accent/25">{starter}</button>)}</div>
               </div>
             ) : <div className="space-y-4">{messages.map((message) => <ChatMessage key={message.id} message={message} />)}</div>}
             {proposal && <PlanChangeCard proposal={proposal} loading={loading} onApply={applyProposal} onReject={rejectProposal} />}
