@@ -1,4 +1,4 @@
-# Marathon Dashboard
+# Run Dashboard
 
 Aplicación mobile-first para administrar una preparación de carrera. Incluye autenticación, perfil y evento objetivo, plan prescrito, registro avanzado de carrera y fuerza, importación desde Strava, dashboard diario, guía, métricas de progreso y Bolt AI como entrenador inteligente contextual.
 
@@ -98,7 +98,7 @@ AI_MAX_CHAT_REQUESTS=30
 AI_MAX_PLAN_GENERATIONS=4
 ```
 
-`GEMINI_API_KEY` nunca debe usar el prefijo `NEXT_PUBLIC_`, incluirse en el repositorio o exponerse desde un Client Component. `GEMINI_PLAN_MODEL` y `GEMINI_PLAN_FALLBACK_MODEL` usan modelos rápidos para la salida estructurada extensa del plan; `GEMINI_FALLBACK_MODEL` corresponde al chat. Si `AI_ENABLED` no es exactamente `true` o falta la key, todo Marathon continúa funcionando y la interfaz de Bolt se mantiene oculta.
+`GEMINI_API_KEY` nunca debe usar el prefijo `NEXT_PUBLIC_`, incluirse en el repositorio o exponerse desde un Client Component. `GEMINI_PLAN_MODEL` y `GEMINI_PLAN_FALLBACK_MODEL` usan modelos rápidos para la salida estructurada extensa del plan; `GEMINI_FALLBACK_MODEL` corresponde al chat. Si `AI_ENABLED` no es exactamente `true` o falta la key, todo Run Dashboard continúa funcionando y la interfaz de Bolt se mantiene oculta.
 
 ### Generación y cambios de plan
 

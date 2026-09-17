@@ -19,7 +19,7 @@ const starters = [
   "¿Estoy recuperado?",
   "Explícame mi plan",
   "Analiza mi semana",
-  "¿Cómo uso Marathon?",
+  "¿Cómo uso Run Dashboard?",
   "¿Qué puedes hacer?",
 ];
 

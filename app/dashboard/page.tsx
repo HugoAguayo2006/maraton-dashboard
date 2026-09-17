@@ -13,6 +13,7 @@ import { WeeklyProgressCard } from "@/components/dashboard/WeeklyProgressCard";
 import { StrengthDashboardCard } from "@/components/dashboard/StrengthDashboardCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getDashboardData } from "@/lib/data/dashboard";
+import { getDailyInspiration } from "@/lib/data/dailyInspiration";
 import {
   getLatestStrengthSession,
   getNextStrengthPlanItem,
@@ -22,17 +23,18 @@ import {
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
-  const [dashboardData, latestStrength, nextStrength, recordedStrengthIds] = await Promise.all([
+  const [dashboardData, latestStrength, nextStrength, recordedStrengthIds, inspiration] = await Promise.all([
     getDashboardData(),
     getLatestStrengthSession(),
     getNextStrengthPlanItem(),
     getRecordedStrengthPlanItemIds(),
+    getDailyInspiration(),
   ]);
   const strengthIds = new Set(recordedStrengthIds);
 
   return (
     <>
-      <DashboardHeader athlete={dashboardData.athlete} date={dashboardData.referenceDate} />
+      <DashboardHeader athlete={dashboardData.athlete} date={dashboardData.referenceDate} inspiration={inspiration} />
       <div className="dashboard-grid">
         {dashboardData.today ? (
           <TodayWorkoutCard

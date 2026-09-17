@@ -18,9 +18,10 @@ export const boltAppHelp: BoltAppHelp = {
     {
       section: "Dashboard",
       path: "/dashboard",
-      purpose: "Resume la sesión de hoy, avance semanal, volumen reciente, recuperación, próxima tirada larga, fuerza y entrenamientos recientes.",
+      purpose: "Muestra una inspiración diaria y resume la sesión de hoy, avance semanal, volumen reciente, recuperación, próxima tirada larga, fuerza y entrenamientos recientes.",
       steps: [
         "Abre Dashboard desde Inicio.",
+        "La frase o el versículo del día aparece junto al saludo y cambia diariamente.",
         "Usa los botones de la sesión de hoy para registrar una carrera, fuerza o una actividad libre.",
         "Usa las acciones rápidas para abrir Plan, Progreso, Guía o los formularios de registro.",
       ],
@@ -61,7 +62,7 @@ export const boltAppHelp: BoltAppHelp = {
       purpose: "Guarda una carrera con fecha, tipo, distancia, duración, pace calculado, sensaciones y datos opcionales.",
       steps: [
         "Selecciona la fecha y, si corresponde, vincula una sesión pendiente del plan.",
-        "Captura distancia y duración; Marathon calcula el pace.",
+        "Captura distancia y duración; Run Dashboard calcula el pace.",
         "Registra RPE, dolor, fatiga, sensación, sueño, nutrición, hidratación, ubicación, desnivel, frecuencia cardiaca, notas o parciales disponibles y guarda.",
       ],
     },
@@ -71,7 +72,7 @@ export const boltAppHelp: BoltAppHelp = {
       purpose: "Conecta una cuenta mediante OAuth e importa actividades sin duplicarlas.",
       steps: [
         "Ve a Configuración, Integraciones y pulsa Conectar con Strava.",
-        "Autoriza el acceso en Strava y vuelve a Marathon.",
+        "Autoriza el acceso en Strava y vuelve a Run Dashboard.",
         "Ve a Registrar entrenamiento, Importar de Strava, selecciona una actividad y confirma la importación.",
       ],
     },
@@ -118,7 +119,7 @@ export const boltAppHelp: BoltAppHelp = {
     {
       section: "Bolt AI",
       path: "Botón flotante con rayo",
-      purpose: "Responde sobre entrenamiento y sobre el uso de Marathon usando el contexto privado de la cuenta iniciada.",
+      purpose: "Responde sobre entrenamiento y sobre el uso de Run Dashboard usando el contexto privado de la cuenta iniciada.",
       steps: [
         "Pulsa el botón flotante con el rayo desde cualquier sección protegida.",
         "Pregunta por tus datos, tu plan o cómo usar una funcionalidad.",
@@ -130,7 +131,7 @@ export const boltAppHelp: BoltAppHelp = {
     "El plan es lo prescrito; Entrenamientos y Fuerza guardan lo que realmente se realizó. Vincular un registro actualiza el cumplimiento, pero no sustituye la fuente original del plan.",
     "Cada cuenta solo puede consultar su propia información y mantiene su propio chat, plan, registros e integraciones.",
     "Una vista previa de Bolt AI no modifica nada hasta que el atleta pulsa Guardar plan o confirma explícitamente un cambio.",
-    "Strava no requiere suscripción de pago del atleta para la conexión básica usada por Marathon.",
+    "Strava no requiere suscripción de pago del atleta para la conexión básica usada por Run Dashboard.",
   ],
   boltCapabilities: [
     "Puede explicar cualquier sección incluida en este manual y dar instrucciones paso a paso.",

@@ -14,6 +14,7 @@ import {
   TimerReset,
 } from "lucide-react";
 import { logout } from "@/app/actions/auth";
+import { AppLogo } from "@/components/branding/AppLogo";
 import { AthleteAvatar } from "@/components/profile/AthleteAvatar";
 import type { AthleteProfile } from "@/types/training";
 
@@ -44,12 +45,10 @@ export function DesktopSidebar({ profile, userEmail, daysToRace }: DesktopSideba
         className="mb-10 flex items-center gap-3 rounded-2xl px-2 focus-visible:rounded-2xl"
         aria-label="Ir al dashboard"
       >
-        <span className="grid size-10 place-items-center rounded-[14px] bg-ink text-white shadow-sm">
-          <span className="h-4 w-4 rotate-45 rounded-[5px] border-[3px] border-white" />
-        </span>
+        <AppLogo className="size-12" priority />
         <span>
           <span className="block text-[10px] font-bold tracking-[0.18em] text-muted uppercase">
-            Marathon
+            Run
           </span>
           <span className="block text-[17px] font-bold tracking-[-0.02em]">
             Dashboard

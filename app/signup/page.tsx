@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ShieldCheck, Sparkles } from "lucide-react";
 import { SignupForm } from "@/components/auth/SignupForm";
+import { AppLogo } from "@/components/branding/AppLogo";
 import { getAuthenticatedUser } from "@/lib/auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -19,11 +20,9 @@ export default async function SignupPage() {
 
       <div className="relative mx-auto w-full max-w-3xl">
         <div className="mb-7 flex items-center justify-center gap-3">
-          <span className="grid size-11 place-items-center rounded-[15px] bg-ink text-white shadow-sm">
-            <span className="h-4 w-4 rotate-45 rounded-[5px] border-[3px] border-white" />
-          </span>
+          <AppLogo priority />
           <div>
-            <span className="block text-[10px] font-bold tracking-[0.18em] text-muted uppercase">Marathon</span>
+            <span className="block text-[10px] font-bold tracking-[0.18em] text-muted uppercase">Run</span>
             <span className="block text-lg font-bold tracking-[-0.025em]">Dashboard</span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Activity, ShieldCheck, Sparkles } from "lucide-react";
+import { ShieldCheck, Sparkles } from "lucide-react";
+import { AppLogo } from "@/components/branding/AppLogo";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { getAthleteProfile } from "@/lib/data/athlete";
 import { isAthleteProfileComplete } from "@/lib/profile/profile";
@@ -16,11 +17,9 @@ export default async function OnboardingPage() {
       <div aria-hidden className="absolute -top-40 -right-28 size-[440px] rounded-full border-[80px] border-accent/5" />
       <div className="relative mx-auto w-full max-w-2xl">
         <div className="mb-6 flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-[15px] bg-ink text-white shadow-sm">
-            <Activity size={21} />
-          </span>
+          <AppLogo priority />
           <div>
-            <span className="block text-[10px] font-bold tracking-[0.18em] text-muted uppercase">Marathon</span>
+            <span className="block text-[10px] font-bold tracking-[0.18em] text-muted uppercase">Run</span>
             <span className="block text-lg font-bold tracking-[-0.025em]">Tu punto de partida</span>
           </div>
         </div>

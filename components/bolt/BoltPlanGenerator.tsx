@@ -164,7 +164,7 @@ export function BoltPlanGenerator({
       <section className="app-card mx-auto max-w-2xl p-6 text-center sm:p-9">
         <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-surface-subtle text-muted"><Zap size={21} /></span>
         <h1 className="mt-5 text-2xl font-bold tracking-[-0.04em]">Bolt AI está desactivado</h1>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">El plan manual, tus entrenamientos y el resto de Marathon siguen disponibles normalmente.</p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">El plan manual, tus entrenamientos y el resto de Run Dashboard siguen disponibles normalmente.</p>
         <Link href="/plan" className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-ink px-5 text-sm font-bold text-white"><ArrowLeft size={17} /> Volver al plan</Link>
       </section>
     );
